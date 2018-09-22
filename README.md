@@ -9,7 +9,7 @@ _in progress_
 
 ## Workflow
 
-* [All programs and scripts involved in this study](Description_programs.md)
+* [All programs and scripts involved in this study](Description_programs.md) - a giant list with comments
 * [Some comments on data formats](Description_data.md)
 * [Misc comments on early stages of processing](Description_misc.md)
 
