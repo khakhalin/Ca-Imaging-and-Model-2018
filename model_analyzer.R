@@ -47,9 +47,9 @@ dgs = dg %>% group_by(type,stage,var,rewire) %>% summarize(
   ci = -s/sqrt(n)*qt(0.025,df=n-1)) # Averages and cis
 head(dgs)
 
-# Plot Averages only
+# Plot Averages only (assuming that type is fixed, but rewire is not)
 ggplot(dgs,aes(stage,m,color=rewire)) + theme_bw() +
-  geom_point() + geom_line(aes(group=type)) +
+  geom_point() + geom_line(aes(group=rewire)) +
   facet_wrap(~var,scales = "free_y") +
   theme(axis.text.y=element_text(size=6),
         strip.background=element_rect(linetype='blank',fill='white'),
@@ -57,21 +57,25 @@ ggplot(dgs,aes(stage,m,color=rewire)) + theme_bw() +
         panel.grid.minor = element_blank()) +
   NULL
 
-# All values and averages
-ggplot(data=dg,aes(stage,value,color=type)) + theme_bw() +
-  geom_point(alpha=0.5) + geom_line(aes(group=file),alpha=0.2) +
+# All values and averages for one TYPE, but with rewires. Take a while to render
+ggplot(data=dg,aes(stage,value,color=rewire)) + theme_bw() +
+  geom_point(alpha=0.5) + 
+  geom_line(data=subset(dg,rewire=="original"),aes(group=file),alpha=0.3) +
   facet_wrap(~var,scales = "free_y") +
   geom_point(data=dgs,aes(stage,m),color="black") +
-  geom_line(data=dgs,aes(stage,m,group=type),color="black") +
+  geom_line(data=dgs,aes(stage,m,group=rewire),color="black") +
   theme(axis.text.y=element_text(size=6),
         strip.background=element_rect(linetype='blank',fill='white'),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
   NULL
+# It's impossible to connect rewired points; rewires are random, so we have to subset geom_line(),
+# to only connect "proper" (original) points.
 
 # Zoom in on cyclicity in particular
-ggplot(data=d,aes(stage,cycl,color=type)) + theme_bw() +
-  geom_point() + geom_line(aes(group=file)) +
+ggplot(data=d,aes(stage,eff,color=rewire)) + theme_bw() +
+  geom_point(alpha=0.5) + 
+  geom_line(data=subset(d,rewire=="original"),aes(group=file),alpha=0.3) +
   scale_y_log10() +
   NULL
 

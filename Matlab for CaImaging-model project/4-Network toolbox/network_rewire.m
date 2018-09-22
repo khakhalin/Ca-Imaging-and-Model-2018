@@ -1,16 +1,22 @@
 function w = network_rewire(w,m)
 % w = network_rewire(w,m)
 % w = network_rewire(w)
-% Maslov degree-preserving cross-wiring.
+% Degree-preserving cross-wiring.
 % m is the number of shuffles to perform (default m=3*Nedges)
 
 % Oct 02 2017: Verified as functional.
 % Aug 06 2018: Updated so that zero-edges are now "swapped", as it doesn't do anything, which made it disfunctional on sparce graphs
 
 if(nargin<1) % Test
-    w = eye(100);
-    w = [w(end,:); w(1:end-1,:)];
-    figure; myplot(network_rewire(w));
+    fprintf('Testing network rewire. In both pairs, both lines should be the same.\n');
+    w = floor(0.1+rand(100));
+    fprintf('In-degrees:\n');
+    fprintf('%2d ',histcounts(sum(               w,1),(1:40)-0.5)); fprintf('\n');
+    fprintf('%2d ',histcounts(sum(network_rewire(w),1),(1:40)-0.5)); fprintf('\n');
+    fprintf('Out-degrees:\n');
+    fprintf('%2d ',histcounts(sum(               w,2),(1:40)-0.5)); fprintf('\n');
+    fprintf('%2d ',histcounts(sum(network_rewire(w),2),(1:40)-0.5)); fprintf('\n');
+    w = 0; % (To suppress output)
 end
 
 n = size(w,1);

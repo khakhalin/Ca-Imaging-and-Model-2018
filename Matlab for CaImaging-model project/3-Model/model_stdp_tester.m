@@ -30,7 +30,7 @@ end
 if(nargin<2); oneFlag = 0; end;                     % If not given, assume that we want full analysis, not just one plot
 M = [];                                             % In this structure we will keep a table of all data. See functions PUSH, REMEMBER, and the saving block below
 
-nRewires = 0;                                       % If >0, for each normal analysis also performs NREWIRES analyses on randomly rewired data
+nRewires = 1;                                       % If >0, for each normal analysis also performs NREWIRES analyses on randomly rewired data
 
 % The main figure is required as I use it to shuffle handles around, so tolerate it. Can't switch it off.
 flagFigDeg = 0;                                     % Whether we want a figure with degree histograms or not
