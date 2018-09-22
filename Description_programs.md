@@ -93,29 +93,17 @@ A collection of different centrality measures I coded, as well as 1-2 global gra
 
 My attempts to build a useful cyclicity measure that for now failed. So it may not be included in the final product; we'll see.
 
-
-
-## Helper programs
-
-### caimaging_extra_figures1
-
-Builds all kinds of hard-coded figures for the paper.
-
-### caimaging_graph_given_degree
-Tries to build a graph with a given degree distribution, for illustration purposes. Doesn't always do a good job. Can work both on directed and undirected graphs.
-
-### graph_structure_tester
-
-A toy model (build a graph manually, then gradually destroy it) that can be used to assess the validity of different network measures. 
-Abandoned and untested (potentially obsolete) utilities
-
 ### network_flow
 
-Obsolete. Used to calculate the network flow (those "new" measures I introduced). Could be called from the analysis program, or from the model. Includes a built-in tester. Now however these measures are re-implemented in myCentrality and maybe, to some extent, myCyclicity, so this realization is abandoned.
+Calculates flow hierarchy and reverse flow hierarchy, based on Katz centrality.
 
-### caimaging_draw_spikes
 
-Not used; abandoned.
+
+## Misc programs
+
+### caimaging_extra_figures1 (also 2 and 3)
+
+Builds several hard-coded figures for the paper.
 
 
 ## Third-party programs
