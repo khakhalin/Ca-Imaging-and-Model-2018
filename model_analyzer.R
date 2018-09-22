@@ -1,4 +1,6 @@
-# Script to analyze model outputs
+# ========================
+# Script to analyze model outputs.
+# ========================
 
 require(tidyr)
 require(dplyr)
@@ -6,40 +8,47 @@ require(ggplot2)
 
 rm(list = ls())  # Clear workspace
 
-d <- read.table("C:/Users/Arseny/Documents/3_Modeling/modelAnalysis180918 slide looming.csv",sep=",",header=T)
-
+d <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180919 slide looming - with 50 rewirings for each.csv",sep=",",header=T)
 names(d)
 
-d <- d %>% select (-c(asII,asIO,asOI,asOO,rDistWei,nPCAto80)) # Drop assortativities as we don't like them anymore
-      # And some other useless measures as welll
+# For old files: drop assortativities (useless), as well as some other low-impact measures
+# d <- d %>% select (-c(asII,asIO,asOI,asOO,rDistWei,nPCAto80)) 
 
-dg <- gather(d,var,value,-file,-type,-competition,-stage)
-# Put measures in a somewhat meaningful order:
-dg$var <- factor(dg$var,levels=c(
-        "file","type","competition","stage",
-        "fullBrainSel","meanSel","shareSelCells","sel90perc","sel90m50",
-        "sumOTpredict","bestPredict",
-        "fullBrainSel_SC","meanSel_SC","shareSelCells_SC","sel90perc_SC","sel90m50_SC",
-        "rPosSel","rPosInf","rSelInf",
-        "rDirWei","rDistWei","mDistWei",
-        "rSelClu","rCluSpk","rSelNet","rSelRnt",
-        "rSelGth","rSelIns","selAssort","shESelGrow","selEGrowth",
-        "gammaIn","gammaOu","deg0","deg12","deg5p",
-        "nRichTo80F","nRichTo80C","nPCAto80",
-        "nClusters","clustVarExplained","clusterPreference","clusterCompactness","clustPrefPval",
-        "rSelSpk","rSelfcSelfs","rSelfcSelsc",
-        "eff","modul","clust","flow","revFlow","cycl"))
+d <- d %>% select (-c(nPCAto80)) 
+
+dg <- gather(d,var,value,-file,-type,-competition,-stage,-rewire)
+dg$var <- factor(dg$var)
+levels(dg$var) # List of levels (different measures we have)
+
+# Let's try to put measures in a somewhat meaningful order
+levelSequence <- c(
+  "file","type","competition","stage",
+  "fullBrainSel","meanSel","shareSelCells","sel90perc","sel90m50",
+  "sumOTpredict","bestPredict",
+  "fullBrainSel_SC","meanSel_SC","shareSelCells_SC","sel90perc_SC","sel90m50_SC",
+  "rPosSel","rPosInf","rSelInf",
+  "rDirWei","rDistWei","mDistWei",
+  "rSelClu","rCluSpk","rSelNet","rSelRnt",
+  "rSelGth","rSelIns","selAssort","shESelGrow","selEGrowth",
+  "gammaIn","gammaOu","deg0","deg12","deg5p",
+  "nRichTo80F","nRichTo80C","nPCAto80",
+  "nClusters","clustVarExplained","clusterPreference","clusterCompactness","clustPrefPval",
+  "rSelSpk","rSelfcSelfs","rSelfcSelsc",
+  "eff","modul","clust","flow","revFlow","cycl")
+existingLevels <- levels(dg$var)
+dg$var <- factor(dg$var,levels=intersect(levelSequence,existingLevels))
 head(dg)
 
-dgs = dg %>% group_by(type,stage,var) %>% summarize(
+# Summary data frame
+dgs = dg %>% group_by(type,stage,var,rewire) %>% summarize(
   m = mean(value),
   n = n(),
   s = sd(value),
   ci = -s/sqrt(n)*qt(0.025,df=n-1)) # Averages and cis
 head(dgs)
 
-# Averages
-ggplot(dgs,aes(stage,m,color=type)) + theme_bw() +
+# Plot Averages only
+ggplot(dgs,aes(stage,m,color=rewire)) + theme_bw() +
   geom_point() + geom_line(aes(group=type)) +
   facet_wrap(~var,scales = "free_y") +
   theme(axis.text.y=element_text(size=6),

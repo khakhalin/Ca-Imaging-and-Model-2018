@@ -55,9 +55,13 @@ These programs can be rerun without harm.
 
 Despite the name, the logic here is that it contains all analysis that doesn't involve the connectivity reconstruction graph. Selectivity, PCA, nice mugshot, a hunt for cell types, activation trajectories. Hard-codes which brains are read, so this should be changed manually by commenting and uncommenting individual rows. Contains a bunch of flags and switches (around row 70) that turn different types of analysis and figures on and off.
 
-### graph_structure_analyzer
+### graph_structure_analyzer.m
 
 Graph analysis. Relies on the data files created by caimaging_structure (file names and data folders are hard-coded in the header of the program). For each file then calls an internal processing routine (first function, located in the same m-file, below the main function). It means that all constants and switches that turn different parts of the code on and off are defined in the 1st subroutine (approx. row 70 and below), not in the main function header. Most analysis blocks can be turned on and on with flags (constants), but some also contain some lazy hard-coded switches (if(1) or if(0)), which is particularly true for troubleshooting figures. The main output goes into console with fprintf, which means that in most cases two functional blocks cannot be active at the same time, as it will make lines intercolate. Better get one table first, then another table later, etc.
+
+### caimg_network_analysis.r
+
+R script that reads network analysis data from "caimg_network_measures" (both for original networks, and for networks reshuffled in two different ways), and then compares them, as well as makes some nice plots.
 
 
 
@@ -106,6 +110,7 @@ Calculates flow hierarchy and reverse flow hierarchy, based on Katz centrality.
 Builds several hard-coded figures for the paper.
 
 
+
 ## Third-party programs
 
 ### kmeans_opt
@@ -144,19 +149,23 @@ strengths_dir.m
 
 ## Model
 
-### model_stdp_multisens_1
+### model_stdp_multisens.m
 
 Main program to generate data. Set the constants and flags in the header, then run it from the console in a cycle. It would generate a bunch of files, name them according to the YYMMDDhhmmss convention, and save them in a certain folder.
 
-### model_stdp_tester
+### model_stdp_tester.m
 
 Main analysis program. Reads files from the model results folder, and analyzes them one by one. Calculates lots of different values, and tried to plot them all, as well as save them all in a separate file. The file name changes every day, so from day to day it won't overwrite the previous results, but WITHIN a day it WOULD overwrite the results, so be careful and rename the output files if you are analyzing stuff in batches. The file name is "modelAnalysisYYMMDD", in the "Modeling" folder.
 
 May be fairly slow, if there are lots of datasets to process.
 
-### model_stdp_curve_plotter
+### model_stdp_curve_plotter.m
 
 Reads the curves of how different network measures changed in time, as the model_stdp_multisens_1 program ran; from the model result files created by this program. Then plots them all on the same plot, creating a draft figure that can then be ported to Illustrator. The way it reads the data is very similar to model_stdp_tester, as the program was forked from it when the functionalities diverged.
+
+### model_analyzer.r
+
+Main analysis for all that random stuff that "model_stdp_tester" calculates and spits out.
 
 ### shotgun_testing
 

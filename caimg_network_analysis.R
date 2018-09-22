@@ -1,10 +1,15 @@
+# ========================
+# This program analyses actual Ca imaging data (processed in Matlab, saved in Excel, and then extracted
+# to CSV; see the hard-coded address below). Makes some nice plots.
+# ========================
+
 require(tidyr)
 require(dplyr)
 require(ggplot2)
 
 rm(list = ls())  # Clear workspace
 
-d <- read.table("C:/Users/Arseny/Documents/3_Modeling/network_measures_for_r_180908.csv",sep=",",header=T)
+d <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/caimg_network_measures.csv",sep=",",header=T)
 names(d)
 
 d2 <- gather(d,var,val,-Type,-Stage,-Name)

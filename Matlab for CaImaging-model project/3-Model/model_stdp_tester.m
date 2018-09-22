@@ -22,15 +22,15 @@ function varargout = model_stdp_tester(type,oneFlag)
 %%% ------------------------------------ Constants ------------------------------------
 % rng(3);                                           % Set the random generator seed: keep commented for normal runs
 
-inFolder = 'C:\Users\Arseny\Documents\3_Modeling\2018 Model outputs\';  % A folder to look for input files
-outFile = ['C:\Users\Arseny\Documents\3_Modeling\modelAnalysis' datestr(now,'yymmdd') '.csv'];     % A file to put all output values into
+inFolder = 'C:\Users\Arseny\Documents\7_Ca imaging\Model outputs\';  % A folder to look for input files
+outFile = ['C:\Users\Arseny\Documents\7_Ca imaging\Model analysis\' datestr(now,'yymmdd') '.csv'];     % A file to put all output values into
 if(nargin<1)
     type = 'all';                                   % What type of training files to collect
 end
 if(nargin<2); oneFlag = 0; end;                     % If not given, assume that we want full analysis, not just one plot
 M = [];                                             % In this structure we will keep a table of all data. See functions PUSH, REMEMBER, and the saving block below
 
-nRewires = 50;                                       % If >0, for each normal analysis also performs NREWIRES analyses on randomly rewired data
+nRewires = 0;                                       % If >0, for each normal analysis also performs NREWIRES analyses on randomly rewired data
 
 % The main figure is required as I use it to shuffle handles around, so tolerate it. Can't switch it off.
 flagFigDeg = 0;                                     % Whether we want a figure with degree histograms or not
@@ -111,7 +111,7 @@ for(iFile=1:length(fileList))
                     M = remember(M,'type',U.type);
                     M = remember(M,'competition',U.competitionMode);
                     M = remember(M,'stage',iStage);
-                    if(nRewires>0 && iWire==1); M = remember(M,'rewire','original'); end % Only add information about rewiring if needed,
+                    if(iWire==1); M = remember(M,'rewire','original'); end % If the graph wasn't rewired, mark it as such
                     if(nRewires>0 && iWire>1);  M = remember(M,'rewire','shuffled'); end % But add it properly
                     M = analyze(M,f.hF,U,iStage,iWire);         % Analyze (main function call)                
                     M = push(M);                                % This row of data is now complete
