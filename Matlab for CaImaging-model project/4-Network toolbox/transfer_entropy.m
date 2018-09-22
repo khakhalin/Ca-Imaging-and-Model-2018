@@ -5,8 +5,6 @@ function out = transfer_entropy(data,nCells,nBins,nShuffle)
 %
 % Note that all matrices are returned un-flipped (w_ij is i to j), even tho neuro-notation is often backwards (w_ij is j to i).
 % In othwer words, G(w) would be a correct graph, but if you want to propagate on this matrix, you'll have to do s = w'*s.
-%
-% See also: reshuffle_corr, caimaging_structure, selectivity_graph
 
 % My attempt at calculating TE.
 % Aug 18 2017: Created

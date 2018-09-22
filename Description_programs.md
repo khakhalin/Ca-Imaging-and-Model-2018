@@ -1,9 +1,11 @@
 Ca imaging project – Scripts involved
 ================================
 
-# Processing programs
+# Analysis of experimental data
 
-## Main pipeline, parts that should not be repeated
+## Main pipeline part 1: Data transformations
+
+Typically, these programs should be run only once, and never be run again.
 
 ### caimaging_read
 
@@ -35,9 +37,19 @@ Also builds a "mugshot" picture of each dataset, based on the timing of spiking,
 
 The routine returns all matrices (te, corr, p) in the "direct", unflipped format, so w_ij is a connection from i to j. It means that G(w) makes sense, but to run a process on this matrix you'd have to flip it: s = w'*s.
 
+### caimaging_mat2csv_batch
+
+Technical file that reads mat files and dumps them into csv. Inputs are hard-coded. Is only used when data needs to be passed to students. Before it can be reused, needs to be seriously revisited, as I'm not sure what data it's even saving (is it only the spike-series?).
+
+### caimaging_browser
+
+Interactive browser of cells; can be called by passing the data structure S. Is based on my general script scatterbrowser. Currently is not used.
 
 
-## Main pipeline, late stages of analysis that can be repeated
+
+## Main pipeline part 2: Analysis
+
+These programs can be rerun without harm.
 
 ### caimaging_pca
 
@@ -49,12 +61,7 @@ Graph analysis. Relies on the data files created by caimaging_structure (file na
 
 
 
-## Dependencies 
-
-### Borrowed dependencies: 
-
-several subroutines (mostly network and centrality measures) from this set of tools:
-https://sites.google.com/site/bctnet/measures/list 
+## Network analysis toolbox 
 
 ### transfer_entropy
 
@@ -74,13 +81,13 @@ Performs adaptive spectral clustering, by Ng Jordan Weiss algorithms, followed b
 
 Performs degree-preserving rewiring. Get an adjacency matrix and N shuffles, returns a new adjacency matrix.
 
-### selectivity_graph
+### selectivity_graph(w,sel,trueX,trueY)
 
-Draws the connectivity graph, with nodes colored according to some feature (such as selectivity), both in original coordinates and optimized coordinates. Is not heavily used, but seems to be up to date.
+Draws the connectivity graph, with nodes colored according to some feature (such as selectivity, or amplitude), both in original coordinates and optimized coordinates. Originally it also compared this _sel_ vector to several most common centrality measures for every node, but now this functionality is all commented out.
 
 ### myCentrality
 
-A collection of different centrality measures I coded, and some graph statistics. Take the adjacency matrix, returns either a column of centrality values, or one characteristic measure for the entire graph (open the program, and see what options are there).
+A collection of different centrality measures I coded, as well as 1-2 global graph statistics. Takes the adjacency matrix, returns either a column of centrality values, or one characteristic measure for the entire graph (open the program, and see what options are there).
 
 ### myCyclycity
 
@@ -105,14 +112,6 @@ Abandoned and untested (potentially obsolete) utilities
 ### network_flow
 
 Obsolete. Used to calculate the network flow (those "new" measures I introduced). Could be called from the analysis program, or from the model. Includes a built-in tester. Now however these measures are re-implemented in myCentrality and maybe, to some extent, myCyclicity, so this realization is abandoned.
-
-### caimaging_mat2csv_batch
-
-Technical file that reads mat files and dumps them into csv. Inputs are hard-coded. Is only used when data needs to be passed to students. Before it can be reused, needs to be seriously revisited, as I'm not sure what data it's even saving (is it only the spike-series?).
-
-### caimaging_browser
-
-Interactive browser of cells; can be called by passing the data structure S. Is based on my general script scatterbrowser. Currently is not used.
 
 ### caimaging_draw_spikes
 
