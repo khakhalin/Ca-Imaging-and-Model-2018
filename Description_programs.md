@@ -7,10 +7,6 @@ Ca imaging project – Scripts involved
 
 ### caimaging_read
 
-Obsolete; see caimaging_read2
-
-### caimaging_read2
-
 Reads all original Excel files (should be explicitly coded in the file). Saves them as mat files. The first step in processing. This is a fairly slow process.
 
 ### caimaging_basic_batch.m
