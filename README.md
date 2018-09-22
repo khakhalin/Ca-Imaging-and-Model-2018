@@ -5,7 +5,9 @@ Working title: Graph analysis of a collision detection network in the tectum, an
 
 ## Description
 
-_in progress_
+* [All programs and scripts involved in this study](Description_programs)
+* [Some comments on data formats](Description_data)
+* [Misc comments on early stages of processing](Description_misc)
 
 ## Workflow
 
