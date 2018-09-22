@@ -86,10 +86,6 @@ A collection of different centrality measures I coded, and some graph statistics
 
 My attempts to build a useful cyclicity measure that for now failed. So it may not be included in the final product; we'll see.
 
-### kmeans_opt
-
-Performs optimal k-means clustering using the elbow method (looks at the point when the improvement in variance explained becomes worse). It was not my program originally (it has attribution in the program file itself), but I changed the way it reports the share of explained variance.
-
 
 
 ## Helper programs
@@ -122,6 +118,41 @@ Interactive browser of cells; can be called by passing the data structure S. Is 
 
 Not used; abandoned.
 
+
+## Third-party programs
+
+### kmeans_opt
+
+(By By Sebastien De Landtsheer) Performs optimal k-means clustering using the elbow method (looks at the point when the improvement in variance explained becomes worse). I later changed the way it reports the share of explained variance, so the file is now modified compared to its original state.
+
+### Brain Connectivity Tools
+
+By Rubinov and Sporns (Rubinov M, Sporns O (2010) NeuroImage 52:1059-69.)
+https://sites.google.com/site/bctnet/
+
+List of programs from this toolbox that I use, or at least tried:
+
+assortativity_wei.m
+breadth.m
+breadthdist.m
+charpath.m
+clustering_coef_bd.m
+clustering_coef_wd.m
+diffusion_efficiency.m
+distance_bin.m
+distance_wei.m
+distance_wei_floyd.m
+efficiency_bin.m
+efficiency_wei.m
+generative_model.m
+makefractalCIJ.m
+mean_first_passage_time.m
+modularity_dir.m
+motif4struct_wei.m
+pagerank_centrality.m
+reachdist.m
+rich_club_wd.m
+strengths_dir.m
 
 
 ## Model
