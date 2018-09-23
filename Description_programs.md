@@ -46,7 +46,7 @@ Technical file that reads mat files and dumps them into csv. Inputs are hard-cod
 Interactive browser of cells; can be called by passing the data structure S. Is based on my general script scatterbrowser. Currently is not used.
 
 
-
+-------------------------------------------------------------------
 ## Main pipeline part 2: Analysis
 
 These programs can be rerun without harm.
@@ -64,7 +64,7 @@ Graph analysis. Relies on the data files created by caimaging_structure (file na
 R script that reads network analysis data from "caimg_network_measures" (both for original networks, and for networks reshuffled in two different ways), and then compares them, as well as makes some nice plots.
 
 
-
+-------------------------------------------------------------------
 ## Network analysis toolbox 
 
 ### transfer_entropy
@@ -102,15 +102,23 @@ My attempts to build a useful cyclicity measure that for now failed. So it may n
 Calculates flow hierarchy and reverse flow hierarchy, based on Katz centrality.
 
 
-
+-------------------------------------------------------------------
 ## Misc programs
 
 ### caimaging_extra_figures1 (also 2 and 3)
 
 Builds several hard-coded figures for the paper.
 
+### dispf
+
+My vectorized shortcut for sprintf(); it is not strictly speaking necessary, but I might have used it occasionally for console output.
+
+### myst
+
+Optimized output of p-values (guaranteed to fit them into 4 symbols, which is handy for output and plots).
 
 
+-------------------------------------------------------------------
 ## Third-party programs
 
 ### kmeans_opt
