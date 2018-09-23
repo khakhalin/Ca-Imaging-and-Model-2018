@@ -10,6 +10,7 @@ function varargout = model_stdp_tester(type,oneFlag)
 % Aug 02 2018: More daily improvements.
 % Aug 06 2018: Now functionality for rewiring analysis
 % Aug 08 2018: All curves averageing removed (it's now in model_stdp_curve_plotter.m anyway, so no need to duplicate it here)
+% Sep 23 2018: Figures are no optional
 
 % Depends on external: 
 %   network_rewire (only in nRewires>0 mode), 
@@ -29,64 +30,67 @@ if(nargin<1)
 end
 if(nargin<2); oneFlag = 0; end;                     % If not given, assume that we want full analysis, not just one plot
 M = [];                                             % In this structure we will keep a table of all data. See functions PUSH, REMEMBER, and the saving block below
+E = [];                                             % In this structure we'll keep all things that need only be calculated once. Most importantly - testing stimuli.
 
 nRewires = 1;                                       % If >0, for each normal analysis also performs NREWIRES analyses on randomly rewired data
 
-% The main figure is required as I use it to shuffle handles around, so tolerate it. Can't switch it off.
+flagFigMain = 1;                                    % Whether the main figure needs to be shown
 flagFigDeg = 0;                                     % Whether we want a figure with degree histograms or not
 flagFigJunk = 0;                                    % Whether a figure with other junk measures needs to be shown
 
 %%% -------- Read the data
 fprintf('Started. Looking for file type: %s\n',type);
-fileList = dir(inFolder);                       % List of files
-fileList = {fileList(3:end).name};              % Skip '.' and '..' that start the list (at least on Windows)
-if(oneFlag); fileList = fileList(1); end;       % If we need only one plot, let there be one plot
+fileList = dir(inFolder);                           % List of files
+fileList = {fileList(3:end).name};              	% Skip '.' and '..' that start the list (at least on Windows)
+if(oneFlag); fileList = fileList(1); end;           % If we need only one plot, let there be one plot
 
 %%% -------- Initialize the cumulative figure object
-f.hF = figure('color','white');
-for(i=1:18)
-    f.hp(i) = subplot(3,6,i); set(gca,'FontSize',8); hold on;
+E.flagFigMain = flagFigMain;          % Let the global environment know whether the figure is needed
+if(flagFigMain)
+    E.hF = figure('color','white');
 end
-title(f.hp(1),'Average selectivity');       set(f.hp(1),'YLim',[0 1]);
-title(f.hp(2),'Share of sel. cells');       set(f.hp(2),'YLim',[0 1]);
-title(f.hp(3),'sum(sel) predict. quality'); set(f.hp(3),'YLim',[0.3 1]);
-title(f.hp(4),'Crash Prediction quality');  set(f.hp(4),'YLim',[0.3 1]);
-title(f.hp(5),'r Dir-EdgeW');
-title(f.hp(6),'Deg dist power');
 
-title(f.hp(7),'%Edge sel2>sel1');                
-title(f.hp(8),'2');
-title(f.hp(9),'3');
-title(f.hp(10),'4');        
-title(f.hp(11),'5');
-
-%xlabel(f.hp(13),'Distance');        ylabel(f.hp(13),'Selectivity');
-%xlabel(f.hp(14),'Selectivity');     ylabel(f.hp(14),'Influence');
-title(f.hp(13),'r Pos-Sel');       xlabel(f.hp(13),'Stage');           set(f.hp(13),'YLim',[-0.5 1]);
-%title(f.hp(14),'r Pos-Influ');     xlabel(f.hp(14),'Stage');           set(f.hp(14),'YLim',[-0.5 1]);
-title(f.hp(14),'sel90perc');
-title(f.hp(15),'bubbliness');      xlabel(f.hp(15),'Stage');
+if(flagFigMain)
+    for(i=1:18)
+        E.hp(i) = subplot(3,6,i); set(gca,'FontSize',8); hold on;
+    end
+    title(E.hp(1),'Average selectivity');       set(E.hp(1),'YLim',[0 1]);
+    title(E.hp(2),'Share of sel. cells');       set(E.hp(2),'YLim',[0 1]);
+    title(E.hp(3),'sum(sel) predict. quality'); set(E.hp(3),'YLim',[0.3 1]);
+    title(E.hp(4),'Crash Prediction quality');  set(E.hp(4),'YLim',[0.3 1]);
+    title(E.hp(5),'r Dir-EdgeW');
+    title(E.hp(6),'Deg dist power');
+    title(E.hp(7),'%Edge sel2>sel1');                
+    title(E.hp(8),'2');
+    title(E.hp(9),'3');
+    title(E.hp(10),'4');        
+    title(E.hp(11),'5');
+    title(E.hp(13),'r Pos-Sel');       xlabel(E.hp(13),'Stage');           set(E.hp(13),'YLim',[-0.5 1]);    
+    title(E.hp(14),'sel90perc');
+    title(E.hp(15),'bubbliness');      xlabel(E.hp(15),'Stage');
+end
 
 if(flagFigDeg)
-    f.hF2 = figure('color','white');
+    E.hF2 = figure('color','white');
     for(i=1:10)
-        f.hp2(i) = subplot(2,5,i); set(gca,'FontSize',8); hold on;
+        E.hp2(i) = subplot(2,5,i); set(gca,'FontSize',8); hold on;
         set(gca,'YScale','log','YLim',[0.01 1],'XLim',[1 8],'XScale','log'); 
     end
 end
 if(flagFigJunk)
-    f.hFj = figure('color','white');
+    E.hFj = figure('color','white');
     for(i=1:15)
-        f.hpj(i) = subplot(3,5,i); set(gca,'FontSize',8); hold on;
+        E.hpj(i) = subplot(3,5,i); set(gca,'FontSize',8); hold on;
     end
 end
 
-f.flagFigDeg = flagFigDeg;
-f.flagFigJunk = flagFigJunk;
-set(f.hF,'UserData',f);
+if(flagFigMain)
+    E.flagFigDeg = flagFigDeg;
+    E.flagFigJunk = flagFigJunk;
+end
 
 
-%%% ------------ Main part
+%%% ------------------------------------------------------------------------ Main part ------------------------
 bagResults = [];                                % To keep all OUT values
 
 for(iFile=1:length(fileList))
@@ -100,8 +104,8 @@ for(iFile=1:length(fileList))
     if(strcmp(type,U.type) || strcmp(type,'all')) 	% Either correct experiment type or a wildcard
         fprintf('%s  - %s ',fileList{iFile},U.type);
         if(oneFlag)
-            M = analyze(M,f.hF,U,5);            % Analyze (main function call), but in this case for one graph only
-            close(f.hF);                        % No need to do the summary if there's no summary
+            M = analyze(M,E.hF,U,5);            % Analyze (main function call), but in this case for one graph only
+            close(E.hF);                        % No need to do the summary if there's no summary
             return;          
         else
             for(iStage=1:5)
@@ -113,8 +117,8 @@ for(iFile=1:length(fileList))
                     M = remember(M,'stage',iStage);
                     if(iWire==1); M = remember(M,'rewire','original'); end % If the graph wasn't rewired, mark it as such
                     if(nRewires>0 && iWire>1);  M = remember(M,'rewire','shuffled'); end % But add it properly
-                    M = analyze(M,f.hF,U,iStage,iWire);         % Analyze (main function call)                
-                    M = push(M);                                % This row of data is now complete
+                    [M,E] = analyze(M,E,U,iStage,iWire);         % Analyze <------------------------------------------------ (main function call)                
+                    M = push(M);                                % This row of data is now complete and needs to be finalized (pushed).
                     fprintf('.');
                 end
             end
@@ -143,7 +147,7 @@ end
 
 
 
-function M = analyze(M,hF,U,iStage,iWire)
+function [M,E] = analyze(M,E,U,iStage,iWire)
 % Analyze one of the w matrices (defined by STAGE argument) from this experiment.
 % hF - main figure handle
 % U - structure from the file, containing w and such
@@ -151,14 +155,12 @@ function M = analyze(M,hF,U,iStage,iWire)
 % iWire - if ==1, just analyze it. If >1, rewire for comparison, and mark accordingly.
 
 %%% ------------------ Hard-coded constants ------------------
-showFigures = 1;                                % Don't generate figures if called externally (saves time)
 nStim = 100;                                    % How many stimuli (of every type) to run
 nTickRecalibrate = 2000;                        % Number of ticks (not stim) for network overall excitability (th) recalibration before testing. 1000?
 nTick = 15;                                     % Length of one stimulus. For crash, as it is currenly described, 15 is enough
 
 %%% ------------------------------------ Load / reconstruct variables ------------------------------------
-% Load some control stuff from the figure:
-f = get(hF,'UserData');
+flagFigMain = E.flagFigMain;
 
 % Load model constants from the data variable:
 blur = U.blur;
@@ -353,12 +355,14 @@ deg0  = histDegIn(1)/sum(histDegIn);               M = remember(M,'deg0',deg0); 
 deg12 = sum(histDegIn(2:3))/sum(histDegIn);        M = remember(M,'deg12',deg12);  % 1-2 inputs
 deg5p = sum(histDegIn(6:end))/sum(histDegIn);      M = remember(M,'deg5p',deg5p);  % more than 5 inputs
 
-if(f.flagFigDeg)    
-    plot(f.hp2(0+iStage),0:9,histDegIn,'kx');    
-    plot(f.hp2(0+iStage),1:8,exp(degFitIn(2))*(1:8).^(gammaIn),'-','Color',[1 0.9 0.9]);    
-    plot(f.hp2(5+iStage),0:9,histDegOu,'kx');
-    plot(f.hp2(5+iStage),1:8,exp(degFitOu(2))*(1:8).^(gammaOu),'-','Color',[1 0.9 0.9]);
-    %plot(f.hp2(5+iStage),2:8,c2(2:8),'-','Color',[0.9 0.9 1]);
+if(flagFigMain)
+    if(E.flagFigDeg)    
+        plot(E.hp2(0+iStage),0:9,histDegIn,'kx');    
+        plot(E.hp2(0+iStage),1:8,exp(degFitIn(2))*(1:8).^(gammaIn),'-','Color',[1 0.9 0.9]);    
+        plot(E.hp2(5+iStage),0:9,histDegOu,'kx');
+        plot(E.hp2(5+iStage),1:8,exp(degFitOu(2))*(1:8).^(gammaOu),'-','Color',[1 0.9 0.9]);
+        %plot(f.hp2(5+iStage),2:8,c2(2:8),'-','Color',[0.9 0.9 1]);
+    end
 end
 
 %myFitType = fittype('exp(a*log(x))','independent','x');                % Sense-check. Fitting in log-space yields slightly different results than fitting in raw p-k space.
@@ -372,6 +376,7 @@ end
 % The question here: are all responses of the same type alike?
 % Cannot do on "S" though, as in the current implementation they are truly trial-by-trial randomized (unlike in the experiment)
 % Key variables: spikeHistory(time#,neuron#,stim#), stimType (a vector of 123s)
+
 respF = zeros(nTick*sum(stimType==1),nCells);
 respC = zeros(nTick*sum(stimType==3),nCells);
 counter = 0;
@@ -446,12 +451,12 @@ M = remember(M,'clustPrefPval',pval);
 
 %%% --------- Other misc measures ------
 % Key: 1 out-in, 2 in-out, 3 out-out, 4 in-in
-% asOI = assortativity_wei(U.stage(iStage).w',1); M = remember(M,'asOI',asOI);
-% asIO = assortativity_wei(U.stage(iStage).w',2); M = remember(M,'asIO',asIO);
-% asOO = assortativity_wei(U.stage(iStage).w',3); M = remember(M,'asOO',asOO);
+% asOI = assortativity_wei(U.stage(iStage).w',1); M = remember(M,'asOI',asOI);      # Old way of calculating assortativities
+% asIO = assortativity_wei(U.stage(iStage).w',2); M = remember(M,'asIO',asIO);      # that seems to be bugged by not supporting dir and wei at the same time,
+% asOO = assortativity_wei(U.stage(iStage).w',3); M = remember(M,'asOO',asOO);      # as asIO was consistently ==asOI, and it shouldn't be the case.
 % asII = assortativity_wei(U.stage(iStage).w',4); M = remember(M,'asII',asII);
 
-%asOI = myCentrality(U.stage(iStage).w','assoi');    M = remember(M,'asOI',asOI);
+%asOI = myCentrality(U.stage(iStage).w','assoi');    M = remember(M,'asOI',asOI);   # My functions for assortativity.
 %asIO = myCentrality(U.stage(iStage).w','assio');    M = remember(M,'asIO',asIO);
 %asOO = myCentrality(U.stage(iStage).w','assoo');    M = remember(M,'asOO',asOO);
 %asII = myCentrality(U.stage(iStage).w','assii');    M = remember(M,'asII',asII);
@@ -484,52 +489,50 @@ if(iWire>1)     % Reshuffled analysis - override marker style
     markerStyle = 'c.';
 end
 
-plot(f.hp(1),iStage,mean(selC),markerStyle);            
-plot(f.hp(2),iStage,mean(selC>0),markerStyle);                                                             
-plot(f.hp(3),iStage,predictionQualityNI,markerStyle);   
-plot(f.hp(4),iStage,predictionQuality,markerStyle);     
-plot(f.hp(5),iStage,rDirWei,markerStyle);               % already saved above
-plot(f.hp(6),iStage,(gammaIn+gammaOu)/2,markerStyle);   % saved above, in and out separately
-plot(f.hp(7),iStage,shESelGrow,markerStyle);            % saved above
-plot(f.hp(8),iStage,selEGrowth,markerStyle);            title(f.hp(8),'selGrowth');
-plot(f.hp(9),iStage,nRichTo80F,markerStyle);            title(f.hp(9),'Dyn Rich F');
-plot(f.hp(10),iStage,nRichTo80C,markerStyle);           title(f.hp(10),'Dyn Rich C');
-plot(f.hp(11),iStage-0.2,deg0,'b.');    plot(f.hp(11),iStage,deg12,'k.');   plot(f.hp(11),iStage+0.2,deg5p,'r.');	title(f.hp(11),'Degrees');
-plot(f.hp(13),iStage,rPosSel,markerStyle);                  % All thesea are already saved above
-plot(f.hp(14),iStage,quantile(selC(:),0.9),markerStyle);    % 90s percentile of selectivity
-plot(f.hp(15),iStage,withinClusterPreference,markerStyle);
-plot(f.hp(16),iStage,rSelClu,markerStyle); title(f.hp(16),'r Sel Clust');       
-plot(f.hp(17),iStage,rSelNet,markerStyle); title(f.hp(17),'r Sel NetRank');     
-plot(f.hp(18),iStage,rSelRnt,markerStyle); title(f.hp(18),'r Sel RevNetRank');  
+if(flagFigMain)
+    plot(E.hp(1),iStage,mean(selC),markerStyle);            
+    plot(E.hp(2),iStage,mean(selC>0),markerStyle);                                                             
+    plot(E.hp(3),iStage,predictionQualityNI,markerStyle);   
+    plot(E.hp(4),iStage,predictionQuality,markerStyle);     
+    plot(E.hp(5),iStage,rDirWei,markerStyle);               % already saved above
+    plot(E.hp(6),iStage,(gammaIn+gammaOu)/2,markerStyle);   % saved above, in and out separately
+    plot(E.hp(7),iStage,shESelGrow,markerStyle);            % saved above
+    plot(E.hp(8),iStage,selEGrowth,markerStyle);            title(E.hp(8),'selGrowth');
+    plot(E.hp(9),iStage,nRichTo80F,markerStyle);            title(E.hp(9),'Dyn Rich F');
+    plot(E.hp(10),iStage,nRichTo80C,markerStyle);           title(E.hp(10),'Dyn Rich C');
+    plot(E.hp(11),iStage-0.2,deg0,'b.');    plot(E.hp(11),iStage,deg12,'k.');   plot(E.hp(11),iStage+0.2,deg5p,'r.');	title(E.hp(11),'Degrees');
+    plot(E.hp(13),iStage,rPosSel,markerStyle);                  % All thesea are already saved above
+    plot(E.hp(14),iStage,quantile(selC(:),0.9),markerStyle);    % 90s percentile of selectivity
+    plot(E.hp(15),iStage,withinClusterPreference,markerStyle);
+    plot(E.hp(16),iStage,rSelClu,markerStyle); title(E.hp(16),'r Sel Clust');       
+    plot(E.hp(17),iStage,rSelNet,markerStyle); title(E.hp(17),'r Sel NetRank');     
+    plot(E.hp(18),iStage,rSelRnt,markerStyle); title(E.hp(18),'r Sel RevNetRank');  
 
-%%% Excluded plots:
-%plot(f.hp(14),iStage,rPosInf,markerStyle);
-%plot(f.hp(15),iStage,rSelInf,markerStyle);
+    %%% Excluded plots:
+    %plot(f.hp(14),iStage,rPosInf,markerStyle);
+    %plot(f.hp(15),iStage,rSelInf,markerStyle);
 
-if(f.flagFigJunk)
-    plot(f.hpj(1),iStage,asOI,markerStyle);         title(f.hpj(1),'out-in');   % These vars are all M-saved above
-    plot(f.hpj(2),iStage,asIO,markerStyle);         title(f.hpj(2),'in-out');
-    plot(f.hpj(3),iStage,asOO,markerStyle);         title(f.hpj(3),'out-out');
-    plot(f.hpj(4),iStage,asII,markerStyle);         title(f.hpj(4),'in-in');    
-    plot(f.hpj(5),iStage,nPCAto80+randn(1)*0.1,markerStyle);    title(f.hpj(5),'nPCAto80');    % Some jitter is necessary here    
-    plot(f.hpj(6),iStage,cycl,markerStyle);         title(f.hpj(6),'cyclic'); set(f.hpj(6),'YScale','log');
-    plot(f.hpj(7),iStage,rSelSpk,markerStyle);      title(f.hpj(7),'rSelSpk');
-    plot(f.hpj(8),iStage,rCluSpk,markerStyle);      title(f.hpj(8),'rCluSpk');
-    plot(f.hpj(9),iStage,selAssort,markerStyle);    title(f.hpj(9),'selAssort');  
-    plot(f.hpj(10),iStage,rSelGth,markerStyle);     title(f.hpj(10),'r Sel Gather');    
-    plot(f.hpj(11),iStage,rDistWei,markerStyle);    title(f.hpj(11),'rDistWei');
-    plot(f.hpj(12),iStage,mDistWei,markerStyle);    title(f.hpj(12),'dConn/dAll');
-    %plot(f.hpj(13),iStage,rSelNIn,markerStyle);     title(f.hpj(13),'rSelIns');
-    plot(f.hpj(13),iStage,eff,markerStyle);         title(f.hpj(13),'Efficiency');
-    plot(f.hpj(14),iStage,clusterCompactness,markerStyle);     title(f.hpj(14),'clust compact');
-    plot(f.hpj(15),iStage,rSelfcSelsc,markerStyle); title(f.hpj(15),'rSelfcSelsc');
+    if(E.flagFigJunk)
+        plot(E.hpj(1),iStage,asOI,markerStyle);         title(E.hpj(1),'out-in');   % These vars are all M-saved above
+        plot(E.hpj(2),iStage,asIO,markerStyle);         title(E.hpj(2),'in-out');
+        plot(E.hpj(3),iStage,asOO,markerStyle);         title(E.hpj(3),'out-out');
+        plot(E.hpj(4),iStage,asII,markerStyle);         title(E.hpj(4),'in-in');    
+        plot(E.hpj(5),iStage,nPCAto80+randn(1)*0.1,markerStyle);    title(E.hpj(5),'nPCAto80');    % Some jitter is necessary here    
+        plot(E.hpj(6),iStage,cycl,markerStyle);         title(E.hpj(6),'cyclic'); set(E.hpj(6),'YScale','log');
+        plot(E.hpj(7),iStage,rSelSpk,markerStyle);      title(E.hpj(7),'rSelSpk');
+        plot(E.hpj(8),iStage,rCluSpk,markerStyle);      title(E.hpj(8),'rCluSpk');
+        plot(E.hpj(9),iStage,selAssort,markerStyle);    title(E.hpj(9),'selAssort');  
+        plot(E.hpj(10),iStage,rSelGth,markerStyle);     title(E.hpj(10),'r Sel Gather');    
+        plot(E.hpj(11),iStage,rDistWei,markerStyle);    title(E.hpj(11),'rDistWei');
+        plot(E.hpj(12),iStage,mDistWei,markerStyle);    title(E.hpj(12),'dConn/dAll');
+        %plot(f.hpj(13),iStage,rSelNIn,markerStyle);     title(f.hpj(13),'rSelIns');
+        plot(E.hpj(13),iStage,eff,markerStyle);         title(E.hpj(13),'Efficiency');
+        plot(E.hpj(14),iStage,clusterCompactness,markerStyle);     title(E.hpj(14),'clust compact');
+        plot(E.hpj(15),iStage,rSelfcSelsc,markerStyle); title(E.hpj(15),'rSelfcSelsc');
+    end
 end
 
 if(iStage==5)    % Well-developed network
-    %plot(f.hp(13),centerDist(:),selC,'b.');    
-    %plot(f.hp(14),selC,cellInfluence(:),'b.');    
-    
-    %scatter(f.hp(15),sum(w,2),sum(w,1)',5,selC,'filled');
     if(0) % Various one-time figures
         %figure; scatter(centerDist(:),sum(w,1),10,selC,'filled'); % Position, sum of outputs, and selectivity
         %figure; scatter(centerDist(:),selC,15,sum(w,1),'filled'); % Position, sum of outputs, and selectivity
@@ -549,8 +552,8 @@ if(iStage==5)    % Well-developed network
     end
 end
 
-if(iWire==1)    % Only rewire for some traces, to save time on long runs (assuming that we forgot to switch the visualization off, which would be best in this case)
-    drawnow(); 
+if(flagFigMain && (iWire==1))       % Only rewire for some traces, to save time on long runs
+    drawnow();                      % (assuming that we forgot to switch the visualization off, which would actually be best in this case)
 end
 
 %%% --------- Send outputs out ---------
@@ -558,7 +561,7 @@ return;
 
 
 
-%%% -------------------------------------------------------------------- end of it for now, the rest is abandoned --------------------
+%%% -------------------------------------------------------------------- end of meaningful code; the rest is abandoned --------------------
 
 % if(showFigures) % --- How selectivity interacts with cell place within the network
 %     figure('Color','white');
