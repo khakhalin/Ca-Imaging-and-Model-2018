@@ -12,7 +12,7 @@ function varargout = model_stdp_tester(type,oneFlag)
 % Aug 08 2018: All curves averageing removed (it's now in model_stdp_curve_plotter.m anyway, so no need to duplicate it here)
 
 % Depends on external: 
-%   network_rewire (only in nRewires>0 mode, which may be a dead-end), 
+%   network_rewire (only in nRewires>0 mode), 
 %   myst
 %   myCentrality - my collection of centrality measures
 %   myCyclicity - my attempt to calculate cyclicity
@@ -159,6 +159,7 @@ nTick = 15;                                     % Length of one stimulus. For cr
 %%% ------------------------------------ Load / reconstruct variables ------------------------------------
 % Load some control stuff from the figure:
 f = get(hF,'UserData');
+
 % Load model constants from the data variable:
 blur = U.blur;
 sTarget = U.sTarget;
@@ -167,7 +168,7 @@ thSens = U.thSens/10;                           % ACHTUNG: That's a rather stron
 inactivationMode = U.inactivationMode;
 
 if(iWire==1)
-    w = U.stage(iStage).w;
+    w = U.stage(iStage).w;                      % Note that w is understood in operator way (w from i to j is w_ji)
 else
     w = network_rewire(U.stage(iStage).w);
 end
@@ -547,76 +548,74 @@ if(iStage==5)    % Well-developed network
         subplot(2,4,8); myplot(reshape(cellInfluence,brainDim,brainDim));
     end
 end
-%plot(f.hp(8),compressedData(firstHalf~=1,:)*b(2:end),prediction(:,1),'b.');
-drawnow(); 
 
+if(iWire==1)    % Only rewire for some traces, to save time on long runs (assuming that we forgot to switch the visualization off, which would be best in this case)
+    drawnow(); 
+end
 
-%%% --------- Send same outputs out ---------
+%%% --------- Send outputs out ---------
 return;
+
+
 
 %%% -------------------------------------------------------------------- end of it for now, the rest is abandoned --------------------
 
-
-
-
-
-
-if(showFigures) % --- How selectivity interacts with cell place within the network
-    figure('Color','white');
-    lineStyle = {'k-','r-','b-'};
-    %h6 = subplot(3,3,6); hold on;
-    for(si=1:length(spikeHistory))
-        subplot(3,3,si);   myplot(reshape(mean(spikeOutput{si},2),dim,dim)); title(typeCycle{si}); colorbar(); %caxis([0 2]);
-        subplot(3,3,3+si); myplot(spikeHistory{si}); title(typeCycle{si}); %caxis([0 2]);    
-        %plot(h6,inputTrace{si},lineStyle{si});    
-    end
-    subplot(3,3,6); plot(resC-resF,selFC,'.'); xlabel('C minus F'); ylabel('Selectivity');
-    subplot(3,3,3); hold on; plot([0 2],[0 2],'g-'); plot(resF,resC,'.'); hold off; xlabel('to flash'); ylabel('to crash'); title('Cell responses');
-    subplot(3,3,7); plot(sum(w), selFC,'.'); xlabel('total syn drive'); ylabel('Selectivity');
-    subplot(3,3,8); plot(sTarget,selFC,'.'); xlabel('spike target');    ylabel('Selectivity');
-    subplot(3,3,9); plot(th,     selFC,'.'); xlabel('spike threshold'); ylabel('Selectivity');
-    drawnow();
-end
-
-if(0)   % Long console output
-    fprintf('Share of neurons selective to crash: %f\n',sum(resC>resF)/nCells);    
-    fprintf('Median crash/flash: %f\n',median(resC./resF));
-    fprintf('Average crash minus flash: %f\n',mean(resC-resF));    
-end
-if(1)   % Short console output
-    if(showFigures) % The reason this is linked to show figures is that it is ==0 during serial runs of the model
-        fprintf('nStim, nCollisions, share Collisions, Full spiking F, full spiking C, share of C>F, share of C>120F, average selFC, var selFC, dist|sel\n');
-    end    
-    distanceToCenter = sqrt((meshx(:)-dim/2).^2 + (meshy(:)-dim/2).^2);
-    [rho_dsel,pval_dsel] = corr(distanceToCenter,selFC);
-    fprintf('%5d\t%5d\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%5.2f', nStim , nCollisions , sum(resF) , sum(resC),...
-        sum(resC>resF)/nCells , mean(selFC) , var(selFC), median(selFC), quantile(selFC,0.9), rho_dsel);
-    %for(q=1:length(newDataLine))
-    %    fprintf('\t%7f',newDataLine(q));
-    %end
-    fprintf('\n');
-end
-
-if(nargout>0); varargout{1} = w; end;
-if(nargout>1); varargout{2} = selFC; end;
-if(nargout>2); varargout{3} = th; end;
-
-if(showFigures) % --- Show final graph in both original and optimized coordinates, 
-                % as well as whether selectivity correlates with any centrality measure
-    selectivity_graph(w,selFC,meshx,meshy);   % Analyze the graph and show some more figures (see the procedure itself)
-    
-    figure; % Selectivity as a function of distance    
-    [rho,pval] = corr(distanceToCenter,selFC);
-    plot(distanceToCenter,selFC,'.'); xlabel('Distance from the center'); ylabel('FC Selectivity');
-    title(sprintf('r=%s; p=%s',myst(rho),myst(pval)));
-    
-    figure; hold on; % Alternative figure for full responses
-    plot([1 2 3],[resF(:) resS(:) resC(:)],'-','Color',[1 1 1]*0.9);
-    plot(1,resF,'r.');  plot(1,mean(resF),'ks');
-    plot(2,resS,'g.');  plot(2,mean(resS),'ks');
-    plot(3,resC,'b.');  plot(3,mean(resC),'ks');  
-    hold off; xlabel('Stimulus type'); ylabel('Cell response'); xlim([0 4]);
-end
+% if(showFigures) % --- How selectivity interacts with cell place within the network
+%     figure('Color','white');
+%     lineStyle = {'k-','r-','b-'};
+%     %h6 = subplot(3,3,6); hold on;
+%     for(si=1:length(spikeHistory))
+%         subplot(3,3,si);   myplot(reshape(mean(spikeOutput{si},2),dim,dim)); title(typeCycle{si}); colorbar(); %caxis([0 2]);
+%         subplot(3,3,3+si); myplot(spikeHistory{si}); title(typeCycle{si}); %caxis([0 2]);    
+%         %plot(h6,inputTrace{si},lineStyle{si});    
+%     end
+%     subplot(3,3,6); plot(resC-resF,selFC,'.'); xlabel('C minus F'); ylabel('Selectivity');
+%     subplot(3,3,3); hold on; plot([0 2],[0 2],'g-'); plot(resF,resC,'.'); hold off; xlabel('to flash'); ylabel('to crash'); title('Cell responses');
+%     subplot(3,3,7); plot(sum(w), selFC,'.'); xlabel('total syn drive'); ylabel('Selectivity');
+%     subplot(3,3,8); plot(sTarget,selFC,'.'); xlabel('spike target');    ylabel('Selectivity');
+%     subplot(3,3,9); plot(th,     selFC,'.'); xlabel('spike threshold'); ylabel('Selectivity');
+%     drawnow();
+% end
+% 
+% if(0)   % Long console output
+%     fprintf('Share of neurons selective to crash: %f\n',sum(resC>resF)/nCells);    
+%     fprintf('Median crash/flash: %f\n',median(resC./resF));
+%     fprintf('Average crash minus flash: %f\n',mean(resC-resF));    
+% end
+% if(1)   % Short console output
+%     if(showFigures) % The reason this is linked to show figures is that it is ==0 during serial runs of the model
+%         fprintf('nStim, nCollisions, share Collisions, Full spiking F, full spiking C, share of C>F, share of C>120F, average selFC, var selFC, dist|sel\n');
+%     end    
+%     distanceToCenter = sqrt((meshx(:)-dim/2).^2 + (meshy(:)-dim/2).^2);
+%     [rho_dsel,pval_dsel] = corr(distanceToCenter,selFC);
+%     fprintf('%5d\t%5d\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%5.2f', nStim , nCollisions , sum(resF) , sum(resC),...
+%         sum(resC>resF)/nCells , mean(selFC) , var(selFC), median(selFC), quantile(selFC,0.9), rho_dsel);
+%     %for(q=1:length(newDataLine))
+%     %    fprintf('\t%7f',newDataLine(q));
+%     %end
+%     fprintf('\n');
+% end
+% 
+% if(nargout>0); varargout{1} = w; end;
+% if(nargout>1); varargout{2} = selFC; end;
+% if(nargout>2); varargout{3} = th; end;
+% 
+% if(showFigures) % --- Show final graph in both original and optimized coordinates, 
+%                 % as well as whether selectivity correlates with any centrality measure
+%     selectivity_graph(w,selFC,meshx,meshy);   % Analyze the graph and show some more figures (see the procedure itself)
+%     
+%     figure; % Selectivity as a function of distance    
+%     [rho,pval] = corr(distanceToCenter,selFC);
+%     plot(distanceToCenter,selFC,'.'); xlabel('Distance from the center'); ylabel('FC Selectivity');
+%     title(sprintf('r=%s; p=%s',myst(rho),myst(pval)));
+%     
+%     figure; hold on; % Alternative figure for full responses
+%     plot([1 2 3],[resF(:) resS(:) resC(:)],'-','Color',[1 1 1]*0.9);
+%     plot(1,resF,'r.');  plot(1,mean(resF),'ks');
+%     plot(2,resS,'g.');  plot(2,mean(resS),'ks');
+%     plot(3,resC,'b.');  plot(3,mean(resC),'ks');  
+%     hold off; xlabel('Stimulus type'); ylabel('Cell response'); xlim([0 4]);
+% end
 
 end
 
