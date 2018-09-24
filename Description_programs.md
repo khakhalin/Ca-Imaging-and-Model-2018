@@ -3,7 +3,7 @@ Ca imaging project – Scripts involved
 
 # Analysis of experimental data
 
-## Main pipeline part 1: Data transformations
+## Main pipeline part 1: Data acquisition and transformation
 
 Typically, these programs should be run only once, and never be run again.
 
@@ -21,15 +21,11 @@ Loads data in mat form, applies non-negative deconvolution (the one by Vogelstei
 
 ### caimaging_basic.m
 
-Receives data in stricture form (S) as an input, applies [Vogelstein] fast_oopsi.m deconvolution, and updates the S structure.
+Receives data in stricture form (S) as an input, applies fast_oopsi.m deconvolution by J. Vogelstein, and updates the S structure with inferred spike trains. Relises on *caimaging_find_good_cell* (see below) to adaptively guess parameters for spike reconstruction.
 
 ### caimaging_find_good_cell
 
 Automatically finds a cell with strong signal. In practice, removes biases, looks at 10 cells with biggest time-variances (strongest signals), and then returns the number of the one in the middle. So it should be 5th strongest cell in the set.
-
-### caimaging_process.m
-
-Appears to be abandoned and obsolete. First attempt to build a comprehensive data analyzer. Was superseded by caimaging_structure.
 
 ### caimaging_structure.m
 

@@ -1,6 +1,10 @@
 Abandoned scripts
 ================================
 
+### caimaging_process.m
+
+First attempt to build a comprehensive data analyzer. Was superseded by caimaging_structure, and abandoned completely.
+
 ### caimaging_graph_given_degree
 Tries to build a graph with a given degree distribution, for illustration purposes. Doesn't always do a good job. Can work both on directed and undirected graphs.
 
