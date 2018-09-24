@@ -7,6 +7,10 @@ Ca imaging project – Scripts involved
 
 Typically, these programs should be run only once, and never be run again.
 
+### optic_stimulation_tool3
+
+Original (2014) script that was used for visual stimulation. Relies on Psychtoolbox, and probably would not run at this time.
+
 ### caimaging_read
 
 Reads all original Excel files (should be explicitly coded in the file). Saves them as mat files. The first step in processing. This is a fairly slow process.
