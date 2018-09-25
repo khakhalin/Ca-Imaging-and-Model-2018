@@ -23,29 +23,42 @@ if(nargin<1) % Test
     fprintf('Out-degrees:\n');
     fprintf('%2d ',histcounts(sum(               w,2),(1:40)-0.5)); fprintf('\n');
     fprintf('%2d ',histcounts(sum(network_rewire(w),2),(1:40)-0.5)); fprintf('\n');
+    
+    fprintf('\nNow version for weighted graphs:\n');
+    fprintf('Testing network rewire. First pair of rows shoudl be similar; second pair should be the same.\n');
+    w = floor(0.1+rand(100));
+    w = w.*rand(size(w))*2;
+    fprintf('In-degrees:\n');
+    fprintf('%2d ',histcounts(sum(               w,1),(1:40)-0.5)); fprintf('\n');
+    fprintf('%2d ',histcounts(sum(network_rewire(w),1),(1:40)-0.5)); fprintf('\n');
+    fprintf('Out-degrees:\n');
+    fprintf('%2d ',histcounts(sum(               w,2),(1:40)-0.5)); fprintf('\n');
+    fprintf('%2d ',histcounts(sum(network_rewire(w),2),(1:40)-0.5)); fprintf('\n');
     w = 0; % (To suppress output)
 end
 
 n = size(w,1);
 nEdges = sum(w(:)~=0);
+[jCand,iCand]=find(w>0);        % Reasonable edges to be rewired
+nCand = size(jCand,1);
 
 if(nargin<2)
-   m = 3*nEdges;
+   m = nEdges;
 end
 
 count = 0;
-while(count<m)
-    i1 = floor(rand(1)*n)+1;
-    j1 = floor(rand(1)*n)+1;
-    i2 = floor(rand(1)*n)+1;
-    j2 = floor(rand(1)*n)+1;
+for(iAttempt=1:nEdges*4)                % From original Maslov algorithm
+    k1 =  floor(rand(1)*nCand)+1;       % Pick one of existing edges
+    k2 =  floor(rand(1)*nCand)+1;
+    i1 = iCand(k1);    j1 = jCand(k1);
+    i2 = iCand(k2);    j2 = jCand(k2);    
     if((i1~=j1) && (i2~=j2) && (i1~=j2) && (i2~=j1))    % Don't mess with self-connections in either direction; these should always stay 0
         if(w(j1,i1)>w(j1,i2) && w(j2,i2)>w(j2,i1))                  % No need to "swap" non-connections, as nothing changes when you do that
             direct = w(j2,i2);    w(j2,i2) = w(j2,i1);    w(j2,i1) = direct;    % Cross become directs, while direct become crosses
             direct = w(j1,i1);    w(j1,i1) = w(j1,i2);    w(j1,i2) = direct;
             count = count+1;
         end
-    end
+    end    
 end
 
 end

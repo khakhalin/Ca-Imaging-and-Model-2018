@@ -76,7 +76,7 @@ randomizePositions = 0;             % Set to 1 if all xy positions should be ran
 showAverageResponses = 0;           % For average reponses. IS NOT IMPLEMENTED BEYOND INDIVIDUAL RESPONSES
 flagUsePeakAmps = 0;                % If set to 1, overrides cumulative amplitudes (amps) with peak amplitudes (ampsPeak)
 
-doPCA = 1;                          % Factor analysis. The "origin point" for retinotopic responses is also calculated here. Needs to be 1 for all analyses in this group.
+doPCA = 0;                          % Factor analysis. The "origin point" for retinotopic responses is also calculated here. Needs to be 1 for all analyses in this group.
 reportPCA = 0;                      % Whether PCA stats need to be reported
 reportRetinotopy = 0;               % Whether retinotopy should be reported to the console.
 showPCAfigure = 0;                  % Show PCA figure for each brain
@@ -93,7 +93,7 @@ showSelTypes = 0;                   % Cell selectivity types figure
 selToCompare = 'FCtoFS';            % What to compare: FCtoSC (is it a geometry detection?); or FCtoFS (is it a dynamics detection?)
 showSelectivityHist = 0;            % Show selectivity histograms (one figure for all brains).
 
-doResponseDynamics = 1;             % Early sells, late cells. Requires doPCA to be on, as it draws from it.
+doResponseDynamics = 0;             % Early sells, late cells
 showSpatialEveryBrain = 0;          % A figure for every brain
 showSpatialSummary = 0;             % Whether info for a summary figure should be collected
 showMugshot = 0;                    % Profile image for every brain
@@ -302,7 +302,7 @@ for(iBrain = 1:nBrains)
             if(sum(scores(:,1))<0); scores(:,1) = -scores(:,1); coeffs(:,1) = -coeffs(:,1); end
             if(sum(scores(:,2))<0); scores(:,2) = -scores(:,2); coeffs(:,2) = -coeffs(:,2); end            
             if(nComps>2); if(sum(scores(:,3))<0); scores(:,3) = -scores(:,3); coeffs(:,3) = -coeffs(:,3); end; end
-            if(latency(scores(:,1))>latency(scores(:,2)))   % First comoponent should have shorter latency; if it doesn't - swap. Latency is a function defined below.
+            if(latency(scores(:,1))>latency(scores(:,2)))   % First comoponent should have shorter latency; if it doesn't - swap
                 scores(:,1:2) = scores(:,1:2)*[0 1; 1 0];
                 coeffs(:,1:2) = coeffs(:,1:2)*[0 1; 1 0];
             end
@@ -668,13 +668,18 @@ for(iBrain = 1:nBrains)
         [~,temp] = sort(lat);
         [~,latRank] = sort(temp);                       % Ranking by latency
         
-        [r1,pval1] = corr(lat(:),selFC(:),'Type','Pearson');               % Correlation: early asymmetry rank to FC selectivity
-        [r2,pval2] = corr(dist(:),lat(:),'Type','Pearson');                % Correlation latency vs distance from the origin point
-        [r3,pval3] = corr(dist(:),selFC(:),'Type','Pearson');              % Correlation selectivity vs distance from the origin point
-        [glmCoeffs,glmDev,glmStats] = glmfit([dist(:) xy(:,1)],selFC(:));
+        if(pcaStimType==3)
+            cSel = selFS(:);                            % If we look at S, calculate everyting for S as if it were C
+        else
+            cSel = selFC(:);                            % Otherwise, default (C)
+        end
+        [r1,pval1] = corr(lat(:),cSel(:),'Type','Spearman');                % Correlation: early asymmetry rank to FC selectivity
+        [r2,pval2] = corr(dist(:),lat(:),'Type','Spearman');                % Correlation latency vs distance from the origin point
+        [r3,pval3] = corr(dist(:),cSel(:),'Type','Spearman');               % Correlation selectivity vs distance from the origin point
+        [glmCoeffs,glmDev,glmStats] = glmfit([dist(:) xy(:,1)],cSel(:));
         glmREstimationDist = glmStats.t(2)/sqrt(nCells-2+glmStats.t(2)^2);
         glmREstimationX    = glmStats.t(3)/sqrt(nCells-2+glmStats.t(3)^2);
-        if(iBrain==1); fprintf('    Name     rLatSel pLatSel       rLatDist pLatDist     rSelDist pSelDist     x y pGLM estDist estX\n'); end
+        if(iBrain==1); fprintf('    Name     Lat vs Sel       Dist vs Lat    Dist vs Sel     Origin point xy     Multivariate regression\n'); end
         fprintf('%10s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%5d\t%5d\t%6s\t%6s\t%6s\n',name,myst(r1),myst(pval1),myst(r2),myst(pval2),myst(r3),myst(pval3),...
             round(originPoint(1)),round(originPoint(2)),myst(glmStats.p(2)),myst(glmREstimationDist),myst(glmREstimationX));
         

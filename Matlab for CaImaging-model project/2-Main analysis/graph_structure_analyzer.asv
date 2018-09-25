@@ -100,10 +100,8 @@ doPredictions = 0;              % Whether we want to look at stimulus identity p
 selToUse = 'FC';                % Which selectivity to use; options are: 'C' (combined), 'FC', and 'SC'
 doSelectivity = 0;              % Where the selective cells are
 doSelectivityInSpace = 1;       % Analyze network properties and cell location. Relies on selectivity analysis
-selSpcAllOrSummary = 'summary'; % Set to either 'all' (to report all points for further R analysis) or 'summary' (for a summary)
-
+selSpaceAllOrSummary = 'all';   % Set to either 'all' (to or 'summary'
 doConnectivityInSpace = 0;      % Spatial analysis for connectivity
-nConnectivityShuffles = 100;    % To compare connectivity of original network to randomized network. Recommended: ~100
 doNetworkMetrics = 0;           % Whether network properties need to be measured
 doEnsembleConnectivity = 0;     % Load up ensembles identified by caimaging_pca.m , and compare connectivity within and between
 
@@ -433,7 +431,7 @@ if(doSelectivityInSpace)
     distOriginToNode = sqrt((x(:)-originPoint(1)).^2 + (y(:)-originPoint(2)).^2);
     [rSelDist,pval] = corr(distOriginToNode(:),sel(:));                     % Is distance from the center correlated with selectivity?
 
-    switch selSpcAllOrSummary; case 'summary'                             % Only print a summary for each brain
+    switch selSpaceAllOrSummary; case 'summary'                             % Only print a summary for each brain
         if(iExp==1); fprintf('Name       rSelDist       p_SelDist\n'); end
         fprintf('%8s\t%8.2f\t%8s\n',S.name,rSelDist,myst(pval));
     end
@@ -458,7 +456,7 @@ if(doSelectivityInSpace)
     end
     drawnow();
     
-    switch selSpcAllOrSummary; case 'all'                     % Print ALL cells to the console, for offline analysis           
+    switch selSpaceAllOrSummary; case 'all'                     % Print ALL cells to the console, for offline analysis           
         if(iExp==1); fprintf('Name       Stage     Cell       x         y      distToOrigin       sel       sel2\n'); end
         for(iCell=1:nCells)                                     
             fprintf('%10s\t%5d\t%4d\t%5d\t%5d\t%8f\t%8f\t%8f\n',S.name,S.stage,iCell,x(iCell),y(iCell),distOriginToNode(iCell),sel(iCell),sel2(iCell));
@@ -507,11 +505,12 @@ if(doConnectivityInSpace)
         drawnow; 
     end    
     
+    nShuffles = 100;                                            % If you plan to use this measure, keep it at ~100; otherwise shrink to 10-20 to keep it fast
     avDistShfl = [];
     fromCenterShfl = [];
     shareAwayShfl = [];
     wShfl = zeros(size(w));
-    for(iTrial=1:nConnectivityShuffles)                         % The same measure on a randomly rewired network (degree-preserving)
+    for(iTrial=1:nShuffles)                                     % The same measure on a randomly rewired network (degree-preserving)
         wShfl = network_rewire(w);                              % Maslov rewiring                
         avDistShfl(iTrial) = sum(wShfl(:).*pwd(:))/sum(wShfl(:)); % Reshuffles connections, but keeps biases due to hub cells         
         temp = (xd(:).*vectFromOriginX(:) + yd(:).*vectToOriginY(:)).*wShfl(:)./pwd(:)./distFromOrigin(:)/sum(w(:));	% Normalized dot-product: cos(alpha)
