@@ -31,8 +31,9 @@ end
 if(nargin<2); oneFlag = 0; end;                     % If not given, assume that we want full analysis, not just one plot
 M = [];                                             % In this structure we will keep a table of all data. See functions PUSH, REMEMBER, and the saving block below
 E = [];                                             % In this structure we'll keep all things that need only be calculated once. Most importantly - testing stimuli.
+E.firstRun = 1;                                     % First run is special, and this will be the flag.
 
-nRewires = 1;                                       % If >0, for each normal analysis also performs NREWIRES analyses on randomly rewired data
+nRewires = 0;                                       % If >0, for each normal analysis also performs NREWIRES analyses on randomly rewired data
 
 flagFigMain = 1;                                    % Whether the main figure needs to be shown
 flagFigDeg = 0;                                     % Whether we want a figure with degree histograms or not
@@ -65,6 +66,7 @@ if(flagFigMain)
     title(E.hp(9),'3');
     title(E.hp(10),'4');        
     title(E.hp(11),'5');
+    title(E.hp(12),'nClusters')
     title(E.hp(13),'r Pos-Sel');       xlabel(E.hp(13),'Stage');           set(E.hp(13),'YLim',[-0.5 1]);    
     title(E.hp(14),'sel90perc');
     title(E.hp(15),'bubbliness');      xlabel(E.hp(15),'Stage');
@@ -226,20 +228,24 @@ stimCount = 0;
 for(si=1:nStimTypes)                                    % For each testing stimulus. 1=F, 2=S, 3=C. Note that ca img experiments go CFS instead, while we go FSC
     inputTrace{si} = zeros(1,nTick);                    % Average input dynamics for this stimulus type (good for troubleshooting)    
     spikeOutput{si} = [];                               % Total spiking (sum over time) of each neuron in each trial
-    for(q=1:nStim)                                      % Repeat several times
+    for(iStim=1:nStim)                                      % Repeat several times
         stimCount = stimCount+1;
         stimType(stimCount) = si;                       % Remember which stimulus it was
-        [mo,~] = generateInput(brainDim,typeCycle{si}); % Create motion object
-        s = zeros(size(s));     % Make the network silent
+        if(E.firstRun)
+            [mo,~] = generateInput(brainDim,typeCycle{si}); % Create motion object
+        end
+        s = zeros(size(s));                             % Make the network silent
         for(ti=1:nTick)            
             switch inactivationMode
                 case 'none'; s = w*s;                               % Excitatory transmission, no refractory period
                 case 'fast'; s = w*s./(1+s);                        % Escitatory transmission + short inactivation period (10 ms)
                 case 'slow'; s = w*s./(1+sAv);                      % Escitatory transmission + long inactivation period (~200 ms)
             end
-            [mo,input] = generateInput(mo);                         % Sensory input
-            inputTrace{si}(ti) = inputTrace{si}(ti)+sum(input(:));
-            s = s + blur*input(:);
+            if(E.firstRun)
+                [mo,E.input{stimCount,ti}] = generateInput(mo);                         % Sensory input
+            end
+            inputTrace{si}(ti) = inputTrace{si}(ti)+sum(E.input{stimCount,ti}(:));
+            s = s + blur*E.input{stimCount,ti}(:);
             s = logisticf(s,th);                                        % Spiking (soft non-linear logistic function, defined below)    
             spikeHistory(ti,:,stimCount) = s';                          % Save spiking by each neuron at every moment of time                
         end
@@ -336,6 +342,7 @@ M = remember(M,'shESelGrow',shESelGrow);
 selEGrowth = sum(selComparisonMatrix(:).*w(:))/sum(w(:));                   % Average weighted change in selectivity over an edge
 M = remember(M,'selEGrowth',selEGrowth);
 
+
 %%% --------- Degree distribution analysis -----
 temp = sort(w(:));                  % Sort all weights
 edgeThreshold = temp(end-nCells);   % find a thershold so that about nCells weights would pass it (similar to how we do it in experiments, to make E=V)
@@ -365,34 +372,8 @@ if(flagFigMain)
     end
 end
 
-%myFitType = fittype('exp(a*log(x))','independent','x');                % Sense-check. Fitting in log-space yields slightly different results than fitting in raw p-k space.
-%myFitOptions = fitoptions('Method','NonlinearLeastSquares','Lower',[-100],'Upper', [10],'Startpoint',[-1]); % But that's OK in this situation, I think.
-%[c2,gof2] = fit((2:8)',max(histDegOu(3:9)',1)/nCells,myFitType,myFitOptions);
-%c2
-%fprintf('Stage %d, gammaIn %f, gammaOu %f\n',iStage,gammaIn,gammaOu); % Troubleshooting
 
-
-%%% --------- Dynamic richness of responses -----
-% The question here: are all responses of the same type alike?
-% Cannot do on "S" though, as in the current implementation they are truly trial-by-trial randomized (unlike in the experiment)
-% Key variables: spikeHistory(time#,neuron#,stim#), stimType (a vector of 123s)
-
-respF = zeros(nTick*sum(stimType==1),nCells);
-respC = zeros(nTick*sum(stimType==3),nCells);
-counter = 0;
-for(iStim=find(stimType'==1))    % Go through all F stimuli
-    respF(counter*nTick+(1:nTick),:) = squeeze(spikeHistory(:,:,iStim));
-    counter = counter+1;
-end
-counter = 0;
-for(iStim=find(stimType'==3))    % Go through all C stimuli
-    respC(counter*nTick+(1:nTick),:) = squeeze(spikeHistory(:,:,iStim));
-    counter = counter+1;
-end
-[~,~,eigenV] = pca(respF); nRichTo80F = find(cumsum(eigenV)/sum(eigenV)>=0.8,1,'first'); M = remember(M,'nRichTo80F',nRichTo80F);
-[~,~,eigenV] = pca(respC); nRichTo80C = find(cumsum(eigenV)/sum(eigenV)>=0.8,1,'first'); M = remember(M,'nRichTo80C',nRichTo80C);
-
-%%% --------- Ensembles -----
+%%% --------- PCA  -----
 % Key variables: spikeHistory(time#,neuron#,stim#), stimType (a vector of 123s)
 % We should start with preparing unbiased (centered) and normalized contribution values.
 ampF = squeeze(sum(spikeHistory(:,:,stimType==1),1));   % Total output of each cell over time, in each trial: Neurons down, stimuli right
@@ -401,27 +382,48 @@ ampC = squeeze(sum(spikeHistory(:,:,stimType==3),1));
 ampF = bsxfun(@plus,ampF,-mean(ampF,1)); ampF = bsxfun(@times,ampF,1./std(ampF,[],1));  % Unbiased an normalized
 ampS = bsxfun(@plus,ampS,-mean(ampS,1)); ampS = bsxfun(@times,ampS,1./std(ampS,[],1));
 ampC = bsxfun(@plus,ampC,-mean(ampC,1)); ampC = bsxfun(@times,ampC,1./std(ampC,[],1));
-%[loadings,compressedData,~] = pca(ampC,'NumComponents',10);  
 [~,compressedData,eigenV] = pca([ampF ampS ampC]);  
 compressedData = compressedData(:,1:10);                        % For clustering, save only 10 first compoments
 nPCAto80 = find(cumsum(eigenV)/sum(eigenV)>=0.8,1,'first');     % How many components one would need to explain 80% of variance
 M = remember(M,'nPCAto80',nPCAto80);
 
-if(1)
-    [clustInd,varExplained] = kmeans_opt(compressedData);                   % Attempt of optimal clustering        
-else
-    [~,~,fullVar]      =kmeans(compressedData,1,'emptyaction','drop');      % Alternatively - go with an arbitrary "reasonable" number of clusters (not recommended)
-    [clustInd,~,resVar]=kmeans(compressedData,8,'emptyaction','drop');      % Default distance is "squared Euclidean", so no need to square
-    varExplained = 1-sum(resVar)/fullVar;
+
+%%% --------- Dynamic richness and Ensembles -----
+% The question here: are all responses of the same type alike?
+% Cannot do on "S" though, as in the current implementation they are truly trial-by-trial randomized (unlike in the experiment)
+% Key variables: spikeHistory(time#,neuron#,stim#), stimType (a vector of 123s)
+
+corW = zeros(nCells);
+for(iStimType=1:3)
+    respRoll = zeros(nTick*sum(stimType==iStimType),nCells);                        % A roll of all responses of this type
+    nStimuli = 0;
+    for(iStim=find(stimType'==iStimType))                                           % Go through all F stimuli
+        respRoll(nStimuli*nTick+(1:nTick),:) = squeeze(spikeHistory(:,:,iStim));    % Add this response
+        nStimuli = nStimuli+1;                                                      % N responses of this type happened
+    end
+    corW = corW+reshuffle_corr(respRoll,nStimuli,0);                                % Correlation on deviations from average
+    switch iStimType
+        case 1
+            [~,~,eigenV] = pca(respRoll); 
+            nRichTo80F = find(cumsum(eigenV)/sum(eigenV)>=0.8,1,'first'); 
+            M = remember(M,'nRichTo80F',nRichTo80F);
+        case 3
+            [~,~,eigenV] = pca(respRoll); 
+            nRichTo80C = find(cumsum(eigenV)/sum(eigenV)>=0.8,1,'first'); 
+            M = remember(M,'nRichTo80C',nRichTo80C);
+    end
 end
-% figure; scatter(compressedData(:,1),compressedData(:,2),10,clustInd,'filled'); % Visual debugging - cluster-gram.
-% [~,ind] = sort(clustInd);
-% figure; myplot(ampC(ind,:));       % Visual debugging. Will we see the bands?
-% myCor = corr([ampF ampS ampC]');
-% figure; myplot(myCor(ind,ind));    % Visual debugging. Will we see the quilt?
+corW = corW/3;                              % Average of 3 matrices
+corW = max(0,corW);                         % No negative weights, even spurious
+if(sum((sum(corW,1)+sum(corW,2)')==0)>0)    % Are there unconnected nodes in corW after thresholding? Answer: no, even with threshold of 0.1.
+    warning('W thresholding isolated some nodes from the main graph');
+end
+
+[clustInd,~] = spectralClustering(corW,100,10000);            % Clustering analysis (args are maxClusters and sigma parameter)
+nClusters = max(clustInd);
+
 w_within = []; w_between = [];          % Weight of edges connecting within and between clusters
 d_within = []; d_between = [];          % Real-world cell-to-cell distances between and within clusters
-nClusters = max(clustInd);
 for(iCluster=2:nClusters)               % Check whether ensembles are closer to each other than between then, in space, and on a graph
     temp = w(clustInd==iCluster,clustInd==iCluster);
     w_within = [w_within; temp(:)];
@@ -437,14 +439,14 @@ for(iCluster=2:nClusters)               % Check whether ensembles are closer to 
         temp = cell2cellDist(clustInd==jCluster,clustInd==iCluster);
         d_between = [d_between; temp(:)];
     end
-end    
+end
+
 [~,pval] = ttest2(w_within,w_between);
 % fprintf('N clusters: %2d; Within: %5.3f; between: %5.3f (p=%s); var explained: %4.2f\n',...
 %     nClusters,mean(bagWithin),mean(bagBetween),myst(pval),varExplained); % Console reporting
 withinClusterPreference = mean(w_within)/mean(w_between);
 clusterCompactness = mean(d_within)/mean(d_between);
 M = remember(M,'nClusters',nClusters);
-M = remember(M,'clustVarExplained',varExplained);
 M = remember(M,'clusterPreference',withinClusterPreference);
 M = remember(M,'clusterCompactness',clusterCompactness);
 M = remember(M,'clustPrefPval',pval);
@@ -494,23 +496,20 @@ if(flagFigMain)
     plot(E.hp(2),iStage,mean(selC>0),markerStyle);                                                             
     plot(E.hp(3),iStage,predictionQualityNI,markerStyle);   
     plot(E.hp(4),iStage,predictionQuality,markerStyle);     
-    plot(E.hp(5),iStage,rDirWei,markerStyle);               % already saved above
-    plot(E.hp(6),iStage,(gammaIn+gammaOu)/2,markerStyle);   % saved above, in and out separately
-    plot(E.hp(7),iStage,shESelGrow,markerStyle);            % saved above
+    plot(E.hp(5),iStage,rDirWei,markerStyle);
+    plot(E.hp(6),iStage,(gammaIn+gammaOu)/2,markerStyle);
+    plot(E.hp(7),iStage,shESelGrow,markerStyle);
     plot(E.hp(8),iStage,selEGrowth,markerStyle);            title(E.hp(8),'selGrowth');
     plot(E.hp(9),iStage,nRichTo80F,markerStyle);            title(E.hp(9),'Dyn Rich F');
     plot(E.hp(10),iStage,nRichTo80C,markerStyle);           title(E.hp(10),'Dyn Rich C');
     plot(E.hp(11),iStage-0.2,deg0,'b.');    plot(E.hp(11),iStage,deg12,'k.');   plot(E.hp(11),iStage+0.2,deg5p,'r.');	title(E.hp(11),'Degrees');
-    plot(E.hp(13),iStage,rPosSel,markerStyle);                  % All thesea are already saved above
+    plot(E.hp(12),iStage,nClusters,markerStyle);    
+    plot(E.hp(13),iStage,rPosSel,markerStyle);    
     plot(E.hp(14),iStage,quantile(selC(:),0.9),markerStyle);    % 90s percentile of selectivity
     plot(E.hp(15),iStage,withinClusterPreference,markerStyle);
     plot(E.hp(16),iStage,rSelClu,markerStyle); title(E.hp(16),'r Sel Clust');       
     plot(E.hp(17),iStage,rSelNet,markerStyle); title(E.hp(17),'r Sel NetRank');     
     plot(E.hp(18),iStage,rSelRnt,markerStyle); title(E.hp(18),'r Sel RevNetRank');  
-
-    %%% Excluded plots:
-    %plot(f.hp(14),iStage,rPosInf,markerStyle);
-    %plot(f.hp(15),iStage,rSelInf,markerStyle);
 
     if(E.flagFigJunk)
         plot(E.hpj(1),iStage,asOI,markerStyle);         title(E.hpj(1),'out-in');   % These vars are all M-saved above
@@ -557,6 +556,7 @@ if(flagFigMain && (iWire==1))       % Only rewire for some traces, to save time 
 end
 
 %%% --------- Send outputs out ---------
+E.firstRun = 0;                     % No need to recalculate inputs in any other runs
 return;
 
 

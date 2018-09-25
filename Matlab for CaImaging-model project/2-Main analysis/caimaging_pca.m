@@ -568,9 +568,8 @@ for(iBrain = 1:nBrains)
     
      %%% ----------------- Correlation analysis -----------------
     if(doEnsembleAnalysis)    
-        corW = zeros(nCells);  
-        
-        for(iStimType=1:3)                                                              % For every stim type, combine and analyze data
+        corW = zeros(nCells);                           % Future correlation matrix (with average-adjusted correlations)
+        for(iStimType=1:3)                              % For every stim type, combine and analyze data
             currentData = [];
             for(iTriad=1:floor(nSweeps/3))      
                 currentData = [currentData; ...
