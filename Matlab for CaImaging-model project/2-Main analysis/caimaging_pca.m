@@ -78,7 +78,7 @@ flagUsePeakAmps = 0;                % If set to 1, overrides cumulative amplitud
 
 doPCA = 1;                          % Factor analysis. The "origin point" for retinotopic responses is also calculated here. Needs to be 1 for all analyses in this group.
 reportPCA = 0;                      % Whether PCA stats need to be reported
-reportRetinotopy = 0;               % Whether retinotopy should be reported to the console.
+reportRetinotopy = 1;               % Whether retinotopy should be reported to the console.
 showPCAfigure = 0;                  % Show PCA figure for each brain
 showPCAsummaryFigure = 0;           % PCA cumulative figure
 
@@ -93,7 +93,7 @@ showSelTypes = 0;                   % Cell selectivity types figure
 selToCompare = 'FCtoFS';            % What to compare: FCtoSC (is it a geometry detection?); or FCtoFS (is it a dynamics detection?)
 showSelectivityHist = 0;            % Show selectivity histograms (one figure for all brains).
 
-doResponseDynamics = 1;             % Early sells, late cells. Requires doPCA to be on, as it draws from it.
+doResponseDynamics = 0;             % Early sells, late cells. Requires doPCA to be on, as it draws from it.
 showSpatialEveryBrain = 0;          % A figure for every brain
 showSpatialSummary = 0;             % Whether info for a summary figure should be collected
 showMugshot = 0;                    % Profile image for every brain
@@ -292,7 +292,7 @@ for(iBrain = 1:nBrains)
         %figure; subplot(1,2,1); myplot(ampsOfCrashes); subplot(1,2,2); plot(ampEigs/sum(ampEigs)); drawnow(); % Debugging
         nAmpEigTo80 = find(cumsum(ampEigs)/sum(ampEigs)>=0.8,1,'first'); 
         
-        if(1) % Rotation
+        if(1) % Rotation - it seems that rotation is always useful
             [~,T] = rotatefactors(scores(:,1:nComps),'Method','promax','Coeff',100);            
             % [~,T] = rotatefactors(coeffs(:,1:nComps),'Method','varimax');
             %T = rotatePositive(scores(:,1:nComps));        % Rotate into quadrant 1. Custom, doesn't work
@@ -327,16 +327,16 @@ for(iBrain = 1:nBrains)
         
         %%% --------- Find the origin point where responses have the shortest latency
         earlyBalance = abs(coeffs(:,1))./(abs(coeffs(:,1))+abs(coeffs(:,2)));      % Response balance in favor of the early component. 
-            % abs() here are to prevent negative weirdos (cells with strange dynamics) from creating outliers, as outliers mess with the correlation below
-        % position_finder2(xy(:,1),-xy(:,2),earlyBalance); % Good way to verify that our "optimal position" actually makes sense        
+            % abs() here are to prevent negative weirdos (cells with strange dynamics) from creating outliers, as outliers mess with correlations below
+        % position_finder2(xy(:,1),-xy(:,2),earlyBalance); % Good way to visually verify that our "optimal position" actually makes sense        
         f = @(x,data) corr(data(:,3),sqrt((data(:,1)-x(1)).^2 + (data(:,2)-x(2)).^2),'Type','Pearson'); % here in data 1-2 will be cell xy, and 3 - its earliness
         opts = optimoptions('fmincon','Display','off');
         originPoint = fmincon(@(a)f(a,[xy earlyBalance(:)]),[60 60],[],[],[],[],[0 0],max(xy,[],1),[],opts);    % Filled args are: starting point, bounds
         dist = sqrt((xy(:,1)-originPoint(1)).^2 + (xy(:,2)-originPoint(2)).^2);                                 % Distances to the origin point
         if(reportRetinotopy)
-            if(iBrain==1); fprintf('  Name      centX   centY    rDistLat  pDistLat\n'); end;
-            [rDistLat,pDistLat] = corr(dist(:),earlyBalance(:));
-            fprintf('%8s\t%5.2f\t%5.2f\t%5.2f\t%8s\n',name,originPoint,rDistLat,myst(pDistLat));
+            if(iBrain==1); fprintf('  Name      centX   centY    rDistErl  pDistErl\n'); end;
+            [rDistErl,pDistErl] = corr(dist(:),earlyBalance(:));
+            fprintf('%8s\t%5.2f\t%5.2f\t%5.2f\t%8s\n',name,originPoint,rDistErl,myst(pDistErl));
         end
         saveResults(auxFolder,folderName{iBrain},'originPoint',originPoint);                                    % Save the output
         
