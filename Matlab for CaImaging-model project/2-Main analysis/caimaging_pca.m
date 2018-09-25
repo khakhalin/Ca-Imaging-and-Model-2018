@@ -72,18 +72,19 @@ iBrain = iBrain+1; folderName{iBrain} = '140310'; age(iBrain) = 49; % Short reco
 showRawData = 0;                    % Whether raw (well, raw-ish) data debugging figures need to be shown
 showRawFigure = 0;                  % Not all raw data, but just enough for a figure
 pcaStimType = 1;                    % Set to 1 if PCA and response dynamics are to be run on crashes only (recommended); 2=flash, 3=scramble; 0=full triad
-randomizePositions = 0;             % Set to 1 if all xy positions should be randomly reassigned
+randomizePositions = 1;             % Set to 1 if all xy positions should be randomly reassigned (as a H0-style test for position-related methods)
 showAverageResponses = 0;           % For average reponses. IS NOT IMPLEMENTED BEYOND INDIVIDUAL RESPONSES
 flagUsePeakAmps = 0;                % If set to 1, overrides cumulative amplitudes (amps) with peak amplitudes (ampsPeak)
 
 doPCA = 1;                          % Factor analysis. The "origin point" for retinotopic responses is also calculated here. Needs to be 1 for all analyses in this group.
 reportPCA = 0;                      % Whether PCA stats need to be reported
+retinotopyLogic = 'pca';            % Two options here: 'lat' to calculate retinotopy center on response latencies; 'pca' to use early PCA component
 reportRetinotopy = 1;               % Whether retinotopy should be reported to the console.
 showPCAfigure = 0;                  % Show PCA figure for each brain
 showPCAsummaryFigure = 0;           % PCA cumulative figure
 
 doEnsembleAnalysis = 0;             % Calcualted adjusted correlations, and identify ensembles from them
-doCorrelationFig = 0;               % plot raw correlation matrices
+doCorrelationFig = 0;               % plot raw correlation matrices - NOT SURE IF UPDATED AT THIS POINT
 
 %%% --- Selectivity group of analyses. The selectivity is always calculated, but we can turn summaries and reporting on and off as we please
 showResponseAmplitudes = 0;         % Main simplistic figure for response amplitudes. Also outputs t-test p-values within every brain to the console
@@ -128,6 +129,7 @@ for(iBrain = 1:nBrains)
         xy = S(1).xy;
     else
         xy = S(1).xy(randperm(nCells),:);               % If needed - randomlize everything
+        if(iBrain==1); fprintf('NOTE: cell positions were randomized\n'); end;
     end
     % fprintf('%5d cells, %5d stimuli, %5d time points\n',nCells,nSweeps,length(goodSpikeTime));
     if(size(xy,1)>nCells)
@@ -302,7 +304,7 @@ for(iBrain = 1:nBrains)
             if(sum(scores(:,1))<0); scores(:,1) = -scores(:,1); coeffs(:,1) = -coeffs(:,1); end
             if(sum(scores(:,2))<0); scores(:,2) = -scores(:,2); coeffs(:,2) = -coeffs(:,2); end            
             if(nComps>2); if(sum(scores(:,3))<0); scores(:,3) = -scores(:,3); coeffs(:,3) = -coeffs(:,3); end; end
-            if(latency(scores(:,1))>latency(scores(:,2)))   % First comoponent should have shorter latency; if it doesn't - swap. Latency is a function defined below.
+            if(latency(scores(:,1))>latency(scores(:,2)))   % First component should have shorter latency; if it doesn't - swap. Latency is a function defined below.
                 scores(:,1:2) = scores(:,1:2)*[0 1; 1 0];
                 coeffs(:,1:2) = coeffs(:,1:2)*[0 1; 1 0];
             end
@@ -327,18 +329,34 @@ for(iBrain = 1:nBrains)
         
         %%% --------- Find the origin point where responses have the shortest latency
         earlyBalance = abs(coeffs(:,1))./(abs(coeffs(:,1))+abs(coeffs(:,2)));      % Response balance in favor of the early component. 
-            % abs() here are to prevent negative weirdos (cells with strange dynamics) from creating outliers, as outliers mess with correlations below
-        % position_finder2(xy(:,1),-xy(:,2),earlyBalance); % Good way to visually verify that our "optimal position" actually makes sense        
+            % abs() here are to prevent negative weirdos (cells with strange dynamics) from creating outliers, as outliers mess with correlations below        
+        % Define function for optimization:
         f = @(x,data) corr(data(:,3),sqrt((data(:,1)-x(1)).^2 + (data(:,2)-x(2)).^2),'Type','Pearson'); % here in data 1-2 will be cell xy, and 3 - its earliness
         opts = optimoptions('fmincon','Display','off');
-        originPoint = fmincon(@(a)f(a,[xy earlyBalance(:)]),[60 60],[],[],[],[],[0 0],max(xy,[],1),[],opts);    % Filled args are: starting point, bounds
+        switch retinotopyLogic
+            case 'pca'
+                if(iBrain==1); fprintf('Retinotopy is identified from PCA scores\n'); end;
+                originPoint = fmincon(@(a)f(a,[xy earlyBalance(:)]),[60 60],[],[],[],[],[0 0],max(xy,[],1),[],opts);    % Filled args are: starting point, bounds
+                lat = [];
+            case 'lat'
+                if(iBrain==1); fprintf('Retinotopy is identified from response latencies\n'); end;
+                lat = zeros(nCells,1);                          % Future latencies (note that this code is doubled below in latency analysis)
+                for(iCell=1:nCells)                
+                    temp = averageShapePerCell((1:nTime)+(pcaStimType-1)*nTime,iCell);
+                    temp = temp/max(temp);
+                    lat(iCell) = latency(temp);                 % Returns a point half-way up to max after 2-piecewise linear fitting                
+                end        
+                originPoint = fmincon(@(a)f(a,[xy -lat(:)]),[60 60],[],[],[],[],[0 0],max(xy,[],1),[],opts);    % Filled args are: starting point, bounds
+                % Optimizing against negative latency as corr with latency with positive, and we are looking for a minimum
+        end
         dist = sqrt((xy(:,1)-originPoint(1)).^2 + (xy(:,2)-originPoint(2)).^2);                                 % Distances to the origin point
+        [rDistErl,pDistErl] = corr(dist(:),earlyBalance(:));
         if(reportRetinotopy)
             if(iBrain==1); fprintf('  Name      centX   centY    rDistErl  pDistErl\n'); end;
-            [rDistErl,pDistErl] = corr(dist(:),earlyBalance(:));
             fprintf('%8s\t%5.2f\t%5.2f\t%5.2f\t%8s\n',name,originPoint,rDistErl,myst(pDistErl));
         end
         saveResults(auxFolder,folderName{iBrain},'originPoint',originPoint);                                    % Save the output
+        %%% position_finder2(xy(:,1),-xy(:,2),earlyBalance); % Good way to visually verify that our "optimal position" actually makes sense        
         
         if(showPCAfigure)
             figure('Color','white','name',name); 
@@ -588,7 +606,7 @@ for(iBrain = 1:nBrains)
         [clustInd,modHistory] = spectralClustering(corW,100,10000);            % Clustering analysis (args are maxClusters and sigma parameter)
         
         nClusters = max(clustInd);
-        if(doCorrelationFig);             
+        if(doCorrelationFig)             
             [~,ind] = sort(clustInd);
             subplot(2,3,2); myplot(corW(ind,ind)); drawnow(); 
             subplot(2,3,3); hold on;                
@@ -655,16 +673,18 @@ for(iBrain = 1:nBrains)
         %aaRank
         aa = aa/max(aa(:));                             % Norming coeff
         
-        doLatFig = 0;                                   % Troubleshooting set of figures to see whether latency function works
-        lat = zeros(nCells,1);                          % Future latencies
-        for(iCell=1:nCells)
-            if(doLatFig); if(mod(iCell-1,20)==0); figure; hold on; end; end
-            temp = averageShapePerCell((1:nTime)+(pcaStimType-1)*nTime,iCell);
-            temp = temp/max(temp);
-            lat(iCell) = latency(temp);                 % Returns a point half-way up to max after 2-piecewise linear fitting
-            if(doLatFig); plot(1:length(temp),temp+iCell/2); plot(lat(iCell),temp(lat(iCell))+iCell/2,'ko'); end
+        if(isempty(lat))                         % We hope that latencies were calculated in PCA section above, but in case they weren't, we calculate them here
+            doLatFig = 0;                               % Troubleshooting set of figures to see whether latency function works
+            lat = zeros(nCells,1);
+            for(iCell=1:nCells)
+                if(doLatFig); if(mod(iCell-1,20)==0); figure; hold on; end; end
+                temp = averageShapePerCell((1:nTime)+(pcaStimType-1)*nTime,iCell);
+                temp = temp/max(temp);
+                lat(iCell) = latency(temp);                 % Returns a point half-way up to max after 2-piecewise linear fitting
+                if(doLatFig); plot(1:length(temp),temp+iCell/2); plot(lat(iCell),temp(lat(iCell))+iCell/2,'ko'); end
+            end
+            if(doLatFig); drawnow(); end            
         end
-        if(doLatFig); drawnow(); end
         [~,temp] = sort(lat);
         [~,latRank] = sort(temp);                       % Ranking by latency
         
