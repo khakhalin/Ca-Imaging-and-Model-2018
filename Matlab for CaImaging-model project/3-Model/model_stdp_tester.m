@@ -10,10 +10,10 @@ function varargout = model_stdp_tester(type,oneFlag)
 % Aug 02 2018: More daily improvements.
 % Aug 06 2018: Now functionality for rewiring analysis
 % Aug 08 2018: All curves averageing removed (it's now in model_stdp_curve_plotter.m anyway, so no need to duplicate it here)
-% Sep 23 2018: Figures are no optional
+% Sep 23 2018: Figures are now optional
 
 % Depends on external: 
-%   network_rewire (only in nRewires>0 mode), 
+%   network_rewire - Maslov rewiring
 %   myst
 %   myCentrality - my collection of centrality measures
 %   myCyclicity - my attempt to calculate cyclicity

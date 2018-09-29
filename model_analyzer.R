@@ -8,12 +8,23 @@ require(ggplot2)
 
 rm(list = ls())  # Clear workspace
 
-d <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180919 slide looming - with 50 rewirings for each.csv",sep=",",header=T)
-names(d)
+#d <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180919 slide looming - with 50 rewirings for each.csv",sep=",",header=T)
 
+### Combine several model outputs into one large dataframe
+d <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180925 1 slide looming updated measures.csv",sep=",",header=T)
+t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180929 2 slide vis.csv",sep=",",header=T)
+d <- rbind(d,t)
+t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180929 3 slide shuffle.csv",sep=",",header=T)
+d <- rbind(d,t)
+t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180929 4 slide random.csv",sep=",",header=T)
+d <- rbind(d,t)
+
+names(d)
+summary(d)
+
+### Remove columns that we calculated, but that we don't like anymore:
 # For old files: drop assortativities (useless), as well as some other low-impact measures
 # d <- d %>% select (-c(asII,asIO,asOI,asOO,rDistWei,nPCAto80)) 
-
 d <- d %>% select (-c(nPCAto80)) 
 
 dg <- gather(d,var,value,-file,-type,-competition,-stage,-rewire)
@@ -47,7 +58,17 @@ dgs = dg %>% group_by(type,stage,var,rewire) %>% summarize(
   ci = -s/sqrt(n)*qt(0.025,df=n-1)) # Averages and cis
 head(dgs)
 
-# Plot Averages only (assuming that type is fixed, but rewire is not)
+# Plot Averages only, many TYPES, but no rewire
+ggplot(dgs,aes(stage,m,color=type)) + theme_bw() +
+  geom_point() + geom_line(aes(group=type)) +
+  facet_wrap(~var,scales = "free_y") +
+  theme(axis.text.y=element_text(size=6),
+        strip.background=element_rect(linetype='blank',fill='white'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  NULL
+
+# Plot Averages only, one type, but with REWIRE
 ggplot(dgs,aes(stage,m,color=rewire)) + theme_bw() +
   geom_point() + geom_line(aes(group=rewire)) +
   facet_wrap(~var,scales = "free_y") +
@@ -73,7 +94,7 @@ ggplot(data=dg,aes(stage,value,color=rewire)) + theme_bw() +
 # to only connect "proper" (original) points.
 
 # Zoom in on cyclicity in particular
-ggplot(data=d,aes(stage,eff,color=rewire)) + theme_bw() +
+ggplot(data=d,aes(stage,cycl,color=rewire)) + theme_bw() +
   geom_point(alpha=0.5) + 
   geom_line(data=subset(d,rewire=="original"),aes(group=file),alpha=0.3) +
   scale_y_log10() +
