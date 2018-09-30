@@ -50,7 +50,8 @@ avResponse = zeros(nTime,nCells);                   % Average response
 for(iSweep=1:nSweeps)                                           % For each sweep:
     t = (1:nTime) + (iSweep-1)*nTime;                           % find time indices that correspond to iit
     data2(t,:) = bsxfun(@plus,data(t,:),-mean(data(t,:)));      % unbias
-    data2(t,:) = bsxfun(@times,data2(t,:),1./std(data2(t,:)));  % normalize
+    temp = std(data2(t,:));     temp(temp==0) = 1;              % In a model, if a trace is all zero, std is also zero, and we don't want to divide by zero
+    data2(t,:) = bsxfun(@times,data2(t,:),1./temp);             % normalize
     avResponse = avResponse + data2(t,:);                       % add to the running average
 end
 avResponse = avResponse/nSweeps;                                % computer average

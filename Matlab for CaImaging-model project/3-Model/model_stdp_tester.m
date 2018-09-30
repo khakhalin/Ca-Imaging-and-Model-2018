@@ -4,13 +4,7 @@ function varargout = model_stdp_tester(type,oneFlag)
 %
 % A tester to study connectivity files created by model_stdp_multisens_1().
 
-% Jun 27 2018: Forked off model_stdp_multisens_1, for dedicated testing. Lots of shared code, unfortunately.
-% Jul 03 2018: Now can calculate summaries.
-% Jul 18 2018: Daily improvements so far.
-% Aug 02 2018: More daily improvements.
-% Aug 06 2018: Now functionality for rewiring analysis
-% Aug 08 2018: All curves averageing removed (it's now in model_stdp_curve_plotter.m anyway, so no need to duplicate it here)
-% Sep 23 2018: Figures are now optional
+% Manual version: Sep 30 2018
 
 % Depends on external: 
 %   network_rewire - Maslov rewiring
@@ -395,12 +389,12 @@ M = remember(M,'nPCAto80',nPCAto80);
 
 corW = zeros(nCells);
 for(iStimType=1:3)
-    respRoll = zeros(nTick*sum(stimType==iStimType),nCells);                        % A roll of all responses of this type
+    respRoll = zeros(nTick*sum(stimType==iStimType),nCells);                        % A roll of all responses of this type    
     nStimuli = 0;
     for(iStim=find(stimType'==iStimType))                                           % Go through all F stimuli
         respRoll(nStimuli*nTick+(1:nTick),:) = squeeze(spikeHistory(:,:,iStim));    % Add this response
         nStimuli = nStimuli+1;                                                      % N responses of this type happened
-    end
+    end    
     corW = corW+reshuffle_corr(respRoll,nStimuli,0);                                % Correlation on deviations from average
     switch iStimType
         case 1

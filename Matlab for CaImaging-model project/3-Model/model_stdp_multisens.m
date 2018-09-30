@@ -1,27 +1,22 @@
-function varargout = model_stdp_multisens_1(stimType)
-% model_stdp_multisens_1('full')
+function varargout = model_stdp_multisens(stimType)
+% model_stdp_multisens('full')
 % [w,sel,th] = model_stdp_multisens_1()
 %
 % A simple model to play with plastic networks.
+%
+% Best way to generate lots of inputs, call it like that:
+% for(i=1:50); model_stdp_multisens('looming'); end;
 
-% Aug 08 2017: Toy model.
-%   Transitioned to version _1 with inputs instead of forced random spiking.
-% Aug 10 2017: Mostly functional
-% Aug 14 2017: Blurry inputs, inactivation.
-% Aug 15 2017: reporting, reshuffling, threshold adjustment stage
-% Aug 17 2017: more varied collisions, more output measures
-% Sep 28 2017: new outputs
-% Jun 26 2018: Work on proper outputs started.
-% Jul 03 2018: + looming and loomsh
+% Manual version: Sep 30 2018
 
 
 %%% ------------------------    ------------ Constants ------------------------------------
 % rng(3);                                       % Set random generator seed: keep commented for normal runs
 
 saveResult = 1;                                 % If set to 1, runs a model and saves the results.
-outFolder = 'C:\Users\Arseny\Documents\3_Modeling\2018 Model outputs\';  % Where outputs will be saved
+outFolder = 'C:\Users\Arseny\Documents\7_Ca imaging\Model outputs\';          % Where to save outputs
 
-if(nargin<1); stimType = 'vis'; end;            % Stimulus type for training. Options: 
+if(nargin<1); stimType = 'looming'; end;        % Stimulus type for training. Options: 
                                                 % full      visual + mechanosensory hit-to-all at the end if it was a collision. Random mix of oblique transitions and collisions
                                                 % vis       visual only, without a multisensory slam at the end
                                                 % shuffle   like "vis", but scrambled. Note that sometimes hit-to-all at the end still happens because some vis stims have it
@@ -49,20 +44,22 @@ sTarget = sTarget/mean(sTarget)*5/nCells;       % Normalization. If sTarget==k/n
 
 sAvDecay = 0.95;                                % Decay coeff for running averaging of spiking = 1-tstep/tau; for tau=200ms k=0.95 (seems to be good)
 thSens = 0.1;                                   % Threshold change rate in the beginning. 0.1 is good
-kHebb = 0.25;                                   % STDP change rate. 1 is too fast (for nstim=1000), 0.1 is good but takes time
+plasticityType = 'STDP';                        % Two options: STDP and Hebb
+kHebb = 0.25;                                   % STDP change rate. 1 is too fast (for nstim=1000), 0.1 takes too much time. Optimal: 0.25
 blurDistance = 0.0;                             % Blurring distance for RGC inputs. Set to 0 for no blur, 0.5 for weak, 1 for pretty strong
 incompleteProjections = 0.0;                    % Amount of noise to add to retinal inputs (0 for none, 1 for full rand)
-inactivationMode = 'none';                      % Options: 'none', 'fast' (10 ms period), and 'slow' (~200 ms, based on sAvDecay)
-competitionMode = 'global';                      % How synaptic competition os realized. Options: in, out, global, decay, none, softin, softout, satin, satout, slide
-totalWeight = 1.5;                              % The forced sum of all outputs (aka How many saturated outputs could a cell have)
-synapticDecay = 1-0.0005;                       % Synaptic decay constant; is only relevant if decay is used for synaptic competition
+inactivationMode = 'none';                      % Options: 'none' (recommended), 'fast' (10 ms period), and 'slow' (~200 ms, based on sAvDecay)
+competitionMode = 'slide';                      % How synaptic competition os realized. Options: in, out, global, decay, none, softin, softout, satin, satout, slide (best)
+totalWeight = 1.5;                              % The forced sum of all outputs (aka How many saturated outputs could a cell have). Default: 1.5
+synapticDecay = 1-0.001;                        % Synaptic decay constant; is only relevant if decay is used for synaptic competition. Something like 1-0.001 may work
 
 % Set that kinda works (2017): brainDim  9, nStim 1000, nTick 25, decay 0.98, thSens 0.1, kHebb 0.2, no blur (0), no inactivation
 % Another set (2018): brainDim 9, nStim 500, nTick 25, decay 0.95, thSens 0.1, kHebb, 0.25, noblur, no inactivation
 % Random stimulation ('rand') produces slowest convergence (stabilization) of network properties, while looming ('crash') are the fastest.
 % So when optimzing a set of parameters (especially nStim and kHebb) make sure it kind of works for both
 
-fprintf('Starting a model:%d cells, %d stimuli of %s type, %s competition, %s inactivation\n',nCells,nStim,stimType, competitionMode, inactivationMode);
+fprintf('Starting a model:%d cells, %d stimuli of %s type, %s rule, %s competition, %s inactivation\n',...
+    nCells, nStim, stimType, plasticityType, competitionMode, inactivationMode);
 
 %%% ------------------------------------ Starting parameters ------------------------------------
 w = rand(nCells);                               % Random connections
@@ -146,9 +143,16 @@ while(t<=tmax)                                  % We control for the total numbe
         sAv = sAv*sAvDecay + s*(1-sAvDecay);    % Calculate running average spiking
         th = th - (sTarget-sAv)*thSens;         % Homeostatic plasticity that stays the same
 
-        %%% STDP
-        %w = w+diag(s-s1)*w*diag(s1)*kHebb;         % STDP: reward if s1 interacted (w) with s, but a punishment if with s1. This formula is very slow though        
-        w = w+kHebb*bsxfun(@times,bsxfun(@times,s(:)-s1(:),w),s1(:)'); % STDP; Exactly the same formula as above, but ~100 times faster (literally)        
+        %%% Synaptic plasticity
+        switch plasticityType
+            case 'STDP'
+                %w = w+diag(s-s1)*w*diag(s1)*kHebb;         % STDP: reward if s1 interacted (w) with s, but a punishment if with s1. This formula is very slow though        
+                w = w+kHebb*bsxfun(@times,bsxfun(@times,s(:)-s1(:),w),s1(:)'); % STDP; Exactly the same formula as above, but ~100 times faster (literally)
+            case 'Hebb'
+                w = w+kHebb*bsxfun(@times,bsxfun(@times,s(:),w),s1(:)'); % Simple Hebb (as an alternative)
+            otherwise
+                error('Wrong plasticity type');
+        end
                 
         %%% Synaptic competition (several alternatives; pick any one)
         switch(competitionMode)
@@ -213,6 +217,7 @@ if(saveResult)                                      % If it's time to save the r
     U.totalOut = totalWeight;                       % This one and below we'll need for accounting purposes (to know what is what)
     U.sAvDecay = sAvDecay;
     U.thSens = thSens;
+    U.plasticityType = plasticityType;              % STDP or simple Hebb
     U.kHebb = kHebb;
     U.blurDistance = blurDistance;
     U.incompleteProjections = incompleteProjections;

@@ -11,13 +11,28 @@ rm(list = ls())  # Clear workspace
 #d <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180919 slide looming - with 50 rewirings for each.csv",sep=",",header=T)
 
 ### Combine several model outputs into one large dataframe
-d <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180925 1 slide looming updated measures.csv",sep=",",header=T)
-t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180929 2 slide vis.csv",sep=",",header=T)
-d <- rbind(d,t)
-t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180929 3 slide shuffle.csv",sep=",",header=T)
-d <- rbind(d,t)
-t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180929 4 slide random.csv",sep=",",header=T)
-d <- rbind(d,t)
+figureToMake = 'rules'
+if(figureToMake=='inputs') {
+  d <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180925 1 slide looming.csv",sep=",",header=T)
+  t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180929 2 slide vis.csv",sep=",",header=T)
+  d <- rbind(d,t)
+  t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180929 4 slide random.csv",sep=",",header=T)
+  d <- rbind(d,t)
+  }
+if(figureToMake=='rules') {
+  d <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180925 1 slide looming.csv",sep=",",header=T)
+  d$type <- 'base'
+  t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180930 5 slide looming weak intrinsic.csv",sep=",",header=T)
+  t$type <- 'no intrinsic'
+  d <- rbind(d,t)
+  t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180930 6 slilde looming Hebb.csv",sep=",",header=T)
+  t$type <- 'no STDP'
+  d <- rbind(d,t)
+  t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180930 7 decay looming.csv",sep=",",header=T)
+  t$type <- 'no competition'
+  d <- rbind(d,t)
+  d$type <- factor(d$type) # Strings to factors, just in case
+  }
 
 names(d)
 summary(d)
