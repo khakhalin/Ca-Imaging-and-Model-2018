@@ -386,7 +386,7 @@ if(doSelectivity)
     temp = sort(w(:));                  % Sort all weights
     edgeThreshold = temp(end-nCells);   % find a thershold so that about nCells weights would pass it (similar to how we do it in experiments, to make E=V)
     [histDegIn,~] = histcounts(sum(w>edgeThreshold,2),(0:10)-0.5);	% In-degree distributions (of a thresholded graph)
-    [histDegOu,~] = histcounts(sum(w>edgeThreshold,1),(0:10)-0.5);	% Out-degree distributions
+    [histDegOu,~] = histcounts(sum(w>edgeThreshold,1),(0:10)-0.5);	% Out-degree distributions. Could have just used round() here.
     histDegIn = max(histDegIn,1)/nCells;                % Limit above zero to make log() possible
     histDegOu = max(histDegOu,1)/nCells;
     x = log(1:8);                                       % For fitting, skip deg==0 (arguably deg=1 could have been skipped as well, but I decided to include it)

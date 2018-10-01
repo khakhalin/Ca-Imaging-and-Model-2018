@@ -3,9 +3,7 @@ function caimaging_pca()
 %
 % Analysis of network responses.
 
-% Oct 05 2017: Caimaging_pca forked from caimaging_structure. All TE calculations and other heavy lifting is left there,
-%   while this program now does everything else. Basically, all analysis that doesn't use connectivity reconstruction.
-% Aug 14 2018: Lots of minor improvements.
+% Manual version: Oct 1 2018
 
 S = [];
 iBrain = 0;
@@ -72,14 +70,14 @@ iBrain = iBrain+1; folderName{iBrain} = '140310'; age(iBrain) = 49; % Short reco
 showRawData = 0;                    % Whether raw (well, raw-ish) data debugging figures need to be shown
 showRawFigure = 0;                  % Not all raw data, but just enough for a figure
 pcaStimType = 1;                    % Set to 1 if PCA and response dynamics are to be run on crashes only (recommended); 2=flash, 3=scramble; 0=full triad
-randomizePositions = 1;             % Set to 1 if all xy positions should be randomly reassigned (as a H0-style test for position-related methods)
+randomizePositions = 0;             % Set to 1 if all xy positions should be randomly reassigned (as a H0-style test for position-related methods)
 showAverageResponses = 0;           % For average reponses. IS NOT IMPLEMENTED BEYOND INDIVIDUAL RESPONSES
 flagUsePeakAmps = 0;                % If set to 1, overrides cumulative amplitudes (amps) with peak amplitudes (ampsPeak)
 
 doPCA = 1;                          % Factor analysis. The "origin point" for retinotopic responses is also calculated here. Needs to be 1 for all analyses in this group.
 reportPCA = 0;                      % Whether PCA stats need to be reported
 retinotopyLogic = 'pca';            % Two options here: 'lat' to calculate retinotopy center on response latencies; 'pca' to use early PCA component
-reportRetinotopy = 1;               % Whether retinotopy should be reported to the console.
+reportRetinotopy = 0;               % Whether retinotopy should be reported to the console.
 showPCAfigure = 0;                  % Show PCA figure for each brain
 showPCAsummaryFigure = 0;           % PCA cumulative figure
 
@@ -89,7 +87,7 @@ doCorrelationFig = 0;               % plot raw correlation matrices - NOT SURE I
 %%% --- Selectivity group of analyses. The selectivity is always calculated, but we can turn summaries and reporting on and off as we please
 showResponseAmplitudes = 0;         % Main simplistic figure for response amplitudes. Also outputs t-test p-values within every brain to the console
 reportSelectivity = 0;              % Selectivity is always calculated, but this triggers whether it is reported in the console
-selectivityName = 'FC';             % Pick which selectivity to report: FC, FS, SC, or C (the weighted one, C over [F+S]/2). C is good for correlations with other things
+selectivityName = 'FC';             % Pick which selectivity to report: FC (default), FS, SC, or C (the weighted one, C over [F+S]/2)
 showSelTypes = 0;                   % Cell selectivity types figure
 selToCompare = 'FCtoFS';            % What to compare: FCtoSC (is it a geometry detection?); or FCtoFS (is it a dynamics detection?)
 showSelectivityHist = 0;            % Show selectivity histograms (one figure for all brains).
@@ -121,15 +119,17 @@ for(iBrain = 1:nBrains)
     nSweeps = length(S);                                % Number of sweeps
     nCells = size(S(1).dataS,2);                        % Number of cells
     time = S(1).timeS;                                  % Good safe time to use later    
-    if(isempty(goodSpikeTime)); goodSpikeTime = find((time>goodSpikeTimeRange(1)) & (time<=goodSpikeTimeRange(2))); end; % Only updated once, to make sure it's == always
+    if(isempty(goodSpikeTime))                          % Only build once, to keep consistent across experiments
+        goodSpikeTime = find((time>goodSpikeTimeRange(1)) & (time<=goodSpikeTimeRange(2))); % A vector of time points that fall within the good range
+    end 
     nTime = length(goodSpikeTime);
     time = time(goodSpikeTime);                         % Only leave middle of the slides, far enough from artifacts.
-    timePerTick = mean(time(2:end)-time(1:end-1))*1000; % ms per time tick
+    timePerTick = mean(time(2:end)-time(1:end-1))*1000; % ms per time tick, used for some images
     if(~randomizePositions)
         xy = S(1).xy;
     else
         xy = S(1).xy(randperm(nCells),:);               % If needed - randomlize everything
-        if(iBrain==1); fprintf('NOTE: cell positions were randomized\n'); end;
+        if(iBrain==1); fprintf('NOTE: cell positions were randomized!\n'); end
     end
     % fprintf('%5d cells, %5d stimuli, %5d time points\n',nCells,nSweeps,length(goodSpikeTime));
     if(size(xy,1)>nCells)
@@ -149,7 +149,8 @@ for(iBrain = 1:nBrains)
     stimType = mod((1:nSweeps)-1,3)+1;      % Sweep types: 1=C, 2=F, 3=S
     averageShapePerCell = zeros(nTime*3,nCells);  % To keep average traces for every cell, all 3 stim after one another
     averageShapePerType = zeros(nTime,3);         % Average response shapres across entire OT
-    for(iSweep=1:nSweeps)     
+    for(iSweep=1:nSweeps)
+        % figure; plot(S(iSweep).dataF(:,:)); hold on; plot([goodSpikeTime(1) goodSpikeTime(end)],[1 1],'ok'); hold off; error(); % Debugging plot.
         averageShapePerCell((1:nTime)+(stimType(iSweep)-1)*nTime,:) = ...
             averageShapePerCell((1:nTime)+(stimType(iSweep)-1)*nTime,:) + S(iSweep).dataS(goodSpikeTime,:);
         amps = [amps; mean(S(iSweep).dataS(goodSpikeTime,:))];      % Total amplitude of reach cell and each response
@@ -162,8 +163,7 @@ for(iBrain = 1:nBrains)
     traceS = repmat(1:3,1,nSweeps/3)';                              % For each sweep, which stimulus type is it?    
     for(iType=1:3)        
         averageShapePerType(:,iType) = mean(averageShapePerCell((1:nTime)+nTime*(iType-1),:),2);  % Average curves for 3 responses
-        [peakY,temp] = max(averageShapePerType(:,iType));
-        % averageShapePerType(:,iType) = averageShapePerType(:,iType)/peakY;
+        [peakY,temp] = max(averageShapePerType(:,iType));        
         peakX(iType) = temp;
     end
     for(iSweep=1:nSweeps)
@@ -251,7 +251,7 @@ for(iBrain = 1:nBrains)
                 end
             end
             hold off;
-            drawnow();
+            drawnow();            
         end
     end    
     
@@ -480,10 +480,10 @@ for(iBrain = 1:nBrains)
         end
         if(iBrain==1); % Titles in the console
             fprintf('Reporting selectivity: %s\n',selectivityName); 
-            fprintf('Experiment       delta   meanSel sdSel  skewness median  90quant    s(>0)  sel2\n'); 
+            fprintf('Experiment       delta   meanSel sdSel  skewness median  90quant    s(>0)  sel2   rSelSel2\n'); 
         end
-        fprintf('%12s\t%5.2f\t%5.2f\t%5.2f\t%5.2f\t%5.2f\t%5.2f\t%8.4f\t%5.2f\n',name,...
-            fullDelta, mean(thisSel), std(thisSel), skewness(thisSel,1), median(thisSel), quantile(thisSel,0.9), sum(thisSel>0)/nCells, mean(sel2)); 
+        fprintf('%12s\t%5.2f\t%5.2f\t%5.2f\t%5.2f\t%5.2f\t%5.2f\t%8.4f\t%5.2f\t%5.2f\n',name,...
+            fullDelta, mean(thisSel), std(thisSel), skewness(thisSel,1), median(thisSel), quantile(thisSel,0.9), sum(thisSel>0)/nCells, mean(sel2), corr(thisSel(:),sel2(:))); 
             %%% Note: Skewness here is not "unbiased" (flag==1), and that's the default for Matlab. It's just a coeff though, not an uncentered moment.
         hF = findobj('type','figure','name','allSel');
         if(isempty(hF)); hF = figure('Color','white','name','allSel'); hold on; xlabel('Brain'); ylabel([selectivityName ' Selectivity']); end
@@ -542,9 +542,6 @@ for(iBrain = 1:nBrains)
         end
         if(iBrain==1); fprintf('Name    cor(sel1,sel2)\n'); end
         fprintf('%8s\t%8.2f\t%10s\n',name,r,myst(p));
-        % colormap(brewermap(20,'OrRd')); 
-        %scatter(mean(amps(itWasaF==1,:),1),mean(amps(itWasaC==1,:),1),40,sel2','filled','MarkerFaceAlpha',.5); %,'MarkerEdgeColor','none');
-        %scatter(selFC,selSC,40,sel2','filled','MarkerFaceAlpha',.5); %,'MarkerEdgeColor','none');
         
         if(0)                   % Weird figure where responses of different shapes are thrown across the plot based on their selectivity. Doesn't work.
             hold on;
