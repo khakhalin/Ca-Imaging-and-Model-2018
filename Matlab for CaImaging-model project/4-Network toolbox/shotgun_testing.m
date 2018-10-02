@@ -3,23 +3,28 @@ function shotgun_testing()
 %
 % A routine to test the effects of sparse sampling on network measurements
 
+% Sep 15 2018: Created
+% Oct 02 2018: Subsampling for large nCells removed. Some cleanup.
+
+
 nSteps = 7;                         % How many rewire steps to perform
-nCells = 500;                      % The modularity function works OK for up to 1000 cells, but then gets extremely slow at ~3000 (30 s for one calculation), 
+nCells = 500;                       % The modularity function works OK for up to 1000 cells, but then gets extremely slow at ~3000 (30 s for one calculation), 
                                     % and becomes completely unresponsive at 10000 (no result after several hours of waiting)
-nCellsMax = 1000;                   % If nCells is greater than nCellsMax, we start subsampling estimations for some functions (modularity)
 nRewire = floor(0.004*nCells^2);    % How many edges (not nodes!) to rewire at each run
 nSample = 100;                      % How many cells to sample
 nNetworks = 5;                      % How many different networks (independent experiments) to run
 nSubsamples = 2;                    % How many substamples from each network to try
+nCellsMax = 3000;                   % Max nCells possible (a safety thing, as when nCells is too high, everything just freezes)
 
 useErrorBars = 0;
 rewiringType = 'noise';             % options: maslov (degree preserving), random (move where the edges are pointing), noise (xor a bunch of edges)
 
 hF = figure('Color','white');
-listOfTitles = {'Modularity','Clustering','Reach','Rev Reach','Efficiency'};
-listOfLimits = [1 0.4 0.2 0.2 1];   % X and Y upper limits for each of the measures
-for(iPlot=1:6)
-    ha(iPlot) = subplot(2,3,iPlot); 
+listOfTitles = {'Modularity','Clustering','Hierarchy','Efficiency'};
+listOfLimits = [1 0.4 0.2 1];   % X and Y upper limits for each of the measures
+
+for(iPlot=1:4)                                                          % Create all axes with proper labels; we'll be platting into them
+    ha(iPlot) = subplot(2,2,iPlot); 
     if(iPlot<=length(listOfTitles))
         title(listOfTitles{iPlot});
     end
@@ -35,19 +40,22 @@ end
    
 for(iNetwork = 1:nNetworks)    
     %%% Create a fake network
-
-    % A = create_modular_network(nCells,floor(nCells/10),0.7,0.1);	% DA string of connected clumps - good modularity, high clustering
-    A = create_modular_network(nCells,floor(nCells/10),0.5,0.2);	% A thin doughnut - decent modularity, low clustering
+    % A = create_modular_network(nCells,floor(nCells/10),0.7,0.1);	% DA string of connected clumps - good modularity, high clustering    
     % A = create_modular_network(nCells,floor(nCells/10),0.9,0.1);	% Loosely connected rings - presumably cyclicity should be good, but not really
+    A = create_modular_network(nCells,floor(nCells/10),0.5,0.2);	% A thin doughnut - decent modularity, low clustering
+    
     for(iStep = 1:nSteps)
         fprintf('Network %d/%d - step %d/%d\n',iNetwork,nNetworks,iStep,nSteps);
+        if(nCells>nCellsMax)
+            error('Number of Cells is too high; in practice the program will never finish.');
+        end
         ind = randperm(nCells);                                     % Shuffle indices
-        ind = ind(1:min(nCellsMax,nCells));                         % Then take nSample first ones. That would be our sample
+        ind = ind(1:nCells);                                        % Then take nSample first ones. That would be our sample
         B = A(ind,ind);                                             % Sub-network: Looking only at it, to make calculations feasible        
         
         [~,aMod] = modularity_dir(B);                               % Full network measuremens: modularity
         aClu = mean(clustering_coef_bd(B));                         % Clustering
-        [aFlo, aRfl] = network_flow(B);                             % Reach via Katz centrality        
+        [aHie, ~] = network_flow(B);                                % Flow hierarchy    
         aEff = efficiency_wei(B);                                   % Global efficiency (average inverse shortest path between al pairs of nodes)
 
         iTry = 1;
@@ -58,10 +66,9 @@ for(iNetwork = 1:nNetworks)
             try
                 [~,yMod(iTry)] = modularity_dir(C);                 % Modularity sometimes produces an error (when the network gets disconnected?), so it's wrapped in a TRY
                 yClu(iTry) = mean(clustering_coef_bd(C));           % Clustering
-                [yFlo(iTry), yRfl(iTry)] = network_flow(C);         % Reach via Katz centrality
-                temp = 1./C; temp(isnan(temp)) = 0;
-                yEff(iTry) = efficiency_wei(temp);                  % Efficiency
-            catch                                                   % If it was a bad try (for example, the graph become weirdly disconnected and something crashed)...
+                [yHie(iTry), ~] = network_flow(C);                  % Flow hierarchy via Katz centrality                
+                yEff(iTry) = efficiency_wei(C);                     % Efficiency
+            catch                                                   % If it was a really bad try (for example, the graph become weirdly disconnected and something crashed)...
                 continue                                            % ...just try again
             end
             iTry = iTry+1;                                          % Otherwise, if the results were fine, remember them
@@ -74,9 +81,8 @@ for(iNetwork = 1:nNetworks)
         else
             plot(ha(1),aMod,yMod,'b.');
             plot(ha(2),aClu,yClu,'b.');
-            plot(ha(3),aFlo,yFlo,'b.');
-            plot(ha(4),aRfl,yRfl,'b.');
-            plot(ha(5),aEff,yEff,'b.');
+            plot(ha(3),aHie,yHie,'b.');
+            plot(ha(4),aEff,yEff,'b.');
         end
         drawnow();
 
