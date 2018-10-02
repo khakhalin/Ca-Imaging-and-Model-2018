@@ -4,14 +4,21 @@ function varargout = model_stdp_tester(type,oneFlag)
 %
 % A tester to study connectivity files created by model_stdp_multisens_1().
 
-% Manual version: Sep 30 2018
-
 % Depends on external: 
 %   network_rewire - Maslov rewiring
 %   myst
 %   myCentrality - my collection of centrality measures
 %   myCyclicity - my attempt to calculate cyclicity
 % Currently carries as a copy: myplot
+
+% Jun 27 2018: Forked off model_stdp_multisens_1, for dedicated testing. Lots of shared code, unfortunately.
+% Jul 03 2018: Now can calculate summaries.
+% Jul 18 2018: Daily improvements so far.
+% Aug 02 2018: More daily improvements.
+% Aug 06 2018: Now functionality for rewiring analysis
+% Aug 08 2018: All curves averageing removed (it's now in model_stdp_curve_plotter.m anyway, so no need to duplicate it here)
+% Sep 23 2018: Figures are now optional
+% Sep 30 2018: General large-scale clean-up
 
 
 %%% ------------------------------------ Constants ------------------------------------

@@ -7,7 +7,16 @@ function varargout = model_stdp_multisens(stimType)
 % Best way to generate lots of inputs, call it like that:
 % for(i=1:50); model_stdp_multisens('looming'); end;
 
-% Manual version: Sep 30 2018
+% Aug 08 2017: Toy model.
+%   Transitioned to version _1 with inputs instead of forced random spiking.
+% Aug 10 2017: Mostly functional
+% Aug 14 2017: Blurry inputs, inactivation.
+% Aug 15 2017: reporting, reshuffling, threshold adjustment stage
+% Aug 17 2017: more varied collisions, more output measures
+% Sep 28 2017: new outputs
+% Jun 26 2018: Work on proper outputs started.
+% Jul 03 2018: + looming and loomsh
+% Sep 30 2018: General large-scale clean-up
 
 
 %%% ------------------------    ------------ Constants ------------------------------------
