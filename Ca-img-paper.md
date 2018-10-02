@@ -86,7 +86,7 @@ The network **modularity** is the most commonly used measure of large-scale netw
 
 The property of **hierarchical flow** is a rather complicated measure [XXX] based on the distribution of Katz centrality values within the network (see Methods for the definition) [XXX]. Intuitively, the flow hierarchy is high when connections between different subsets of nodes largely point in the same direction, as it happens in layers networks, networks with chains of directed edges, or activity sinks [Mones Vicsek Vicsek 2012]. We hypothesized that a network with dedicated looming detectors may exhibit non-trivial flow hierarchy, but the data we observed was hard to interpret, as structural non-randomness and the non-randomness of degree distribution affected hierarchical flow coefficients in opposite ways, with these two effects cancelling each other. Indeed, observed networks were more hierarchical than randomized networks with matching degrees distribution (d=1.5 and 1.1, paired p_t=1e-04 and 1e-03 for younger and older tadpoles respectively), but randomized networks with matching degrees distribution were substantially less hierarchical than fully randomized networks with matching distribution of w_ji (d=-4.5 and -2.6, paired p_t = 4e-8 and 2e-6 respectively). There was no difference in development (d=-0.3, p_t=0.4).
 
-We also introduced a measure of **cyclicity**, which quantified the presence and average strength of various directed cycles starting from a node and returning back to the same node, relative to a similar value on a full graph without self-loops, with the same number of nodes (see Methods). The cyclicity of observed graphs (1.4±1.4 e-4 for younger, 3.8±4.3 e-5 for older tadpoles) was higher than expected for this degree distribution (d=0.8 and 0.8, paired p_t=0.002 and 0.01 for younger and older animals respectively), but the value for a random graph with a matching degree distribution was lower than for a fully randomized graph (d=-2.2 and -2.6, paired p_t=3e-5 and 2e-6 respectively). This non-trivial pattern means that compared to a fully random graph, the distribution of degrees did not favor short cycles (as it had fewer nodes with d>2), yet actually observed graphs were structurally enriched with short cycles. There was no change in cyclicity in development (d=-0.1, p_t=0.9).
+We also introduced a measure of **cyclicity**, which quantified the presence and average strength of various directed cycles starting from a node and returning back to the same node, relative to a similar value on a full graph without self-loops, with the same number of nodes (see Methods). The cyclicity of observed graphs (1.4±1.4 e-4 for younger, 3.8±4.3 e-5 for older tadpoles) was higher than expected for this degree distribution (d=0.8 and 0.8, paired p_t=0.002 and 0.01 for younger and older animals respectively), but the value for a random graph with a matching degree distribution was lower than for a fully randomized graph (d=-2.2 and -2.6, paired p_t=3e-5 and 2e-6 respectively). This non-trivial pattern means that compared to a fully random graph, the distribution of degrees did not favor short cycles (as it had fewer nodes with k>2), yet actually observed graphs were structurally enriched with short cycles. There was no change in cyclicity in development (d=-0.1, p_t=0.9).
 
 ## Selectivity Mechanisms
 
@@ -101,8 +101,6 @@ As cells with higher Katz centrality tend to be activated more often, we checked
 If looming-selective cells are gathering information from the network, it was also plausible to hypothesize that they would be more likely to be connected to each other, rather than to non-selective cells. To test whether it is true, we used the weighted **assortativity of selectivity** values: essentially, a correlation between the selectivity scores of every pair of cells connected by an edge, with a strength of this edge weighted into the calculation. Similar to the tests described above, the selectivity values of connected cells did not correlate in graphs reconstructed from younger tadpoles (r=0.05±0.12, p_t1=0.14, individual r>0 in 9/14 experiments), but they did correlate in graphs recorded in older tadpoles (r=0.05±0.07, p_tq=0.01; individual r>0 in 11/16 experiments). Together, these results suggest that the distribution of selective cells in developed network becomes less random, which may mean that distributed network calculations start to play a bigger role in looming stimulus detection in older animals.
 
 We also hypothesized that on average selectivity for looming stimuli may gradually “accumulate” as the signal propagates through the network, and so “downstream” cells on the receiving end of a strong edge within the graph would, on average, be more selective than “upstream” cells. This hypothesis proved to be wrong in both younger and older tadpoles: across all experiments, 52±7% of strong edges (top quartile of w_ji values) led from cells with less to more selective cells, which is not different from chance rate (p_t1=0.1 for analysis across experiments, n=30). A weighted average increase in selectivity between two cells connected by an edge was 0.02±0.07 (p_t1=0.2, n=30), and there was no change in this value in development (p_t=0.2, n=14, 16).
-
-For the sake of transparency, here’s a list of measures that we calculated, but could not interpret, and so did not include in the final manuscript: four measures of weighted directed degree assortativity (in-in, in-out, out-in, and out-out); pagerank centralities; Katz centralities and hierarchical flows on reversed graph W’.
 
 # Model
 
@@ -163,7 +161,7 @@ We show that STDP leads to increase in network modularity, similar to how it was
 
 Unless stated otherwise, all values are reported as mean ± standard deviation. For most common tests, the type of a test is indicated by the subscript for its reported p-value: p_t for a two-sample t-test with two tails and unequal variances; p_t1 for a one-sample two-tail t-test; p_r for a Pearson correlation test; p_binom for a one-tail binomial test, and p_F for the analysis of variance (ANOVA, ANCOVA, multilinear regression).
 
-Note also that in this paper we consistely describe adjacency matrices as they are used in computational neuroscience, where w_{ji} is a weight of an edge coming from node i to node j, which is different from how adjacency matrices are used in graph theory, where A_{ji} would typically mean an edge from node j to node i.
+Note also that in this paper we consistely describe adjacency matrices as they are used in computational neuroscience, where w_{ji} is a weight of an edge coming from node i to node j, which is different from how adjacency matrices are used in graph theory, where A_{ji} would typically mean an edge from node j to node i (and so W = A^\top).
 
 ## Experiments
 
@@ -180,16 +178,14 @@ In this series of experiments, we did not attempt to match inferred spike trains
 ## Analysis
 
 **Basic analysis**
-*How response amplitudes were measured (cumulative on a range XXX to XXX) TODO*
-
-As a measure of stimulus selectivity for each cell, and in some cases for the selectivity of total network response, we used Cohen’s d effect size for the difference between responses to looming and flash, or looming and scrambled stimuli:
+For response amplitudes, we used average reconstructed responses between 250 and 2000 ms into the recording, as this window included visual responses, but excluded artifacts caused by the excitation light. As a measure of stimulus selectivity for each cell, and in some cases for the selectivity of total network response, we used Cohen’s d effect size for the difference between responses to looming and flash, or looming and scrambled stimuli:
 
 $$d = (m_L-m_F)/ \sqrt{ \big((n_L-1) s^2_L + (n_F-1) s^2_F)/(n_L + n_F - 2)} = (m_L-m_F)/\sqrt{\big(s^2_L+s^2_F\big)/2}$$
-in case of equal sample sizes n_L=n_F=n; here m_L and m_F are mean responses to looming and flash stimuli respectively, and s_L , s_F are standard deviations for both groups. To verify that Cohen d captured the nature of selectivity to a certain stimulus type, we also quantified selectivity as McFadden’s pseudo-$$r^2$$, by fitting total spiking response of each cell to stimulus identity, and assessing the quality of this fit (see Methods). Across all cells recorded in all experiments, both measures correlated (r=0.66±XXX), and the results on pseudo-$$r^2$$ were qualitatively similar to those on Cohen’s d.
+in case of equal sample sizes n_L=n_F=n; here m_L and m_F are mean responses to looming and flash stimuli respectively, and s_L , s_F are standard deviations for both groups. 
 
 To find the retinotopy center, we concatenated all responses of every cell to looming stimuli into one long vector, ran a principal component analysis on these vectors, then rotated two first components using promax rotation, and made sure that the 1st component c^1 is the one with shorter latency, and that it is positive, flipping the components if necessary. We then ran a non-linear optimization, looking for a pair of coordinates for the “retinotopy center” (x,y) that would maximize the absolute value of correlation between distances of each cell to this center and the prominence of the short-latency component in this cell:
 
-$$r = \text{cor}\big(\sqrt{(x_i-x)^2+(y_i-y)^2}\ ,\ c^1_i/(c^1_i + c^2_i)\big)$$
+$$r = \text{cor}\big(\sqrt{(x_i-x)^2+(y_i-y)^2}\ ,\ c^1_i/(c^1_i + c^2_i)\, \big)$$
 
 For response latency calculations, we looked at each response y(t), and found the position of its maximum (x_M, y_M). We then used the least squares fit with non-linear solved to approximate the segment between the beginning of the response and x_M with a piecewise linear function:
 
@@ -263,8 +259,7 @@ To make the edge inference more robust, for 30 experiments included in further a
 
 The TE approach did not distinguish between positive and negative influence of one neuron on another, so our reconstructed edges could include a mix of excitatory and inhibitory connections. To estimate the share of putative inhibitory connections, we calculated pairwise correlations between activities of individual neurons, compensating for the effect of shared inputs through trial reshuffling (similar to how it was done for TE), and looked at the sign of these correlations for pairs of neurons with TE>0. We found that 3\pm7% of detected connections seemed inhibitory or inactivating, with no difference between developmental stages (d=0.55, p_t=0.1). According to our current understanding on the tectal architecture, deepest principal tectal neurons are not expected to be inhibitory [REF?], and the share of negative correlations tended to be lower in experiments with better signal-to-noise ratio, suggesting that at least part of observed inactivating connections may be false discoveries. 
 
-To analyse **degree distributions**, we **TODO**
-*How did we round them? Because this is supposedly a weighted graph?*
+To analyse **degree distributions**, we first calculated weighted in- and out-degrees, as the sum of weights of incoming and outgoing edges, and rounded them towards nearest whole number, and calculated the frequencies F_{in}(k) and F_{out}(k) for each degree k. To estimate the power law constants, we fit a regression line -\gamma k + b to a cloud of point [k , log(F(k)) ], for in- and out-degrees separately, then averaged \gamma_{in} and \gamma_{out} to arrive at one estimation \gamma.
 
 **Network analysis**
 We reviewed several lists of statistical and topological metrics of weighted undirected graphs [refs], and selected a sufficiently diverse set of measures that described different aspects of graphs, including average connectivity, unevenness of density, and global structure, and did not change too strongly with the inclusion or exclusion of individual weakly connected nodes. This last point is important, as some topological properties of a graph, such as its cycle order, or the presence of broadly defined “small world” properties, can be notoriously sensitive to the inclusion of only a few weak long-ranged connections [refs]. We wanted to make sure that the measures chosen for network topology description would not change catastrophically from one experiment, or one animal group, to another because of small variations in the level of noise, or a slightly more generous selection of regions of interests during Ca imaging quantification. We ended up with the following list of network metrics:
@@ -281,7 +276,7 @@ where k^o_i and k^i_i are out- and in-degrees of node i respectively, and t_i is
 
 t_i = \sum_{j \neq i}{\sum_{k \neq i,j}{w^{1/3}_{ij}w^{1/3}_{jk}w^{1/3}_{ki}}}
 
-For **spectral modularity**  we used a TODO
+To estimate network **modularity**, we used a function from the Brain Connectivity Toolbox [Rubinov Sporns] that calculated spectral modularity on a weighted directed graph [Leicht Newman 2008; Reichardt Bornholdt 2006].
 
 Our custom definition of **hierarchical flow** was inspired by [ref], but based on the modified Katz centrality [Katz 1953, Fletcher 2017]. To calculate Katz centrality, we assumed that on average, each node i collected a flow of incoming signals through all edges w_{ij} leading to this node. The activation arriving through edge w_{ij} was proportional to total activation z_j of node j, the edge weight w_{ij}, a normalization coefficient equal to 1/\text{max}*{*kl}(w{kl}), and a damping factor of d=0.9, and also received a small amount of constant activation (1-d)=0.1. The total activation of each node was therefore defined as:
 
@@ -291,13 +286,13 @@ Each node then further redirected this activation to other nodes. This definitio
 
 h = max_i(z_i) - mean_i(z_i)
 
-Custom definition of **cyclicity**, or the prevalence of cycles in the graph. TODO
+We also introduced a measure of **cyclicity**, or the prevalence of short cycles in the graph. We considered nodes of the graph one by one, assumed that constant activation flow arrives to each of these nodes, and let the activation spread across the edges of the graph with probability d \cdot w_{ji} (with d = 0.9), similar to how we did it for Katz centrality. We then let these activation flows converge to a stable solution, and calculated the total flow that reached each node back via all cycles that started from it and ended in it. We then calculated the total of all these cyclical flows across all nodes, and divided it onto a similar value calculated on a full directed graph without loops with the same number of nodes. In practice cyclic flows to each node can of course be calculated together by introducing a flow matrix \textbf{S}, and then going through a sequence of iterations: $$\textbf{S} = \textbf{W} \, \text{max}(\textbf{S} , \textbf{E})$$ , where \textbf{E} is the identity matrix, and max is an elementwise maximum operator.
 
 To check whether network values described above were different from values expected on a random graph, we performed a two-stage graph randomization. First, we randomized each graph using a variety **degree-preserving reshuffling** [Maslov 2002]. To do so, for a network with N_E edges we picked 3\cdot N_E random pairs of nodes (nodes i, j, k, and l) that had strong connections from i to j, and from k to l, but weak connections from i to l, and from j to k (we required w_{ji}>w_{li} and w_{lk}>w_{jk}). We also required all four nodes be different (i \neq j \neq k \neq l). Then we cross-wired them, thus gradually randomizing network topology:
 
 $$\begin{cases} w_{ji} \leftarrow w_{li} \\ w_{li} \leftarrow w_{ji} \\ w_{lk} \leftarrow w_{jk} \\ w_{jk} \leftarrow w_{lk} \end{cases}$$
 
-This approach to degree-preserving randomization is slightly different from the original formulation by [Maslov 2002] in two ways. First, we explicitly don’t allow loops (self-edges) by requiring all four nodes be different. Second, we allow nodes i and k, as well as l and j to be connected before the rewiring, and just swap corresponding edge weights, which seems to be a necessary adjustment for directed weighted graphs. It also means that for strictly speaking, for a weighted graph, our randomization only preserves out-degrees, but not in-degrees. Because of the requirement that w_{ji}>w_{li} and w_{lk}>w_{jk}, for a binary directed graph our algorithm preserves in-degrees strictly, as it becomes identical too [Maslov 2002], while for nearly-binary graphs (either bimodal or sparse), it will tend to preserve in-degrees on average. 
+This approach to degree-preserving randomization is slightly different from the original formulation by [Maslov 2002] in two ways. First, we explicitly don’t allow loops (self-edges) by requiring all four nodes be different. Second, we allow nodes i and k, as well as l and j to be connected before the rewiring, and just swap corresponding edge weights, which seems to be a necessary adjustment for directed weighted graphs. It also means that strictly speaking, for a weighted graph, our randomization only preserves out-degrees, but not in-degrees. Because of the requirement that w_{ji}>w_{li} and w_{lk}>w_{jk}, for a binary directed graph our algorithm preserves in-degrees strictly, as it becomes identical too [Maslov 2002], while for nearly-binary graphs (bimodal or sparse), it tends to preserve in-degrees on average. 
 
 Then, at the next step, we completely randomized connections by randomly swapping weights of edges w_{ji} and w_{lk}, including zero weighs, which disrupted both in- and out-degree distributions, and led to a random Erdos graph with the same distribution of weight values w_{ij} as in the original graph. We then compared original network measures (on the actually observed graph) to those calculated on degree-preserving rewired graphs (averaged across 20-50 rewirings), and to those calculated on fully rewired graphs (averaged across same number of rewirings). This allowed us too differentiate between the effects of graph structure, and non-random degree distribution.
 
@@ -327,6 +322,8 @@ with \bar{a} and \bar{b} representing weighted mean values:
 
 Note that this formula differs slightly from the one used in the Brain Connectivity Toolbox [Rubniov].
 
+**Unreported analyses.** For the sake of transparency, here is a list of measures that we calculated, but could not interpret, and so did not include in the final manuscript: four measures of weighted directed degree assortativity (in-in, in-out, out-in, and out-out); pagerank centralities; Katz centralities and hierarchical flows on reversed graph W’; alternative measure of cell selectivity based on McFadden’s pseudo-R for a logistic fit of stimulus identity to the total response of each cell.
+
 ## Developmental Model
 
 The model consisted of n=81 cells, arranged in a 9x9 grid. The model operated in discrete time, and was run for 500 epochs, 25 time steps each, or for T = 12500 time steps total. Each cell was characterized by three values: its current activity s_i(t) that represented its instantaneous spiking rate; spiking threshold h_i(t) that slowly changed over time, and a constant \hat{s_i} that described the target spiking rate for each cell. The target spiking rates were randomly assigned at the beginning of each simulation, and were distributed normally around 5/n with a standard deviation of 1/n, 
@@ -349,18 +346,18 @@ where W is the connectivity matrix, S is the vector of instantaneous spiking rat
 
 $$a_i(t+1) = \sum_j{w_{ij}s_j(t)} + b_i(t)$$
 
-These raw activation values were then adjusted down, by a formula reminiscent of global feedback inhibition, which helped to avoid run-away activation:
+These raw activation values were then adjusted down, by a formula representing global feedback inhibition, which helped to avoid run-away excitation early in development:
 
-$$a'_i(t+1) = \begin{cases} a_i(t+1), & \text{if } \sum_j{s_j(t)} \leq d \\ a_i(t+1)\Big/ \Big(1 + \big(\sum_j{s_j(t)} - d\big) \cdot \exp(- t/\tau_e)\Big), & \text{otherwise.} \end{cases}$$
+$$a'_i(t+1) = \begin{cases} a_i(t+1), & \text{if } \sum_j{s_j(t)} \leq D \\ a_i(t+1)\Big/ \Big(1 + \big(\sum_j{s_j(t)} - D\big) \cdot \exp(- t/\tau_e)\Big), & \text{otherwise.} \end{cases}$$
 
-Here a’_i(t) is the final, adjusted value of activation for every cell; \sum_j{s_j(t)} is the total sum of all cell activities at the previous time step; d is a constant that sets the level of total activity at which inhibition “turns on”, and that in our case was set to the size of the grid of cells d=9. The exponent \exp(-t/\tau_e) serves as an “easing” function that gradually “eases” the network from inhibition-dominated mode of operation to “free” operation, with a time constant \tau_e=T/7. This “easing” formula was a practical compromise that greatly sped up our computational experiments, as it dampened network activity early on, when network was still close to randomly connected, and so prone to seizure-like activity, but allowed the simulation run on its own later in development. 
+Here a’_i(t) is the final, adjusted value of activation for every cell; \sum_j{s_j(t)} is the total sum of all cell activities at the previous time step; D is a constant that sets the level of total activity at which inhibition “turns on”, and that in our case was set to the size of the grid of cells D=9. The exponent \exp(-t/\tau_e) serves as an “easing” function that gradually “eases” the network from inhibition-dominated mode of operation to “free” operation, with a time constant \tau_e=0.056. This “easing” formula was a practical compromise that greatly sped up our computational experiments, as it dampened network activity early on, when network was still close to randomly connected, and so prone to seizure-like activity, but allowed the simulation run on its own later in development. 
 
 The activity of each neuron s_i(t) was then calculated from its total activation a’_i(t):
 
 $$s_i(t) = g_i\big(a'_i(t)\big)$$
 
 using a logistic activation function:
-$$g_i(a) = 1/\Big(1+\exp\big(c(h_i(t)-a)\big)\Big)$$
+$$g_i(a) = 1/\Big(1+\exp\big(c\cdot(h_i(t)-a)\big)\Big)$$
 
 where c is a steepness parameter, set at c=20, and h_i(t) is the current spiking threshold of cell i. At the beginning of each simulation, spiking thresholds h_i(0) were set to random values, uniformly distributed in a narrow band between 1/(n \hat{s_i}) and 1/(n \hat{s_i}_i)+0.1 . During the simulation, the thresholds h_i(t) were updated at each time step, to model the effect of **intrinsic homeostatic plasticity**. For this purpose, for each cell, we kept track of its running average spiking rate \bar{s_i}(t), and updated both average spiking rates and spiking thresholds h_i(t) by the following formulas:
 
@@ -384,15 +381,19 @@ $$w_{ji}(t+1) = w_{ji}(t)\cdot\Big(1+r_w\big(s_j(t+1)-s_j(t)\big)s_i(t)\Big)$$
 
 where r_w is a constant that controls the level of synaptic plasticity; in our case r_w = 0.25 .
 
-At the last step, we introduced **synaptic competition**, to make sure that **TODO**
+Finally, we modeled **synaptic competition** by introducing a negative feedback, to limit the total sum of all inputs to each neuron, and all output of each neuron. At every time step, we used the weight matrix W to calculate a modified matrix W^i, with sum of inputs to each neuron normalized to a certain fixed value g = 1.5:
+w_{ji}^i = g \cdot w_{ji}/\sum_k{w_{jk}}
 
-As learning times used in this model were 2 (?) orders of magnitude shorter than those experienced by a tadpole (and ~3 for mammals), we used a special procedure to "ease" the network  into its final state…**TODO**
+and a modified weight matrix W^o, for which the total sum of outputs of each neuron was normalized to the same value:
+w_{ji}^i = g \cdot w_{ji}/\sum_k{w_{ki}}
 
-**TODO** *Explain how we prepared spiking threshold for each cell, and that this is actually a meaningful procedure that can affect the results.*
+We then “moved” our actual weight matrix in the direction of the average of these two normalized matrices:
 
-This operation was necessary, and could have affected the model in not trivial ways: as neurons in STDP-dominated networks seem to be arranged ensembles and synfire chains [XXX], and so are activated together, intrinsic plasticity in these networks is not just adjusting individual neuron excitability. Instead, it is likely to act as a major force, regulating relative sensitivity of a network to different sensory patterns, assuming that these patterns are detected by different sub-networks. For example, in our model, we found that high levels of spontaneous activity during excitability pre-tuning **TODO**
+w_{ji}(t+1) = 0.4 \cdot w_{ji} + 0.3 \cdot w^i_{ji} + 0.3 \cdot w^o_{ji}
 
-This effect was so prominent in the model, that we hypothesize that it may be relevant in the biological tectum as well. To maintain the network of synaptic connections, each ensemble of synfire chains has to be regularly activated, yet the more active it is, the less excitable the neurons become, which means that they are less likely to win during competition with other ensembles during stimulus detection. The dynamics of plasticity in the brain would therefore pose a meta-balancing problem, as if intrinsic plasticity is too flexible, the network that detects unusual, threatening stimuli, will get spontaneously activated in the absence of these stimuli, producing high false-positive rate, and will quickly habituate to actual stimuli, leading to high false-negative rate, but will have no trouble maintaining synaptic connections required for stimulus detection. If however intrinsic plasticity is too rigid, the network may find it easier to maintain “optimal” levels of sensitivity, but may have trouble maintaining synaptic connections between stimulus presentations, as low sensitivity would mean low rate of spontaneous replay. The potential solutions to this problem may involve transitioning through distinct developmental stages with different levels of intrinsic plasticity (similar to how we did it in the model, and reminiscent of a known spike of excitability in stage 47 tadpoles [Kara, Ciar]), or distinct learning, maintenance, and operation physiological states regulated by modulatory inputs to the network (a solution that may be related to phases of sleep).
+While testing networks trained on different sensory stimuli, we ran into a surprising complication: different stimuli provided different levels of average activation, and so not only differently shaped synaptic connections between different cells, but also, because of intrinsic plasticity,  led to very different activation thresholds. This difference in excitability however was an artifact of our training method, and did not model any real biological phenomena, as in real tadpoles visual stimuli are expected to be relatively sparse, while we fed all stimuli to the network as one intense train with no gaps. We therefore decided to let all spiking thresholds settle down before testing, to a state that is dependent only on synaptic connectivity, and not on recent stimulation history. We let the model develop for 2000 additional time steps, with only homeostatic plasticity rule on (but without STDP or synaptic scaling), while feeding all neurons with Poisson random noise that activated on average D = 9 neurons at each time step.
+
+The effect of this additional calibration step was so prominent in the model, that we hypothesize that it may be indirectly relevant to the biological tectum as well. To maintain the network of synaptic connections, each ensemble of synfire chains has to be regularly activated, yet the more active it is, the less excitable the neurons become, which means that they are less likely to win during competition with other ensembles during stimulus detection. The dynamics of plasticity in the brain would therefore pose a meta-balancing problem: if intrinsic plasticity is too flexible, the network that detects unusual stimuli, will get spontaneously activated in the absence of these stimuli, producing high false-positive rate, and will quickly habituate to actual stimuli, leading to high false-negative rate, but will have no trouble maintaining synaptic connections required for stimulus detection. If however intrinsic plasticity is too slow, the network may find it easier to maintain “optimal” levels of sensitivity, but may have trouble maintaining synaptic connections between stimulus presentations, as low sensitivity would mean low rate of spontaneous replay. The potential solution to this problem may involve transitioning through distinct developmental stages with different levels of intrinsic plasticity (similar to how we did it in the model, and reminiscent of a known spike of excitability in stage 47 tadpoles [Kara, Ciar]), or distinct learning, maintenance, and operation physiological states regulated by modulatory inputs to the network (a solution reminiscent to phases of sleep).
 
 **TODO** *Sensitivity analysis: the sequence in which we destroyed the network.*
 
@@ -416,9 +417,13 @@ Maslov, S., & Sneppen, K. (2002). Specificity and stability in topology of prote
 
 Münch, T. A., Da Silveira, R. A., Siegert, S., Viney, T. J., Awatramani, G. B., & Roska, B. (2009). Approach sensitivity in the retina processed by a multifunctional neural circuit. *Nature neuroscience*, *12*(10), 1308.
 
+Ng, A., Jordan, M., and Weiss, Y. (2002). On spectral clustering: analysis and an algorithm. In T. Dietterich, S. Becker, and Z. Ghahramani (Eds.), Advances in Neural Information Processing Systems 14 (pp. 849 – 856). MIT Press.
+
 Pereira, A. G., & Moita, M. A. (2016). Is there anybody out there? Neural circuits of threat detection in vertebrates. *Current opinion in neurobiology*, *41*, 179-187.
 
 Pietri, T., Romano, S. A., Pérez-Schuster, V., Boulanger-Weill, J., Candat, V., & Sumbre, G. (2017). The emergence of the spatial structure of tectal spontaneous activity is independent of visual inputs. *Cell reports*, *19*(5), 939-948.
+
+Reichardt, J., & Bornholdt, S. (2006). Statistical mechanics of community detection. *Physical Review E*, *74*(1), 016110.
 
 Rubinov, M., & Sporns, O. (2010). Complex network measures of brain connectivity: uses and interpretations. *Neuroimage*, *52*(3), 1059-1069.
 
@@ -426,5 +431,5 @@ Ruthazer, E. S., & Cline, H. T. (2004). Insights into activity‐dependent map f
 
 Tao, H. W., & Poo, M. M. (2005). Activity-dependent matching of excitatory and inhibitory inputs during refinement of visual receptive fields. *Neuron*, *45*(6), 829-836.
 
-Ng, A., Jordan, M., and Weiss, Y. (2002). On spectral clustering: analysis and an algorithm. In T. Dietterich, S. Becker, and Z. Ghahramani (Eds.), Advances in Neural Information Processing Systems 14 (pp. 849 – 856). MIT Press.
+
 
