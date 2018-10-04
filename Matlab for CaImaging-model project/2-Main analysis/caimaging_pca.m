@@ -214,7 +214,7 @@ for(iBrain = 1:nBrains)
                         averageOfAverages(:,iStim,iAge) = averageOfAverages(:,iStim,iAge)/nBrainsOfThisAge;     % From sum to average
                         avXShift(iAge) = avXShift(iAge)/nBrainsOfThisAge;
                         yShift = (iStim==1)*20 + (iStim==3)*10;                                                 % How much up to shift the average
-                        plot(loc.hp(iAge),((1:nTime)-avXShift(thisStage))*timePerTick,averageOfAverages(:,iStim,iAge)+yShift,'k-');  % Plot
+                        plot(loc.hp(iAge),((1:nTime)-avXShift(iAge))*timePerTick,averageOfAverages(:,iStim,iAge)+yShift,'k-');  % Plot
                     end
                 end
             end
