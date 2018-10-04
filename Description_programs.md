@@ -55,6 +55,8 @@ These programs can be rerun without harm.
 
 Despite the name, the logic here is that it contains all analysis that doesn't involve the connectivity reconstruction graph. Selectivity, PCA, nice mugshot, a hunt for cell types, activation trajectories. Hard-codes which brains are read, so this should be changed manually by commenting and uncommenting individual rows. Contains a bunch of flags and switches (around row 70) that turn different types of analysis and figures on and off.
 
+Note that in all programs in this series variables related to "Flash" stimulate have F in their name; variables related to "Scramble" have S, but variables related to "Looming" have C in their names, as early in development I referred to looming stimuli as "Crashes" (similar to how they were called in (Khakhalin 2015) study).
+
 ### graph_structure_analyzer.m
 
 Graph analysis. Relies on the data files created by caimaging_structure (file names and data folders are hard-coded in the header of the program). For each file then calls an internal processing routine (first function, located in the same m-file, below the main function). It means that all constants and switches that turn different parts of the code on and off are defined in the 1st subroutine (approx. row 70 and below), not in the main function header. Most analysis blocks can be turned on and on with flags (constants), but some also contain some lazy hard-coded switches (if(1) or if(0)), which is particularly true for troubleshooting figures. The main output goes into console with fprintf, which means that in most cases two functional blocks cannot be active at the same time, as it will make lines intercolate. Better get one table first, then another table later, etc.

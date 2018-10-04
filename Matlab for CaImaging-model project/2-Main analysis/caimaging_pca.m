@@ -74,10 +74,10 @@ showRawData = 0;                    % Whether raw (well, raw-ish) data debugging
 showRawFigure = 0;                  % Not all raw data, but just enough for a figure
 pcaStimType = 1;                    % Set to 1 if PCA and response dynamics are to be run on crashes only (recommended); 2=flash, 3=scramble; 0=full triad
 randomizePositions = 0;             % Set to 1 if all xy positions should be randomly reassigned (as a H0-style test for position-related methods)
-showAverageResponses = 0;           % For average reponses. IS NOT IMPLEMENTED BEYOND INDIVIDUAL RESPONSES
+showAverageResponses = 1;           % Show average responses
 flagUsePeakAmps = 0;                % If set to 1, overrides cumulative amplitudes (amps) with peak amplitudes (ampsPeak)
 
-doPCA = 1;                          % Factor analysis. The "origin point" for retinotopic responses is also calculated here. Needs to be 1 for all analyses in this group.
+doPCA = 0;                          % Factor analysis. The "origin point" for retinotopic responses is also calculated here. Needs to be 1 for all analyses in this group.
 reportPCA = 0;                      % Whether PCA stats need to be reported
 retinotopyLogic = 'pca';            % Two options here: 'lat' to calculate retinotopy center on response latencies; 'pca' to use early PCA component
 reportRetinotopy = 0;               % Whether retinotopy should be reported to the console.
@@ -166,9 +166,10 @@ for(iBrain = 1:nBrains)
     traceS = repmat(1:3,1,nSweeps/3)';                              % For each sweep, which stimulus type is it?    
     for(iType=1:3)        
         averageShapePerType(:,iType) = mean(averageShapePerCell((1:nTime)+nTime*(iType-1),:),2);  % Average curves for 3 responses
-        [peakY,temp] = max(averageShapePerType(:,iType));        
+        [peakY(iType),temp] = max(averageShapePerType(:,iType));    % Peak and its position
         peakX(iType) = temp;
     end
+    
     for(iSweep=1:nSweeps)
         ampsPeak = [ampsPeak; max(S(iSweep).dataS(goodSpikeTime(1)-1+peakX(stimType(iSweep))+[-10:10],:))];   % Average amplitude around population peak
     end
@@ -178,19 +179,53 @@ for(iBrain = 1:nBrains)
             plot(S(iSweep).dataS(goodSpikeTime,iCell)); 
             plot(peakX(sweepType(iSweep)),peaks(iSweep,iCell),'ok'); end; end;
     end
+    
+    %%% -------------- Show average responses
     if(showAverageResponses)
         % Disable averageShapePerType normalization above if you want a picture with correct amplitudes
-        if(0) % All in one figure
-            hF = findobj('type','figure','name','avRespPerExp');
-            if(isempty(hF)); hF = figure('Color','white','name','avRespPerExp'); hold on; xlabel('Time'); ylabel('Responses'); end;
-            xShift = peakX(2);              % Negate some of latency variability by shifting every animal data to bring flash resp together (doesn't work)
-        else  % Each in its own figure
+        flagAverageRspInOnFig = 1;                                              % Do we want them all in one figure, or each in its own figure?
+        if(flagAverageRspInOnFig)                                               % All in one figure
+            if(iBrain==1)
+                hF = figure('Color','white','name','avRespPerExp');             % Create figure
+                loc.hp(1) = subplot(1,2,1); hold on; xlabel('Time'); ylabel('Responses, s46');    % Axes
+                loc.hp(2) = subplot(1,2,2); hold on; xlabel('Time'); ylabel('Responses, s49');                
+            else
+                hF = findobj('type','figure','name','avRespPerExp');
+            end            
+            xShift = peakX(2);              % Negate latency variability by shifting the curve to to bring all flash resp together
+            scalingCoeff = mean(averageShapePerType(:,2));                      % Area for flash resonse
+            kAge = (age(iBrain)==49)+1;                                         % Stage code: 1 for stage 46, 2 for stage 49
+            plot(loc.hp(kAge),((1:nTime)-xShift)*timePerTick,averageShapePerType(:,1)/scalingCoeff+20,'-','Color',[0.8 0.8 1]);  % c, 'b'
+            plot(loc.hp(kAge),((1:nTime)-xShift)*timePerTick,averageShapePerType(:,2)/scalingCoeff+00,'-','Color',[1 0.8 0.8]);  % f, 'r'
+            plot(loc.hp(kAge),((1:nTime)-xShift)*timePerTick,averageShapePerType(:,3)/scalingCoeff+10,'-','Color',[0.8 1 0.8]);  % s, 'g'
+            if(iBrain==1)
+                averageOfAverages = zeros([size(averageShapePerType) 2]);       % Create empty 3D array with 3d dim representing stages
+                avXShift = [0 0];                                               % Average x shifts, for both stages
+            end
+            for(iStim=1:3)
+                shiftedTrace = averageShapePerType(:,iStim)/scalingCoeff;
+                fprintf('%d\n',xShift);
+                avXShift(kAge) = avXShift(kAge)+xShift;                                                         % Remember this shift, for averaging
+               	averageOfAverages(:,iStim,kAge) = averageOfAverages(:,iStim,kAge) + shiftedTrace;
+                if(iBrain==nBrains)
+                    for(iAge=1:2)
+                        thisStage = (iAge==1)*46 + (iAge==2)*49;                                                % Back from stage code to stage (sorry)
+                        nBrainsOfThisAge = sum(age(:)==thisStage);                                              % N brains of this age in the set
+                        averageOfAverages(:,iStim,iAge) = averageOfAverages(:,iStim,iAge)/nBrainsOfThisAge;     % From sum to average
+                        avXShift(iAge) = avXShift(iAge)/nBrainsOfThisAge;
+                        yShift = (iStim==1)*20 + (iStim==3)*10;                                                 % How much up to shift the average
+                        plot(loc.hp(iAge),((1:nTime)-avXShift(thisStage))*timePerTick,averageOfAverages(:,iStim,iAge)+yShift,'k-');  % Plot
+                    end
+                end
+            end
+        else                                                                    % Lots of small figures
             figure; hold on; title(name); 
-            xShift = 0;                     % Plot in original coordinates
+            xShift = 0;                                                         % Plot in original coordinates
+            plot(((1:nTime)-xShift)*timePerTick,averageShapePerType(:,1),'b');  % c
+            plot(((1:nTime)-xShift)*timePerTick,averageShapePerType(:,2),'r');  % f
+            plot(((1:nTime)-xShift)*timePerTick,averageShapePerType(:,3),'g');  % s
         end
-        plot(((1:nTime)-xShift)*timePerTick,averageShapePerType(:,1),'b'); % c
-        plot(((1:nTime)-xShift)*timePerTick,averageShapePerType(:,2),'r'); % f
-        plot(((1:nTime)-xShift)*timePerTick,averageShapePerType(:,3),'g'); % s
+        fprintf('%10s\n',name);
         drawnow();
     end
         
@@ -867,10 +902,6 @@ end % file
 
 
 %%% ---------------------------------------------- SUMMARIES (if any) ----------------------------------
-
-if(showAverageResponses)
-    % camel
-end
 
 if(showPCAsummaryFigure)
     averagePcaCurve = averagePcaCurve/nBrains;
