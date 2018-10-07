@@ -151,7 +151,6 @@ for(iBrain = 1:nBrains)
     data = [];                              % All sweeps spikes, as a 2D matrix, time down, cells right fast, sweeps right slow
     stimType = mod((1:nSweeps)-1,3)+1;      % Sweep types: 1=C, 2=F, 3=S
     averageShapePerCell = zeros(nTime*3,nCells);  % To keep average traces for every cell, all 3 stim after one another
-    averageShapePerType = zeros(nTime,3);         % Average response shapres across entire OT
     for(iSweep=1:nSweeps)
         % figure; plot(S(iSweep).dataF(:,:)); hold on; plot([goodSpikeTime(1) goodSpikeTime(end)],[1 1],'ok'); hold off; error(); % Debugging plot.
         averageShapePerCell((1:nTime)+(stimType(iSweep)-1)*nTime,:) = ...
@@ -163,27 +162,19 @@ for(iBrain = 1:nBrains)
     end
     fAvC = bsxfun(@plus,fAvC,-fAvC(1,:));                           % Zero starting points of fluorescence traces
     averageShapePerCell = averageShapePerCell/nSweeps;    
-    traceS = repmat(1:3,1,nSweeps/3)';                              % For each sweep, which stimulus type is it?    
+    traceS = repmat(1:3,1,nSweeps/3)';                              % Indicator vector: for each sweep, shows which stimulus type it was.
+    
+    averageShapePerType = zeros(nTime,3);                           % Average response shapres across entire OT, for this brain
     for(iType=1:3)        
         averageShapePerType(:,iType) = mean(averageShapePerCell((1:nTime)+nTime*(iType-1),:),2);  % Average curves for 3 responses
-        [peakY(iType),temp] = max(averageShapePerType(:,iType));    % Peak and its position
-        peakX(iType) = temp;
+        [peakY(iType),peakX(iType)] = max(averageShapePerType(:,iType));    % Peak and its position (for plotting and meta-averaging across brains, below)
     end
     
-    for(iSweep=1:nSweeps)
-        ampsPeak = [ampsPeak; max(S(iSweep).dataS(goodSpikeTime(1)-1+peakX(stimType(iSweep))+[-10:10],:))];   % Average amplitude around population peak
-    end
-    if(0) % Debugging figure to check whether peak detection works
-            figure; for(iSweep=1:5); for(iCell=1:5); subplot(5,5,iSweep+(iCell-1)*5); hold on; 
-            plot(averageShapePerType(:,sweepType(iSweep))*max(S(iSweep).dataS(goodSpikeTime,iCell)),'g-'); 
-            plot(S(iSweep).dataS(goodSpikeTime,iCell)); 
-            plot(peakX(sweepType(iSweep)),peaks(iSweep,iCell),'ok'); end; end;
-    end
-    
-    %%% -------------- Show average responses
+    %%% -------------- Show average responses, together with average across all brains --------------
     if(showAverageResponses)
         % Disable averageShapePerType normalization above if you want a picture with correct amplitudes
         flagAverageRspInOnFig = 1;                                              % Do we want them all in one figure, or each in its own figure?
+        defaultXShift = 25;                                                     % Default X shift that I just happen to know
         if(flagAverageRspInOnFig)                                               % All in one figure
             if(iBrain==1)
                 hF = figure('Color','white','name','avRespPerExp');             % Create figure
@@ -191,8 +182,9 @@ for(iBrain = 1:nBrains)
                 loc.hp(2) = subplot(1,2,2); hold on; xlabel('Time'); ylabel('Responses, s49');                
             else
                 hF = findobj('type','figure','name','avRespPerExp');
-            end            
-            xShift = peakX(2);              % Negate latency variability by shifting the curve to to bring all flash resp together
+            end
+            
+            xShift = peakX(2);              % Peak position foor Flash. We'll try to negate latency variability by shifting the curve by this value
             scalingCoeff = mean(averageShapePerType(:,2));                      % Area for flash resonse
             kAge = (age(iBrain)==49)+1;                                         % Stage code: 1 for stage 46, 2 for stage 49
             plot(loc.hp(kAge),((1:nTime)-xShift)*timePerTick,averageShapePerType(:,1)/scalingCoeff+20,'-','Color',[0.8 0.8 1]);  % c, 'b'
@@ -203,18 +195,17 @@ for(iBrain = 1:nBrains)
                 avXShift = [0 0];                                               % Average x shifts, for both stages
             end
             for(iStim=1:3)
-                shiftedTrace = averageShapePerType(:,iStim)/scalingCoeff;
-                fprintf('%d\n',xShift);
+                shiftedTrace = shift(averageShapePerType(:,iStim)/scalingCoeff,defaultXShift-xShift);           % Shift by that much, padding with zeros (function below)                
                 avXShift(kAge) = avXShift(kAge)+xShift;                                                         % Remember this shift, for averaging
                	averageOfAverages(:,iStim,kAge) = averageOfAverages(:,iStim,kAge) + shiftedTrace;
-                if(iBrain==nBrains)
+                if(iBrain==nBrains)                                                                             % Last brain; time to average all
                     for(iAge=1:2)
                         thisStage = (iAge==1)*46 + (iAge==2)*49;                                                % Back from stage code to stage (sorry)
                         nBrainsOfThisAge = sum(age(:)==thisStage);                                              % N brains of this age in the set
                         averageOfAverages(:,iStim,iAge) = averageOfAverages(:,iStim,iAge)/nBrainsOfThisAge;     % From sum to average
                         avXShift(iAge) = avXShift(iAge)/nBrainsOfThisAge;
                         yShift = (iStim==1)*20 + (iStim==3)*10;                                                 % How much up to shift the average
-                        plot(loc.hp(iAge),((1:nTime)-avXShift(iAge))*timePerTick,averageOfAverages(:,iStim,iAge)+yShift,'k-');  % Plot
+                        plot(loc.hp(iAge),((1:nTime)-defaultXShift)*timePerTick,averageOfAverages(:,iStim,iAge)+yShift,'k-');  % Plot                        
                     end
                 end
             end
@@ -1062,4 +1053,24 @@ end
 D = setfield(D,fieldName,value);
 save(fullFileName,'D');
     
+end
+
+
+function data = shift(data,dx)
+% Shifts data by dx (integer, positive or negative), padding with zeros.
+% Data should be a bunch of vectors with time running down.
+
+if(round(dx)~=dx)
+    warning('Can only shift by whole numbers. Rounding now');
+    dx = round(dx);
+end
+[n,m] = size(data);
+if(dx>0)
+    data = [zeros(dx,m); data(1:end-dx,:)];
+elseif(dx<0)
+    data = [data(1-dx:end,:); zeros(-dx,m)];
+else
+    % Do nothing
+end
+
 end
