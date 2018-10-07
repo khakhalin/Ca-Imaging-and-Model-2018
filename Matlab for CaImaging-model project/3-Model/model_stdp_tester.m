@@ -34,7 +34,7 @@ M = [];                                             % In this structure we will 
 E = [];                                             % In this structure we'll keep all things that need only be calculated once. Most importantly - testing stimuli.
 E.firstRun = 1;                                     % First run is special, and this will be the flag.
 
-nRewires = 0;                                       % If >0, for each normal analysis also performs NREWIRES analyses on randomly rewired data
+nRewires = 20;                                      % If >0, for each normal analysis also performs NREWIRES analyses on randomly rewired data. Use 20 or 50 for good result?
 
 flagFigMain = 1;                                    % Whether the main figure needs to be shown
 flagFigDeg = 0;                                     % Whether we want a figure with degree histograms or not
@@ -278,6 +278,7 @@ responses = squeeze(sum(spikeHistory(:,:,:,1)))';                   % Sum spikin
 [loadings,compressedData,~] = pca(responses,'NumComponents',7);     % Reduce dimensionality to make log regression more reliable
 actuallyCrash = (stimType==3);                                      % In model files, crash=3, as it goes FSC
 firstHalf = repmat([ones(floor(nStim/2),1); zeros(ceil(nStim/2),1)],3,1);                   % First half of responses for each stimulus type
+warning('off');                                                     % Perhaps not the best idea, but for hopeless networks it returns warning every time
 b = mnrfit(compressedData(firstHalf==1,:),actuallyCrash(firstHalf==1)+1,'model','nominal'); % Logistic regression on training half. +1 is needed to turn 0/1 into 1/2 (categories)
 prediction = mnrval(b,compressedData(firstHalf~=1,:),'model','nominal');                    % Prediction on the testing half of the dataset
 predictionOfCrash = prediction(:,2)>prediction(:,1);
@@ -291,6 +292,7 @@ predictionNI = mnrval(bNI,sum(responses(firstHalf~=1,selC>0),2),'model','nominal
 predictionOfCrashNI = predictionNI(:,2)>predictionNI(:,1);
 predictionQualityNI = (sum(predictionOfCrashNI & actuallyCrash(firstHalf~=1))/sum(actuallyCrash(firstHalf~=1)) + ...
     sum(~predictionOfCrashNI & ~actuallyCrash(firstHalf~=1))/sum(~actuallyCrash(firstHalf~=1)))/2;
+warning('on');
 
 M = remember(M,'fullBrainSel',mean(resC(:))/mean(resF(:))-1);               % Selectivity of the full brain response
 M = remember(M,'meanSel',mean(selFC));

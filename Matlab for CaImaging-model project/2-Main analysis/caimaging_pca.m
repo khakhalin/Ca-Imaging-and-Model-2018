@@ -186,10 +186,10 @@ for(iBrain = 1:nBrains)
             
             xShift = peakX(2);              % Peak position foor Flash. We'll try to negate latency variability by shifting the curve by this value
             scalingCoeff = mean(averageShapePerType(:,2));                      % Area for flash resonse
-            kAge = (age(iBrain)==49)+1;                                         % Stage code: 1 for stage 46, 2 for stage 49
-            plot(loc.hp(kAge),((1:nTime)-xShift)*timePerTick,averageShapePerType(:,1)/scalingCoeff+20,'-','Color',[0.8 0.8 1]);  % c, 'b'
+            kAge = (age(iBrain)==49)+1;                                         % Stage code: 1 for stage 46, 2 for stage 49            
             plot(loc.hp(kAge),((1:nTime)-xShift)*timePerTick,averageShapePerType(:,2)/scalingCoeff+00,'-','Color',[1 0.8 0.8]);  % f, 'r'
             plot(loc.hp(kAge),((1:nTime)-xShift)*timePerTick,averageShapePerType(:,3)/scalingCoeff+10,'-','Color',[0.8 1 0.8]);  % s, 'g'
+            plot(loc.hp(kAge),((1:nTime)-xShift)*timePerTick,averageShapePerType(:,1)/scalingCoeff+20,'-','Color',[0.8 0.8 1]);  % c, 'b'
             if(iBrain==1)
                 averageOfAverages = zeros([size(averageShapePerType) 2]);       % Create empty 3D array with 3d dim representing stages
                 avXShift = [0 0];                                               % Average x shifts, for both stages
