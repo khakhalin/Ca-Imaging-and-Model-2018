@@ -1,4 +1,7 @@
-# Ca img paper
+# Ca img paper (obsolete version)
+
+## This file is no longer updated, as all updates migrated to tex on Oct 9 2018
+
 Graph analysis of collision detection networks in the tectum, and its replication in a simple computational model
 
 ## Abstract
