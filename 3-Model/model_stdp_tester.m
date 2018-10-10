@@ -34,7 +34,7 @@ M = [];                                             % In this structure we will 
 E = [];                                             % In this structure we'll keep all things that need only be calculated once. Most importantly - testing stimuli.
 E.firstRun = 1;                                     % First run is special, and this will be the flag.
 
-nRewires = 20;                                      % If >0, for each normal analysis also performs NREWIRES analyses on randomly rewired data. Use 20 or 50 for good result?
+nRewires = 0;                                       % If >0, for each normal analysis also performs NREWIRES analyses on randomly rewired data. Use 20 or 50 for good result?
 
 flagFigMain = 1;                                    % Whether the main figure needs to be shown
 flagFigDeg = 0;                                     % Whether we want a figure with degree histograms or not

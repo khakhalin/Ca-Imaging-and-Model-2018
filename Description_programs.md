@@ -63,7 +63,7 @@ Graph analysis. Relies on the data files created by caimaging_structure (file na
 
 ### caimg_network_analysis.r
 
-R script that reads network analysis data from "caimg_network_measures" (both for original networks, and for networks reshuffled in two different ways), and then compares them, as well as makes some nice plots.
+R script that reads network analysis data from "caimg_network_measures" (both for original networks, and for networks reshuffled in two different ways), and then compares them, as well as makes some nice plots. Gets info from a file "caimg_network_measures.csv", which, in practice, I populated from an Excel table with all measurements.
 
 
 -------------------------------------------------------------------

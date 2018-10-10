@@ -9,7 +9,7 @@ require(ggplot2)
 
 rm(list = ls())  # Clear workspace
 
-d <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/caimg_network_measures.csv",sep=",",header=T)
+d <- read.table("7_Ca imaging/git - CaImaging Paper/2-Main analysis/caimg_network_measures.csv",sep=",",header=T)
 names(d)
 
 d2 <- gather(d,var,val,-Type,-Stage,-Name)
