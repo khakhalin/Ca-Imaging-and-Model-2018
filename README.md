@@ -5,7 +5,7 @@ Working title: Graph analysis of a collision detection network in the tectum, an
 
 ## About
 
-A *very draft* version of the paper [can be seen here, as a Markdown document](Ca-img-paper.md)
+A *very draft* version of the paper [can be seen here, as LaTeX document](https://github.com/khakhalin/Ca-img-2018-tex/blob/master/main.tex)
 
 ## Workflow
 
