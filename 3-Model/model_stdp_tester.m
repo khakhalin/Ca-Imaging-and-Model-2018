@@ -472,6 +472,7 @@ temp = clustering_coef_wd(w'); temp = mean(temp(~isinf(temp)));  M = remember(M,
 [flow, revFlow] = network_flow(w');                 M = remember(M,'flow',flow);
                                                     M = remember(M,'revFlow',revFlow);
 cycl = myCyclicity(U.stage(iStage).w');             M = remember(M,'cycl',cycl);
+recip = myNetMeasure(U.stage(iStage).w','reciprocity'); M = remember(M,'recip',recip);  % Share of reciprocal connections
 
 rSelSpk = corr(selC(:),spikiness(:));               M = remember(M,'rSelSpk',rSelSpk);
 rSelfcSelfs = corr(selFC(:),selFS(:));              M = remember(M,'rSelfcSelfs',rSelfcSelfs);

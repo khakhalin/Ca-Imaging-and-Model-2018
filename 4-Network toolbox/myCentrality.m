@@ -4,7 +4,7 @@ function c = myCentrality(w,type)
 % Calculates centrality properly
 % Expects an adjacency matrix, not a neuro-weight matrix (A = W').
 
-%type = validatestring(type, {'pagerank','reversepagerank'});
+% Oct 12 2018: Non-centrality measures moved to myNetMeasure().
 
 n = size(w,1);
 
@@ -52,15 +52,6 @@ switch(type)
             state = w'*max(state,eye(n))*d;     % Let the fluid flow
         end
         c = sum(state,1)';
-    case {'assii','assoo','assio','assoi'}      % Assortativities
-        ins = sum(w,1)';                        % We assume it is a graph matrix, not the calcculating matrix (graph = calculation'), so w(1,2) is from 1 to 2
-        ous = sum(w,2);
-        [i,j] = find(ones(size(w)));            % Trick stolen from Sprons' script: now i = 123..n123..n... and j = 111..1222..2...
-        switch(type)
-            case 'assii'; a = ins(i); b = ins(j);
-            case 'assoo'; a = ous(i); b = ous(j);
-            case 'assio'; a = ins(i); b = ous(j);
-            case 'assoi'; a = ous(i); b = ins(j);
-        end
-        c = weightedcorr(a,b,w);
+    otherwise
+        error('Unknown centrality type. Check your spelling');
 end
