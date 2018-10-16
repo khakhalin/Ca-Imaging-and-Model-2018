@@ -88,10 +88,10 @@ doEnsembleAnalysis = 0;             % Calcualted adjusted correlations, and iden
 doCorrelationFig = 0;               % plot raw correlation matrices - NOT SURE IF UPDATED AT THIS POINT
 
 %%% --- Selectivity group of analyses. The selectivity is always calculated, but we can turn summaries and reporting on and off as we please
-showResponseAmplitudes = 1;         % Main simplistic figure for response amplitudes. Also outputs t-test p-values within every brain to the console
+showResponseAmplitudes = 0;         % Main simplistic figure for response amplitudes + output of all amplitudes to csv
 reportSelectivity = 0;              % Selectivity is always calculated, but this triggers whether it is reported in the console
 selectivityName = 'FC';             % Pick which selectivity to report: FC (default), FS, SC, or C (the weighted one, C over [F+S]/2)
-showSelTypes = 0;                   % Cell selectivity types figure
+showSelTypes = 1;                   % Cell selectivity types figure + output to scv
 selToCompare = 'FCtoFS';            % What to compare: FCtoSC (is it a geometry detection?); or FCtoFS (is it a dynamics detection?)
 showSelectivityHist = 0;            % Show selectivity histograms (one figure for all brains).
 
@@ -461,7 +461,7 @@ for(iBrain = 1:nBrains)
     if(showResponseAmplitudes)                                              % Response amplitudes for all cells in the brain.
         if(iBrain==1); giantBagOfAmplitudes = []; end                       % Let's store all mean responses (to 3 stim) of all cells in all brains.
         giantBagOfAmplitudes = [giantBagOfAmplitudes; ...                   % It's saved as a csv later (ctrl-F for the destiny of this variable)
-            meanRespF' meanRespS' meanRespC' ones(nCells,1)*iBrain ones(nCells,1)*age(iBrain)];
+            meanRespF' meanRespS' meanRespC' ones(nCells,1)*iBrain ones(nCells,1)*age(iBrain)]; % f s c ibrain stage
         hF = findobj('type','figure','name','fullAmps');
         if(isempty(hF)); hF = figure('Color','white','name','fullAmps'); hold on; end        
         plot((iBrain-1) + 0.0 + randn(nCells,1)*0.02, meanRespF','r.');
@@ -554,28 +554,24 @@ for(iBrain = 1:nBrains)
         hF = findobj('type','figure','name','selTypes');
         if(isempty(hF))
             hF = figure('Color','white','name','selTypes'); 
-            ud.a1 = subplot(1,2,1); hold on; xlabel('FC Selectivity'); 
-            if(strcmp(selToCompare,'FCtoSC')); ylabel('SC selectivity'); else; ylabel('FS selectivity'); end
-            ud.a2 = subplot(1,2,2); hold on; xlabel('FC Selectivity adj.'); 
-            if(strcmp(selToCompare,'FCtoSC')); ylabel('SC selectivity adj'); else; ylabel('FS selectivity adj'); end
+            ud.a1 = subplot(2,2,1); hold on; xlabel('FS Selectivity');          ylabel('FC selectivity');       set(ud.a1,'FontSize',8);
+            ud.a2 = subplot(2,2,2); hold on; xlabel('FS Selectivity adj.');     ylabel('FC selectivity adj');   set(ud.a2,'FontSize',8);
+            ud.a3 = subplot(2,2,3); hold on; xlabel('SC Selectivity adj.');     ylabel('FC selectivity adj');   set(ud.a3,'FontSize',8);
+            ud.a4 = subplot(2,2,4); hold on; xlabel('SC Selectivity adj.');     ylabel('FC selectivity adj'); 	set(ud.a4,'FontSize',8);
             set(hF,'UserData',ud);            
         else
             ud = get(hF,'UserData');
         end
         if(~exist('giantSelbag','var')); giantSelbag = []; end                  % Let's keep all points to calculate "total r" at the end
-        if(strcmp(selToCompare,'FCtoSC'))
-            [r,p] = corr(selFC(:),selSC(:));
-            plot(ud.a1,selFC,selSC,'.');
-            plot(ud.a2,selFC-mean(selFC(:)),selSC-mean(selSC(:)),'.');
-            giantSelbag = [giantSelbag; selFC(:) selSC(:) ...
-                ones(size(selFC(:)))*age(iBrain) ones(size(selFC(:)))*iBrain];  % Keep all points. See a block governed by 'showSelTypes' somewhere below
-        else
-            [r,p] = corr(selFC(:),selFS(:));
-            plot(ud.a1,selFC,selFS,'.');
-            plot(ud.a2,selFC-mean(selFC(:)),selFS-mean(selFS(:)),'.');
-            giantSelbag = [giantSelbag; selFC(:) selFS(:) ...
-                ones(size(selFC(:)))*age(iBrain) ones(size(selFC(:)))*iBrain];  % Keep all points. See a block governed by 'showSelTypes' somewhere below
-        end
+        
+        [r,p] = corr(selFC(:),selFS(:));
+        plot(ud.a1,selFS,selFC,'.');
+        plot(ud.a2,selFS-mean(selFS(:)),selFC-mean(selFC(:)),'.');
+        plot(ud.a3,selSC,selFC,'.');
+        plot(ud.a4,selSC-mean(selSC(:)),selFC-mean(selFC(:)),'.');
+        giantSelbag = [giantSelbag; selFC(:) selFS(:) selSC(:) ...          % fc,fs,sc,ibrain,stage
+            ones(size(selFC(:)))*iBrain ones(size(selFC(:)))*age(iBrain)];  % Keep all points. See a block governed by 'showSelTypes' somewhere below
+        
         if(iBrain==1); fprintf('Name    cor(sel1,sel2)\n'); end
         fprintf('%8s\t%8.2f\t%10s\n',name,r,myst(p));
         
@@ -931,23 +927,31 @@ end
 
 if(showSelTypes)
     %%% ---> expects giantSelbag with 3 columns: FCsel, SCsel, age  , for every cell ever observed
-    figure; subplot(1,2,1); plot(giantSelbag(giantSelbag(:,3)==46,1),giantSelbag(giantSelbag(:,3)==46,2),'.'); title('Stage 46'); 
-    if(selToCompare);     xlabel('FC selectivity'); ylabel('SC selectivity');
-    else; xlabel('FC selectivity'); ylabel('FS selectivity'); end
-    subplot(1,2,2); plot(giantSelbag(giantSelbag(:,3)==49,1),giantSelbag(giantSelbag(:,3)==49,2),'.'); title('Stage 49'); 
-    if(selToCompare);     xlabel('FC selectivity'); ylabel('SC selectivity');
-    else; xlabel('FC selectivity'); ylabel('FS selectivity'); end
-    [r,p] = corr(giantSelbag(:,1),giantSelbag(:,2));
-    fprintf('Total selectivity correlation: %10s\t%s\n',myst(r),myst(p));
-    [r,p] = corr(giantSelbag(giantSelbag(:,3)==46,1),giantSelbag(giantSelbag(:,3)==46,2));
-    fprintf('  s46 selectivity correlation: %10s\t%s\n',myst(r),myst(p));    
-    [r,p] = corr(giantSelbag(giantSelbag(:,3)==49,1),giantSelbag(giantSelbag(:,3)==49,2));
-    fprintf('  s49 selectivity correlation: %10s\t%s\n',myst(r),myst(p));    
-    csvwrite([localPath 'sel_allcells_allbrains.csv'],giantSelbag);                        % Save as csv
+    %figure; subplot(1,2,1); plot(giantSelbag(giantSelbag(:,3)==46,1),giantSelbag(giantSelbag(:,3)==46,2),'.'); title('Stage 46'); 
+    %if(selToCompare);     xlabel('FC selectivity'); ylabel('SC selectivity');
+    %else; xlabel('FC selectivity'); ylabel('FS selectivity'); end
+    %subplot(1,2,2); plot(giantSelbag(giantSelbag(:,3)==49,1),giantSelbag(giantSelbag(:,3)==49,2),'.'); title('Stage 49'); 
+    %if(selToCompare);     xlabel('FC selectivity'); ylabel('SC selectivity');
+    %else; xlabel('FC selectivity'); ylabel('FS selectivity'); end
+    %[r,p] = corr(giantSelbag(:,1),giantSelbag(:,2));
+    %fprintf('Total selectivity correlation: %10s\t%s\n',myst(r),myst(p));
+    %[r,p] = corr(giantSelbag(giantSelbag(:,3)==46,1),giantSelbag(giantSelbag(:,3)==46,2));
+    %fprintf('  s46 selectivity correlation: %10s\t%s\n',myst(r),myst(p));    
+    %[r,p] = corr(giantSelbag(giantSelbag(:,3)==49,1),giantSelbag(giantSelbag(:,3)==49,2));
+    %fprintf('  s49 selectivity correlation: %10s\t%s\n',myst(r),myst(p));    
+    
+    fid = fopen([localPath 'sel_allcells_allbrains.csv'],'w');              % csvwrite doesn't support headers, but we need a header
+    fprintf(fid,'%s\n','fc,sc,ibrain,stage\n\r')                                              % so doing it manually
+    fclose(fid)
+    dlmwrite([localPath 'sel_allcells_allbrains.csv'],giantSelbag,'-append'); % write data to the end
 end
 
 if(showResponseAmplitudes)
-    csvwrite([localPath 'avamps_allcells_allbrains.csv'],giantBagOfAmplitudes);
+    %csvwrite([localPath 'avamps_allcells_allbrains.csv'],giantBagOfAmplitudes);
+    fid = fopen([localPath 'avamps_allcells_allbrains.csv'],'w');           % csvwrite doesn't support headers, but we need a header
+    fprintf(fid,'%s\n','f,s,c,ibrain,stage\n\r')                            % so doing it manually
+    fclose(fid)
+    dlmwrite([localPath 'avamps_allcells_allbrains.csv'],giantBagOfAmplitudes,'-append'); % write data to the end
 end
 
 end
