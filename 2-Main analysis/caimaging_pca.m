@@ -74,7 +74,7 @@ showRawData = 0;                    % Whether raw (well, raw-ish) data debugging
 showRawFigure = 0;                  % Not all raw data, but just enough for a figure
 pcaStimType = 1;                    % Set to 1 if PCA and response dynamics are to be run on crashes only (recommended); 2=flash, 3=scramble; 0=full triad
 randomizePositions = 0;             % Set to 1 if all xy positions should be randomly reassigned (as a H0-style test for position-related methods)
-showAverageResponses = 1;           % Show average responses
+showAverageResponses = 0;           % Show average responses
 flagUsePeakAmps = 0;                % If set to 1, overrides cumulative amplitudes (amps) with peak amplitudes (ampsPeak)
 
 doPCA = 0;                          % Factor analysis. The "origin point" for retinotopic responses is also calculated here. Needs to be 1 for all analyses in this group.
@@ -88,7 +88,7 @@ doEnsembleAnalysis = 0;             % Calcualted adjusted correlations, and iden
 doCorrelationFig = 0;               % plot raw correlation matrices - NOT SURE IF UPDATED AT THIS POINT
 
 %%% --- Selectivity group of analyses. The selectivity is always calculated, but we can turn summaries and reporting on and off as we please
-showResponseAmplitudes = 0;         % Main simplistic figure for response amplitudes. Also outputs t-test p-values within every brain to the console
+showResponseAmplitudes = 1;         % Main simplistic figure for response amplitudes. Also outputs t-test p-values within every brain to the console
 reportSelectivity = 0;              % Selectivity is always calculated, but this triggers whether it is reported in the console
 selectivityName = 'FC';             % Pick which selectivity to report: FC (default), FS, SC, or C (the weighted one, C over [F+S]/2)
 showSelTypes = 0;                   % Cell selectivity types figure
@@ -111,7 +111,12 @@ goodSpikeTime = [];             % Where good spiking happens. Need to be inializ
 
 
 % ------------- Main cycle -------------
+thisPathWithName = mfilename('fullpath');
+thisName = mfilename();
+localPath = thisPathWithName(1:(length(thisPathWithName)-length(thisName)));    % Path to the folder where this function lies
+
 nBrains = length(folderName);
+
 for(iBrain = 1:nBrains)
     S = [];     % Empty handle for the data structure    
     
@@ -155,7 +160,7 @@ for(iBrain = 1:nBrains)
         % figure; plot(S(iSweep).dataF(:,:)); hold on; plot([goodSpikeTime(1) goodSpikeTime(end)],[1 1],'ok'); hold off; error(); % Debugging plot.
         averageShapePerCell((1:nTime)+(stimType(iSweep)-1)*nTime,:) = ...
             averageShapePerCell((1:nTime)+(stimType(iSweep)-1)*nTime,:) + S(iSweep).dataS(goodSpikeTime,:);
-        amps = [amps; mean(S(iSweep).dataS(goodSpikeTime,:))];      % Total amplitude of reach cell and each response
+        amps = [amps; mean(S(iSweep).dataS(goodSpikeTime,:))];      % Total amplitude of reach cell and each response, nStim by nCells
         fAvC = [fAvC mean(S(iSweep).dataF(goodSpikeTime,:),2)];     % Average fluorescence across entire OT (all cells lumped) for each stimulus
         sAvC = [sAvC mean(S(iSweep).dataS(goodSpikeTime, :),2)];	% Same for spiking
         data = [data S(iSweep).dataS(goodSpikeTime,:)];             % Here concatenation goes right, not down        
@@ -438,23 +443,24 @@ for(iBrain = 1:nBrains)
     
     
     %%% ----------------- Selectivity calculations ------------
-    stimType = mod((1:nSweeps)-1,3)+1;                  % 1=C, 2=F, 3=S
+    stimType = mod((1:nSweeps)-1,3)+1;                                      % 1=C, 2=F, 3=S
     itWasaC = stimType==1;
     itWasaF = stimType==2;
     itWasaS = stimType==3;
-    if(flagUsePeakAmps)                                 % Which amplitudes to use: cumulative or peak
+    if(flagUsePeakAmps)                                                     % Which amplitudes to use: cumulative or peak
         amps = ampsPeak;
+        warning('This code is old; check it before using it');
     end
-    meanRespC = mean(amps(itWasaC,:),1);                % A column of nCell length
-    meanRespF = mean(amps(itWasaF,:),1);
+    meanRespC = mean(amps(itWasaC,:),1);                                    % "amps" contains total amplitude for every stimulus and every cell (nStim by nCells)
+    meanRespF = mean(amps(itWasaF,:),1);                                    % The result of this averaging is a row nCells long
     meanRespS = mean(amps(itWasaS,:),1);
     sdRespC = std(amps(itWasaC,:));
     sdRespF = std(amps(itWasaF,:));
     sdRespS = std(amps(itWasaS,:));
     
-    if(showResponseAmplitudes)                             % Response amplitudes for all cells in the brain.
-        if(iBrain==1); giantBagOfAmplitudes = []; end
-        giantBagOfAmplitudes = [giantBagOfAmplitudes; ...
+    if(showResponseAmplitudes)                                              % Response amplitudes for all cells in the brain.
+        if(iBrain==1); giantBagOfAmplitudes = []; end                       % Let's store all mean responses (to 3 stim) of all cells in all brains.
+        giantBagOfAmplitudes = [giantBagOfAmplitudes; ...                   % It's saved as a csv later (ctrl-F for the destiny of this variable)
             meanRespF' meanRespS' meanRespC' ones(nCells,1)*iBrain ones(nCells,1)*age(iBrain)];
         hF = findobj('type','figure','name','fullAmps');
         if(isempty(hF)); hF = figure('Color','white','name','fullAmps'); hold on; end        
@@ -464,11 +470,11 @@ for(iBrain = 1:nBrains)
         plot((iBrain-1) + [00 0.2 0.4], [mean(meanRespF) mean(meanRespS) mean(meanRespC)],'k-s','MarkerFaceColor','w');
         drawnow;
         if(iBrain==1); fprintf('name       \tnCells      \tnSeeps     \tampF   \tampS   \tampC    \tp(C!=F)    \tp(S!=F)    \tp(C!=S)   \n'); end
-        [~,p1] = ttest2(meanRespF,meanRespC);
+        [~,p1] = ttest2(meanRespF,meanRespC);                               % Whether the majority of cells differentiated between C and F
         [~,p2] = ttest2(meanRespF,meanRespS);
         [~,p3] = ttest2(meanRespS,meanRespC);
         fprintf('%10s\t%10d\t%10d\t%10.2f\t%10.2f\t%10.2f\t%10s\t%10s\t%10s\n',name,nCells,nSweeps,...
-            mean(meanRespF)*1000,mean(meanRespS)*1000,mean(meanRespC)*1000,myst(p1),myst(p2),myst(p3)); % Multiplied by 1000 to bring it to ~1 to 10
+            mean(meanRespF)*1000,mean(meanRespS)*1000,mean(meanRespC)*1000,myst(p1),myst(p2),myst(p3)); % Multiplied by 1000 to bring it to ~1..10
     end
     
     spiking = mean([meanRespC(:) meanRespF(:) meanRespS(:)],2);             % Most generic average response amplitude (needed for graph_structure analyzer)    
@@ -512,7 +518,8 @@ for(iBrain = 1:nBrains)
             fprintf('Experiment       delta   meanSel sdSel  skewness median  90quant    s(>0)  sel2   rSelSel2\n'); 
         end
         fprintf('%12s\t%5.2f\t%5.2f\t%5.2f\t%5.2f\t%5.2f\t%5.2f\t%8.4f\t%5.2f\t%5.2f\n',name,...
-            fullDelta, mean(thisSel), std(thisSel), skewness(thisSel,1), median(thisSel), quantile(thisSel,0.9), sum(thisSel>0)/nCells, mean(sel2), corr(thisSel(:),sel2(:))); 
+            fullDelta, mean(thisSel), std(thisSel), skewness(thisSel,1), median(thisSel), ...
+            quantile(thisSel,0.9), sum(thisSel>0)/nCells, mean(sel2), corr(thisSel(:),sel2(:))); 
             %%% Note: Skewness here is not "unbiased" (flag==1), and that's the default for Matlab. It's just a coeff though, not an uncentered moment.
         hF = findobj('type','figure','name','allSel');
         if(isempty(hF)); hF = figure('Color','white','name','allSel'); hold on; xlabel('Brain'); ylabel([selectivityName ' Selectivity']); end
@@ -555,19 +562,19 @@ for(iBrain = 1:nBrains)
         else
             ud = get(hF,'UserData');
         end
-        if(~exist('giantSelbag','var')); giantSelbag = []; end                              % Let's keep all points to calculate "total r" at the end
+        if(~exist('giantSelbag','var')); giantSelbag = []; end                  % Let's keep all points to calculate "total r" at the end
         if(strcmp(selToCompare,'FCtoSC'))
             [r,p] = corr(selFC(:),selSC(:));
             plot(ud.a1,selFC,selSC,'.');
             plot(ud.a2,selFC-mean(selFC(:)),selSC-mean(selSC(:)),'.');
             giantSelbag = [giantSelbag; selFC(:) selSC(:) ...
-                ones(size(selFC(:)))*age(iBrain) ones(size(selFC(:)))*iBrain];    % Keep all points. See a block governed by 'showSelTypes' somewhere below
+                ones(size(selFC(:)))*age(iBrain) ones(size(selFC(:)))*iBrain];  % Keep all points. See a block governed by 'showSelTypes' somewhere below
         else
             [r,p] = corr(selFC(:),selFS(:));
             plot(ud.a1,selFC,selFS,'.');
             plot(ud.a2,selFC-mean(selFC(:)),selFS-mean(selFS(:)),'.');
             giantSelbag = [giantSelbag; selFC(:) selFS(:) ...
-                ones(size(selFC(:)))*age(iBrain) ones(size(selFC(:)))*iBrain];    % Keep all points. See a block governed by 'showSelTypes' somewhere below
+                ones(size(selFC(:)))*age(iBrain) ones(size(selFC(:)))*iBrain];  % Keep all points. See a block governed by 'showSelTypes' somewhere below
         end
         if(iBrain==1); fprintf('Name    cor(sel1,sel2)\n'); end
         fprintf('%8s\t%8.2f\t%10s\n',name,r,myst(p));
@@ -923,7 +930,7 @@ if(showSelectivityHist)
 end
 
 if(showSelTypes)
-    %%% expects giantSelbag with 3 columns: FCsel, SCsel, age  , for every cell ever observed
+    %%% ---> expects giantSelbag with 3 columns: FCsel, SCsel, age  , for every cell ever observed
     figure; subplot(1,2,1); plot(giantSelbag(giantSelbag(:,3)==46,1),giantSelbag(giantSelbag(:,3)==46,2),'.'); title('Stage 46'); 
     if(selToCompare);     xlabel('FC selectivity'); ylabel('SC selectivity');
     else; xlabel('FC selectivity'); ylabel('FS selectivity'); end
@@ -935,14 +942,12 @@ if(showSelTypes)
     [r,p] = corr(giantSelbag(giantSelbag(:,3)==46,1),giantSelbag(giantSelbag(:,3)==46,2));
     fprintf('  s46 selectivity correlation: %10s\t%s\n',myst(r),myst(p));    
     [r,p] = corr(giantSelbag(giantSelbag(:,3)==49,1),giantSelbag(giantSelbag(:,3)==49,2));
-    fprintf('  s49 selectivity correlation: %10s\t%s\n',myst(r),myst(p));
-    csvwrite('giantSelBagDump.txt',giantSelbag);
+    fprintf('  s49 selectivity correlation: %10s\t%s\n',myst(r),myst(p));    
+    csvwrite([localPath 'sel_allcells_allbrains.csv'],giantSelbag);                        % Save as csv
 end
 
 if(showResponseAmplitudes)
-    %%% giantBagOfAmplitudes: ampF ampS ampC iBrain age
-    % figure;    
-    csvwrite('giantAmplitudeBagDump.txt',giantBagOfAmplitudes);
+    csvwrite([localPath 'avamps_allcells_allbrains.csv'],giantBagOfAmplitudes);
 end
 
 end

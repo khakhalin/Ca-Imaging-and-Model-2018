@@ -1,6 +1,6 @@
 # ========================
-# This program analyses actual Ca imaging data (processed in Matlab, saved in Excel, and then extracted
-# to CSV; see the hard-coded address below). Makes some nice plots.
+# Analyses Ca imaging data (processed in Matlab, then extracted to CSV)
+# see hard-coded address below). Makes summary plots
 # ========================
 
 require(tidyr)
