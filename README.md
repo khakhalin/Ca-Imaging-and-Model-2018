@@ -9,6 +9,4 @@ A *very draft* version of the paper [can be seen here, as LaTeX document](https:
 
 ## Workflow
 
-* [All programs and scripts involved in this study](Description_programs.md) - a comprehensive, well commented list, with a full description of analytic workflow. Because the project took 5 years, the final workflow looks rather messy, and the naming of files got rather haphazard, making this document absolutely necessary.
-* [Some comments on data formats](Description_data.md) - for now very minimal, but I plan to describe it better in the future.
-* [Misc comments on early stages of processing](Description_misc.md) - other miscellaneous comments that were scattered in various documents, and that I'm now trying to gather ans bring in order.
+* [All programs and scripts involved in this study](Internal Documentation/Description_programs.md) - a comprehensive, well commented list, with a full description of analytic workflow. Because the project took 5 years, the final workflow looks rather messy, and the naming of files got rather haphazard, making this document absolutely necessary.
