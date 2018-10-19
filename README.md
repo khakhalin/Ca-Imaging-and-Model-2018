@@ -9,4 +9,4 @@ A *very draft* version of the paper [can be seen here, as LaTeX document](https:
 
 ## Workflow
 
-* [All programs and scripts involved in this study](Internal Documentation/Description_programs.md) - a comprehensive, well commented list, with a full description of analytic workflow. Because the project took 5 years, the final workflow looks rather messy, and the naming of files got rather haphazard, making this document absolutely necessary.
+* [All programs and scripts involved in this study](/Documentation/Description_programs.md) - a comprehensive, well commented list, with a full description of analytic workflow. Because the project took 5 years, the final workflow looks rather messy, and the naming of files got rather haphazard, making this document absolutely necessary.
