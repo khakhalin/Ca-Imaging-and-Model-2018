@@ -11,14 +11,13 @@ function c = myNetMeasure(w,type)
 switch(type)
     case 'reciprocity'                          % Returns something like a weighted share of reciprocal connections
         if(min(w(:)<0))                         % Currently doesn't really support negative weights
-            warning('Reciprocity: adjacency matrix contains negative weights. It probably makes the outputs meaningless');
+            warning('Reciprocity: adjacency matrix contains negative weights. It probably makes the output meaningless');
         end
         if(n~=m)
-            error('Reciprocity needs the matrix to be symmetric');
+            error('Reciprocity needs the matrix to be square');
         end
         w = w.*(ones(n)-eye(n));                % Remove diagonal
-        w = w/max(w(:));                        % Normalize
-        c = sum((w.*w'))/sum(w);
+        c = sum(sum(w.*w'))/sum(w(:).^2);       % Calculate normalized reciprocity
         
     case {'assii','assoo','assio','assoi'}      % Assortativities (one number, not a vector!)
         ins = sum(w,1)';                        % We assume it is a graph matrix, not the calcculating matrix (graph = calculation'), so w(1,2) is from 1 to 2
