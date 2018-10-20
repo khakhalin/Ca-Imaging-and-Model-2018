@@ -1,7 +1,5 @@
-Paper: Calcium Imaging and Developmental Model
-==============================================
-
 Working title: Graph analysis of a collision detection network in the tectum, and its replication in a simple computational model
+==============================================
 
 ## Draft Abstract
 
