@@ -1,5 +1,6 @@
-#
-# Builds pictures for Fig 2, those about response amplitudes
+# ========================
+# Builds pictures for Ca img paper Fig 2, those about response amplitudes
+# ========================
 
 require(tidyr)
 require(dplyr)

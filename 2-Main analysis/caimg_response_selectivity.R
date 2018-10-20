@@ -1,5 +1,6 @@
-#
-# Builds pictures for Fig 2, about response selectivity
+# ========================
+# Builds pictures for Caimg paper Fig 2, about response selectivity
+# ========================
 
 require(tidyr)
 require(dplyr)

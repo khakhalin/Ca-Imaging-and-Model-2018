@@ -8,59 +8,54 @@ require(ggplot2)
 
 rm(list = ls())  # Clear workspace
 
-#d <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180919 slide looming - with 50 rewirings for each.csv",sep=",",header=T)
+myFolder = 'C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/'
 
 ### Combine several model outputs into one large dataframe
-figureToMake = 'rules'
-if(figureToMake=='inputs') {
-  d <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180925 1 slide looming.csv",sep=",",header=T)
-  t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180929 2 slide vis.csv",sep=",",header=T)
-  d <- rbind(d,t)
-  t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180929 4 slide random.csv",sep=",",header=T)
-  d <- rbind(d,t)
-  }
-if(figureToMake=='rules') {
-  d <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180925 1 slide looming.csv",sep=",",header=T)
-  d$type <- 'base'
-  t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180930 5 slide looming weak intrinsic.csv",sep=",",header=T)
-  t$type <- 'no intrinsic'
-  d <- rbind(d,t)
-  t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180930 6 slilde looming Hebb.csv",sep=",",header=T)
-  t$type <- 'no STDP'
-  d <- rbind(d,t)
-  t <- read.table("C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/modelAnalysis180930 7 decay looming.csv",sep=",",header=T)
-  t$type <- 'no competition'
-  d <- rbind(d,t)
-  d$type <- factor(d$type) # Strings to factors, just in case
-  }
+# 1st one creates the dataframe:
+d <- read.table(paste(myFolder,"modelAnalysis181013 1 slide looming.csv",sep=''),sep=",",header=T)
+d$type = 'Base'
+# All others concatenate to it:
+t <- read.table(paste(myFolder,"modelAnalysis181016 2 slide vis.csv",sep=''),sep=",",header=T)
+t$type = 'Visual'
+d <- rbind(d,t)
+t <- read.table(paste(myFolder,"modelAnalysis181016 3 slide random.csv",sep=''),sep=",",header=T)
+t$type = 'Random'
+d <- rbind(d,t)
+t <- read.table(paste(myFolder,"modelAnalysis181016 4 slide looming nointrinsic.csv",sep=''),sep=",",header=T)
+t$type = 'no Intrinsic'
+d <- rbind(d,t)
+t <- read.table(paste(myFolder,"modelAnalysis181016 5 slide looming Hebb.csv",sep=''),sep=",",header=T)
+t$type = 'no STDP'
+d <- rbind(d,t)
+t <- read.table(paste(myFolder,"modelAnalysis181016 6 decay looming.csv",sep=''),sep=",",header=T)
+t$type = 'no Competition'
+d <- rbind(d,t)
 
 names(d)
 summary(d)
 
-### Remove columns that we calculated, but that we don't like anymore:
+### Remove columns that were calculated, but that we don't like anymore:
 # For old files: drop assortativities (useless), as well as some other low-impact measures
 # d <- d %>% select (-c(asII,asIO,asOI,asOO,rDistWei,nPCAto80)) 
-d <- d %>% select (-c(nPCAto80)) 
+d <- d %>% select (-c(nPCAto80,competition,sel90perc,sel90perc_SC,rCluSpk,rSelRnt,rSelGth,
+                      shESelGrow,selEGrowth,nRichTo80F,clustPrefPval,revFlow,cycl,gammaIn)) 
 
-dg <- gather(d,var,value,-file,-type,-competition,-stage,-rewire)
+dg <- gather(d,var,value,-file,-type,-stage,-rewire)
 dg$var <- factor(dg$var)
 levels(dg$var) # List of levels (different measures we have)
 
 # Let's try to put measures in a somewhat meaningful order
 levelSequence <- c(
-  "file","type","competition","stage",
-  "fullBrainSel","meanSel","shareSelCells","sel90perc","sel90m50",
-  "sumOTpredict","bestPredict",
-  "fullBrainSel_SC","meanSel_SC","shareSelCells_SC","sel90perc_SC","sel90m50_SC",
-  "rPosSel","rPosInf","rSelInf",
-  "rDirWei","rDistWei","mDistWei",
-  "rSelClu","rCluSpk","rSelNet","rSelRnt",
-  "rSelGth","rSelIns","selAssort","shESelGrow","selEGrowth",
-  "gammaIn","gammaOu","deg0","deg12","deg5p",
-  "nRichTo80F","nRichTo80C","nPCAto80",
-  "nClusters","clustVarExplained","clusterPreference","clusterCompactness","clustPrefPval",
-  "rSelSpk","rSelfcSelfs","rSelfcSelsc",
-  "eff","modul","clust","flow","revFlow","cycl")
+  "file","type","stage",
+  "fullBrainSel","meanSel","shareSelCells","sel90m50","bestPredict",
+  "fullBrainSel_SC","meanSel_SC","shareSelCells_SC","sel90m50_SC",
+  "rSelfcSelfs","rSelfcSelsc",
+  "rPosSel","rDirWei","mDistWei",
+  "rSelClu","rSelNet","rSelRnt","rSelIns","selAssort","rSelSpk",
+  "gammaIn","gammaOu","deg0","deg12","deg5p","recip",
+  "nRichTo80C",
+  "nClusters","clusterPreference","clusterCompactness",
+  "eff","modul","clust","flow")
 existingLevels <- levels(dg$var)
 dg$var <- factor(dg$var,levels=intersect(levelSequence,existingLevels))
 head(dg)
@@ -82,6 +77,7 @@ ggplot(dgs,aes(stage,m,color=type)) + theme_bw() +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
   NULL
+
 
 # Plot Averages only, one type, but with REWIRE
 ggplot(dgs,aes(stage,m,color=rewire)) + theme_bw() +
