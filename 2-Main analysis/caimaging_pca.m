@@ -28,20 +28,20 @@ iBrain = iBrain+1; folderName{iBrain} = '140704b'; age(iBrain) = 46; % strange r
 iBrain = iBrain+1; folderName{iBrain} = '140704a'; age(iBrain) = 46; % Weak
 iBrain = iBrain+1; folderName{iBrain} = '140627'; age(iBrain) = 46;
 iBrain = iBrain+1; folderName{iBrain} = '140626';  age(iBrain) = 46;
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140620'; age(iBrain) = 46; % excluded
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140619b'; age(iBrain) = 46; % excluded
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140619a'; age(iBrain) = 46; % excluded
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140613'; age(iBrain) = 46; % excluded
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140611'; age(iBrain) = 46; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140620'; age(iBrain) = 46; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140619b'; age(iBrain) = 46; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140619a'; age(iBrain) = 46; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140613'; age(iBrain) = 46; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140611'; age(iBrain) = 46; % excluded
 iBrain = iBrain+1; folderName{iBrain} = '140610'; age(iBrain) = 46;
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140530b'; age(iBrain) = 46; % excluded
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140530a'; age(iBrain) = 46; % excluded
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140529'; age(iBrain) = 46; % excluded
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140528'; age(iBrain) = 46; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140530b'; age(iBrain) = 46; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140530a'; age(iBrain) = 46; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140529'; age(iBrain) = 46; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140528'; age(iBrain) = 46; % excluded
 iBrain = iBrain+1; folderName{iBrain} = '140516'; age(iBrain) = 46;
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140502'; age(iBrain) = 46; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140502'; age(iBrain) = 46; % excluded
 
-% %% --- stage 49 set
+% % %%% --- stage 49 set
 iBrain = iBrain+1; folderName{iBrain} = '140726'; age(iBrain) = 49;
 iBrain = iBrain+1; folderName{iBrain} = '140724'; age(iBrain) = 49; % pretty retinotopy
 iBrain = iBrain+1; folderName{iBrain} = '140723'; age(iBrain) = 49;
@@ -52,26 +52,26 @@ iBrain = iBrain+1; folderName{iBrain} = '140710'; age(iBrain) = 49;
 iBrain = iBrain+1; folderName{iBrain} = '140709'; age(iBrain) = 49; % pretty retinotopy - the best
 iBrain = iBrain+1; folderName{iBrain} = '140707'; age(iBrain) = 49;
 iBrain = iBrain+1; folderName{iBrain} = '140705b'; age(iBrain) = 49;
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140703'; age(iBrain) = 49; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140703'; age(iBrain) = 49; % excluded
 iBrain = iBrain+1; folderName{iBrain} = '140612'; age(iBrain) = 49;
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140522'; age(iBrain) = 49; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140522'; age(iBrain) = 49; % excluded
 iBrain = iBrain+1; folderName{iBrain} = '140521'; age(iBrain) = 49;
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140505'; age(iBrain) = 49; % excluded
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140408'; age(iBrain) = 49; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140505'; age(iBrain) = 49; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140408'; age(iBrain) = 49; % excluded
 iBrain = iBrain+1; folderName{iBrain} = '140328'; age(iBrain) = 49; % weak, bad retinotopy
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140326'; age(iBrain) = 49; % excluded, cfs2 is shorter than others
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140325'; age(iBrain) = 49; % excluded
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140318'; age(iBrain) = 49; % excluded
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140317'; age(iBrain) = 49; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140326'; age(iBrain) = 49; % excluded, cfs2 is shorter than others
+%%% iBrain = iBrain+1; folderName{iBrain} = '140325'; age(iBrain) = 49; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140318'; age(iBrain) = 49; % excluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140317'; age(iBrain) = 49; % excluded
 iBrain = iBrain+1; folderName{iBrain} = '140314'; age(iBrain) = 49; % weak, bad retinotopy
-% %%% iBrain = iBrain+1; folderName{iBrain} = '140312'; age(iBrain) = 49; % ex cluded
+%%% iBrain = iBrain+1; folderName{iBrain} = '140312'; age(iBrain) = 49; % ex cluded
 iBrain = iBrain+1; folderName{iBrain} = '140311'; age(iBrain) = 49; % Noisy, except for 2 cells, but produced a decent graph
 iBrain = iBrain+1; folderName{iBrain} = '140310'; age(iBrain) = 49; % Short recording
 
 
 % ------------- Control settings and constants -------------
 showRawData = 0;                    % Whether raw (well, raw-ish) data debugging figures need to be shown
-showRawFigure = 0;                  % Not all raw data, but just enough for a figure
+showRawFigure = 0;                  % Not all raw data, but just enough for a figure (averages for this brain and a band of CI around each average)
 pcaStimType = 1;                    % Set to 1 if PCA and response dynamics are to be run on crashes only (recommended); 2=flash, 3=scramble; 0=full triad
 randomizePositions = 0;             % Set to 1 if all xy positions should be randomly reassigned (as a H0-style test for position-related methods)
 showAverageResponses = 0;           % Show average responses
