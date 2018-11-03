@@ -1,6 +1,6 @@
 # ========================
-# Analyses Ca imaging data (processed in Matlab, then extracted to CSV)
-# see hard-coded address below). Makes summary plots
+# Reads network measures (file names is hard-coded below), for every brain, both actual,
+# and calculated on rewired (scrambled) graphs. Plots them.
 # ========================
 
 require(tidyr)
@@ -9,7 +9,7 @@ require(ggplot2)
 
 rm(list = ls())  # Clear workspace
 
-d <- read.table("7_Ca imaging/git - CaImaging Paper/2-Main analysis/caimg_network_measures.csv",sep=",",header=T)
+d <- read.table("7_Ca imaging/git - CaImaging Paper/2-Main analysis/caimg_network_measures stable.csv",sep=",",header=T)
 names(d)
 
 d2 <- gather(d,var,val,-Type,-Stage,-Name)

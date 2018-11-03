@@ -926,7 +926,7 @@ if(showSelectivityHist)
 end
 
 if(showSelTypes)
-    %%% ---> expects giantSelbag with 3 columns: FCsel, SCsel, age  , for every cell ever observed
+    %%% ---> expects giantSelbag with 5 columns: FCsel, FSsel, SCsel, brainID, and age
     %figure; subplot(1,2,1); plot(giantSelbag(giantSelbag(:,3)==46,1),giantSelbag(giantSelbag(:,3)==46,2),'.'); title('Stage 46'); 
     %if(selToCompare);     xlabel('FC selectivity'); ylabel('SC selectivity');
     %else; xlabel('FC selectivity'); ylabel('FS selectivity'); end
@@ -941,7 +941,7 @@ if(showSelTypes)
     %fprintf('  s49 selectivity correlation: %10s\t%s\n',myst(r),myst(p));    
     
     fid = fopen([localPath 'sel_allcells_allbrains.csv'],'w');              % csvwrite doesn't support headers, but we need a header
-    fprintf(fid,'%s\n','fc,sc,ibrain,stage\n\r')                                              % so doing it manually
+    fprintf(fid,'%s\n','fc,fs,sc,ibrain,stage')                             % so doing it manually
     fclose(fid)
     dlmwrite([localPath 'sel_allcells_allbrains.csv'],giantSelbag,'-append'); % write data to the end
 end
@@ -949,7 +949,7 @@ end
 if(showResponseAmplitudes)
     %csvwrite([localPath 'avamps_allcells_allbrains.csv'],giantBagOfAmplitudes);
     fid = fopen([localPath 'avamps_allcells_allbrains.csv'],'w');           % csvwrite doesn't support headers, but we need a header
-    fprintf(fid,'%s\n','f,s,c,ibrain,stage\n\r')                            % so doing it manually
+    fprintf(fid,'%s\n','f,s,c,ibrain,stage')                                % so doing it manually
     fclose(fid)
     dlmwrite([localPath 'avamps_allcells_allbrains.csv'],giantBagOfAmplitudes,'-append'); % write data to the end
 end
