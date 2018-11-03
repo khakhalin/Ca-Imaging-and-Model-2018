@@ -7,7 +7,7 @@ Looming is one of the most salient visual stimuli an animal may encounter, yet m
 
 ## Draft versions of the paper and related materials
 
-A *very draft* version of the main text [can be seen here, as a LaTeX document](https://github.com/khakhalin/Ca-img-2018-tex/blob/master/main.tex)
+A *very draft* LaTeX version of the text [can be seen here](https://github.com/khakhalin/Ca-img-2018-tex/blob/master/main.tex)
 
 ## Workflow
 

@@ -55,7 +55,7 @@ These programs can be rerun without harm.
 
 Despite the name, the logic here is that it contains all analysis that doesn't involve the connectivity reconstruction graph. Selectivity, PCA, nice mugshot, a hunt for cell types, activation trajectories. Hard-codes which brains are read, so this should be changed manually by commenting and uncommenting individual rows. Contains a bunch of flags and switches (around row 70) that turn different types of analysis and figures on and off.
 
-Note that in all programs in this series variables related to "Flash" stimulate have F in their name; variables related to "Scramble" have S, but variables related to "Looming" have C in their names, as early in development I referred to looming stimuli as "Crashes" (similar to how they were called in (Khakhalin 2015) study).
+Note that in all programs in this series variables related to "Flash" stimulate have F in their name; variables related to "Scramble" have S, but variables related to "Looming" have C in their names, as early in development I referred to looming stimuli as "Crashes", as they were called in (Khakhalin 2014) study.
 
 ### graph_structure_analyzer.m
 
