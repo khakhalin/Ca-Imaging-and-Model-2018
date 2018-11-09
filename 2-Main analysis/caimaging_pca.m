@@ -75,7 +75,8 @@ showRawFigure = 0;                  % Not all raw data, but just enough for a fi
 pcaStimType = 1;                    % Set to 1 if PCA and response dynamics are to be run on crashes only (recommended); 2=flash, 3=scramble; 0=full triad
 randomizePositions = 0;             % Set to 1 if all xy positions should be randomly reassigned (as a H0-style test for position-related methods)
 showAverageResponses = 0;           % Show average responses
-flagUsePeakAmps = 0;                % If set to 1, overrides cumulative amplitudes (amps) with peak amplitudes (ampsPeak)
+flagUsePeakAmps = 0;                % If set to 1, overrides cumulative amplitudes (amps) with peak amplitudes (ampsPeak). NOTE that it rewrites selFC in AUXDATA
+peakRange = [-0.1 0.1];             % Range around the average flash peak at which amplitudes should be taken
 
 doPCA = 1;                          % Factor analysis. The "origin point" for retinotopic responses is also calculated here. Needs to be 1 for all analyses in this group.
 reportPCA = 0;                      % Whether PCA stats need to be reported
@@ -83,14 +84,14 @@ retinotopyLogic = 'pca';            % Two options here: 'lat' to calculate retin
 reportRetinotopy = 0;               % Whether retinotopy should be reported to the console.
 showPCAfigure = 0;                  % Show PCA figure for each brain
 showPCAsummaryFigure = 0;           % PCA cumulative figure
-showLatDistFigure = 1;              % Show correlations between distance from the center and latency (total figure for all brains)
+showLatDistFigure = 0;              % Show correlations between distance from the center and latency (total figure for all brains)
 
 doEnsembleAnalysis = 0;             % Calcualted adjusted correlations, and identify ensembles from them
 doCorrelationFig = 0;               % plot raw correlation matrices - NOT SURE IF UPDATED AT THIS POINT
 
 %%% --- Selectivity group of analyses. The selectivity is always calculated, but we can turn summaries and reporting on and off as we please
 showResponseAmplitudes = 0;         % Main simplistic figure for response amplitudes + output of all amplitudes to csv
-reportSelectivity = 0;              % Selectivity is always calculated, but this triggers whether it is reported in the console
+reportSelectivity = 1;              % Selectivity is always calculated, but this triggers whether it is reported in the console
 selectivityName = 'FC';             % Pick which selectivity to report: FC (default), FS, SC, or C (the weighted one, C over [F+S]/2)
 showSelTypes = 0;                   % Cell selectivity types figure + output to scv
 selToCompare = 'FCtoFS';            % What to compare: FCtoSC (is it a geometry detection?); or FCtoFS (is it a dynamics detection?)
@@ -177,6 +178,18 @@ for(iBrain = 1:nBrains)
         averageShapePerType(:,iType) = mean(averageShapePerCell((1:nTime)+nTime*(iType-1),:),2);  % Average curves for 3 responses
         [peakY(iType),peakX(iType)] = max(averageShapePerType(:,iType));    % Peak and its position (for plotting and meta-averaging across brains, below)
     end
+    
+    peakRangePoints = round(peakRange*1000/msPerFrame);               % How far to the left and to the right from the peak to look, for peak estimations
+    for(iSweep=1:nSweeps)        
+        ampsPeak = [ampsPeak; mean(S(iSweep).dataS(peakX(stimType(iSweep))+(peakRangePoints(1):peakRangePoints(2)),:))]; % Average over a small-ish region around peak
+    end    
+    
+    %figure; % Debugging figure to see whether peak amplitude is 
+    %plot(time,averageShapePerType);
+    %hold on;
+    %plot(time(peakX(2)),0.01,'ks');
+    %plot(time(peakX(2))+peakRange,[1 1]*0.01,'k.-');
+    %hold off;    
     
     %%% -------------- Show average responses, together with average across all brains --------------
     if(showAverageResponses)
@@ -278,10 +291,10 @@ for(iBrain = 1:nBrains)
             figure('Color','white'); ha1 = axes(); hold on;
             figure('Color','white'); ha2 = axes(); hold on;
             for(q = 1:3)                                % Three sweeps...
-                iSweep = [2 3 1]+12;                     % ... but I want them go in this order.
-                kx = (time(end)-time(1))*1.1;
-                for(iCell=1:3)                         % Several traces only
-                    ksy = 0.9/max(S(iSweep(q)).dataS(goodSpikeTime,iCell));
+                iSweep = [2 3 1]+12;                    % ... but I want them go in this order.
+                kx = (time(end)-time(1))*1.1;           % Scaling coeff for x
+                for(iCell=1:3)                          % Several traces only
+                    ksy = 0.9/max(S(iSweep(q)).dataS(goodSpikeTime,iCell)); % Scaling coeff for y
                     kfy = 0.9/max(S(iSweep(q)).dataF(goodSpikeTime,iCell)-S(iSweep(q)).dataF(goodSpikeTime(1),iCell));
                     plot( ha1, time + (q-1)*kx , S(iSweep(q)).dataS(goodSpikeTime,iCell)*ksy + (iCell-1)*1 , 'b-');
                     plot( ha2, time + (q-1)*kx , (S(iSweep(q)).dataF(goodSpikeTime,iCell)-S(iSweep(q)).dataF(goodSpikeTime(1),iCell))*kfy + (iCell-1)*1 , 'b-');
@@ -297,7 +310,8 @@ for(iBrain = 1:nBrains)
         triad = 3*((1:floor(nSweeps/3))-1);
         hold on;
         m = mean(sAvC(:,triad+2),2);
-        e = std(sAvC(:,triad+2),[],2)/sqrt(nSweeps/3)*tinv(0.025,round(nSweeps/3)-1); 
+        e = std(sAvC(:,triad+2),[],2)/sqrt(nSweeps/3)*tinv(0.025,round(nSweeps/3)-1);
+        % Draw a shaded area around the mean curve, in one row (that's why fliplr and everything is a bit weird):
         fill([time' fliplr(time')] , [m'+e' fliplr(m'-e')] , 'r', 'EdgeColor','none', 'FaceAlpha',0.1);
         plot(time, m , 'r-');
         m = mean(sAvC(:,triad+3),2);
@@ -390,7 +404,7 @@ for(iBrain = 1:nBrains)
                 % Optimizing against negative latency as corr with latency with positive, and we are looking for a minimum
         end
         dist = sqrt((xy(:,1)-originPoint(1)).^2 + (xy(:,2)-originPoint(2)).^2);                                 % Distances to the origin point
-        [rDistErl,pDistErl] = corr(dist(:),earlyBalance(:));
+        %[rDistErl,pDistErl] = corr(dist(:),earlyBalance(:));
         if(reportRetinotopy)
             if(iBrain==1); fprintf('  Name      centX   centY    rDistErl  pDistErl\n'); end;
             fprintf('%8s\t%5.2f\t%5.2f\t%5.2f\t%8s\n',name,originPoint,rDistErl,myst(pDistErl));
@@ -465,8 +479,11 @@ for(iBrain = 1:nBrains)
     itWasaF = stimType==2;
     itWasaS = stimType==3;
     if(flagUsePeakAmps)                                                     % Which amplitudes to use: cumulative or peak
-        amps = ampsPeak;
-        warning('This code is old; check it before using it');
+        if(iBrain==1)
+            fprintf('Warning: using peak amplitudes instead of standard cumulative amplitudes\n');
+            fprintf('Looking at the range of %3.1f to %3.1f around the average peak, for each stim type.\n',peakRange);
+        end
+        amps = ampsPeak;        
     end
     meanRespC = mean(amps(itWasaC,:),1);                                    % "amps" contains total amplitude for every stimulus and every cell (nStim by nCells)
     meanRespF = mean(amps(itWasaF,:),1);                                    % The result of this averaging is a row nCells long
@@ -498,9 +515,10 @@ for(iBrain = 1:nBrains)
     saveResults(auxFolder,folderName{iBrain},'amp',spiking);                % Save spiking intensity for later analyses.
     selFC = (meanRespC-meanRespF)./sqrt((sdRespC.^2 + sdRespF.^2)/2);       % Cohen d for C-F
     selFS = (meanRespS-meanRespF)./sqrt((sdRespS.^2 + sdRespF.^2)/2);       % same for S-F
-    selSC = (meanRespC-meanRespS)./sqrt((sdRespC.^2 + sdRespS.^2)/2);       % same for C-S
-    % selFCp = (mean(ampsPeak(itWasaC==1,:),1)-mean(ampsPeak(itWasaF==1,:),1))./std(ampsPeak(itWasaC==1 | itWasaF==1,:),[],1); % Cohen d for C-F, based on peaks
+    selSC = (meanRespC-meanRespS)./sqrt((sdRespC.^2 + sdRespS.^2)/2);       % same for C-S    
     selC = (meanRespC - (meanRespF+meanRespS)/2)./sqrt((2*sdRespC.^2 + sdRespS.^2 + sdRespF.^2)/4); % Weighted d-like effect size
+    
+    % selFCp = (mean(ampsPeak(itWasaC==1,:),1)-mean(ampsPeak(itWasaF==1,:),1))./std(ampsPeak(itWasaC==1 | itWasaF==1,:),[],1); % Cohen d for C-F, based on peaks
     
     %%% -- A fancier selectivity (McFadden's Pseudo-R), based on logistic fit
     sel2 = zeros(1,nCells);                             % Needs to be a row for compRow2 calculation below to work.    
@@ -840,6 +858,7 @@ for(iBrain = 1:nBrains)
         plot(time,mean(sAvC(:,stimType==1),2),'b-'); 
         plot(time,mean(sAvC(:,stimType==2),2),'r-'); 
         plot(time,mean(sAvC(:,stimType==3),2),'g-'); 
+        xlim([time(1) time(end)]);
         title('Spiking');
         legend({'c','f','s'}); legend('boxoff');
         
