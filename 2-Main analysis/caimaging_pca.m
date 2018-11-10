@@ -20,7 +20,6 @@ iBrain = iBrain+1; folderName{iBrain} = '140716b'; age(iBrain) = 46;
 iBrain = iBrain+1; folderName{iBrain} = '140716a'; age(iBrain) = 46;
 iBrain = iBrain+1; folderName{iBrain} = '140715'; age(iBrain) = 46;
 iBrain = iBrain+1; folderName{iBrain} = '140711'; age(iBrain) = 46;
-
 iBrain = iBrain+1; folderName{iBrain} = '140708b'; age(iBrain) = 46;
 iBrain = iBrain+1; folderName{iBrain} = '140708a'; age(iBrain) = 46;
 iBrain = iBrain+1; folderName{iBrain} = '140705a'; age(iBrain) = 46;
@@ -41,7 +40,7 @@ iBrain = iBrain+1; folderName{iBrain} = '140610'; age(iBrain) = 46;
 iBrain = iBrain+1; folderName{iBrain} = '140516'; age(iBrain) = 46;
 %%% iBrain = iBrain+1; folderName{iBrain} = '140502'; age(iBrain) = 46; % excluded
 
-% % %%% --- stage 49 set
+% % % %%% --- stage 49 set
 iBrain = iBrain+1; folderName{iBrain} = '140726'; age(iBrain) = 49;
 iBrain = iBrain+1; folderName{iBrain} = '140724'; age(iBrain) = 49; % pretty retinotopy
 iBrain = iBrain+1; folderName{iBrain} = '140723'; age(iBrain) = 49;
@@ -84,14 +83,15 @@ retinotopyLogic = 'pca';            % Two options here: 'lat' to calculate retin
 reportRetinotopy = 0;               % Whether retinotopy should be reported to the console.
 showPCAfigure = 0;                  % Show PCA figure for each brain
 showPCAsummaryFigure = 0;           % PCA cumulative figure
-showLatDistFigure = 0;              % Show correlations between distance from the center and latency (total figure for all brains)
+showLatDistFigure = 1;              % Show correlations between distance from the center and latency (total figure for all brains)
+saveRetinogopy = 1;                 % Saves "giantBagOfLatencies" as a csv
 
 doEnsembleAnalysis = 0;             % Calcualted adjusted correlations, and identify ensembles from them
 doCorrelationFig = 0;               % plot raw correlation matrices - NOT SURE IF UPDATED AT THIS POINT
 
 %%% --- Selectivity group of analyses. The selectivity is always calculated, but we can turn summaries and reporting on and off as we please
 showResponseAmplitudes = 0;         % Main simplistic figure for response amplitudes + output of all amplitudes to csv
-reportSelectivity = 1;              % Selectivity is always calculated, but this triggers whether it is reported in the console
+reportSelectivity = 0;              % Selectivity is always calculated, but this triggers whether it is reported in the console
 selectivityName = 'FC';             % Pick which selectivity to report: FC (default), FS, SC, or C (the weighted one, C over [F+S]/2)
 showSelTypes = 0;                   % Cell selectivity types figure + output to scv
 selToCompare = 'FCtoFS';            % What to compare: FCtoSC (is it a geometry detection?); or FCtoFS (is it a dynamics detection?)
@@ -100,12 +100,14 @@ showSelectivityHist = 0;            % Show selectivity histograms (one figure fo
 doResponseDynamics = 0;             % Early sells, late cells. Requires doPCA to be on, as it draws from it.
 showSpatialEveryBrain = 0;          % A figure for every brain
 showSpatialSummary = 0;             % Summary info and summary figure. Note that it doesn't split by age, so run it twice if you need a split
+showSpatiotemporal = 0;             % Spatiotemporal heat-map
 
 showMugshot = 0;                    % Profile image for every brain
 
 key = 'cfs';
 goodSpikeTimeRange = [0.25 2];      % Only this range of times will be kept in spike recordings (to cut out beginning and end artifacts)
 msPerFrame = 12;                    % Frames were recorded every 12 ms (about 83 frames/s)
+umPerPx = 4;                        % Microns per pixel, in the video
 
 
 
@@ -143,7 +145,8 @@ for(iBrain = 1:nBrains)
         xy = S(1).xy(randperm(nCells),:);               % If needed - randomlize everything
         if(iBrain==1); fprintf('NOTE: cell positions were randomized!\n'); end
     end
-    % fprintf('%5d cells, %5d stimuli, %5d time points\n',nCells,nSweeps,length(goodSpikeTime));
+    xy = xy*umPerPx;                                    % Now in um, not pix
+    
     if(size(xy,1)>nCells)
         xy = xy(1:nCells,:); 
         S(1).xy = xy; 
@@ -385,9 +388,9 @@ for(iBrain = 1:nBrains)
         
         lat = zeros(nCells,1);                          % Place for latencies (note that this code is doubled below in latency analysis, in case this segment isn't run)
         for(iCell=1:nCells)                
-            temp = averageShapePerCell((1:nTime)+(pcaStimType-1)*nTime,iCell);
+            temp = averageShapePerCell((1:nTime),iCell);% Average response for this cell
             temp = temp/max(temp);
-            lat(iCell) = calculate_latency(temp);                 % Returns a point half-way up to max after 2-piecewise linear fitting                
+            lat(iCell) = calculate_latency(temp);       % Returns a point half-way up to max after 2-piecewise linear fitting                
         end
         lat = lat*msPerFrame;                           % from frames to ms        
                      
@@ -404,7 +407,7 @@ for(iBrain = 1:nBrains)
                 % Optimizing against negative latency as corr with latency with positive, and we are looking for a minimum
         end
         dist = sqrt((xy(:,1)-originPoint(1)).^2 + (xy(:,2)-originPoint(2)).^2);                                 % Distances to the origin point
-        %[rDistErl,pDistErl] = corr(dist(:),earlyBalance(:));
+        
         if(reportRetinotopy)
             if(iBrain==1); fprintf('  Name      centX   centY    rDistErl  pDistErl\n'); end;
             fprintf('%8s\t%5.2f\t%5.2f\t%5.2f\t%8s\n',name,originPoint,rDistErl,myst(pDistErl));
@@ -447,7 +450,7 @@ for(iBrain = 1:nBrains)
             else
                 figure(hF_distlat);
             end
-            plot(dist,lat-mean(lat)+400,'.');
+            plot(dist,lat-quantile(lat,0.1)+200,'.');   % Shifted by 10% quantile, as a less noisy proxy for shortest latency
             drawnow();
         end
         
@@ -518,6 +521,13 @@ for(iBrain = 1:nBrains)
     selSC = (meanRespC-meanRespS)./sqrt((sdRespC.^2 + sdRespS.^2)/2);       % same for C-S    
     selC = (meanRespC - (meanRespF+meanRespS)/2)./sqrt((2*sdRespC.^2 + sdRespS.^2 + sdRespF.^2)/4); % Weighted d-like effect size
     
+    % ibrain,stage,cellid,x,y,dist,lat,ac,af,as,selfc,selsc
+    if(iBrain==1)
+        giantBagOfLatencies = [];
+    end
+    giantBagOfLatencies = [giantBagOfLatencies; ones(nCells,1)*iBrain ones(nCells,1)*age(iBrain) (1:nCells)' xy dist(:) lat(:) ...
+        meanRespC(:) meanRespF(:) meanRespS(:) selFC(:) selSC(:)];
+        
     % selFCp = (mean(ampsPeak(itWasaC==1,:),1)-mean(ampsPeak(itWasaF==1,:),1))./std(ampsPeak(itWasaC==1 | itWasaF==1,:),[],1); % Cohen d for C-F, based on peaks
     
     %%% -- A fancier selectivity (McFadden's Pseudo-R), based on logistic fit
@@ -837,7 +847,48 @@ for(iBrain = 1:nBrains)
             
             set(hF,'UserData',ud);                              % Upload the data structure
             drawnow;
+        end % Spatial summary
+    end % Response dynamics
+    
+    if(showSpatiotemporal) % Spatiotemporal heatplot
+        % Assume that are calculated: "dist" (distances to origin point), 
+        % "averageShapePerCell" with 3 responses one after another, size==[nTime*3, nCells]
+        % "peakX(2)" that becomes xShift, to bring all flash responses to same point, for averaging purposes
+        xShift = peakX(2);
+        fprintf('%s , shift %d\n',name,xShift);
+        binSize = 25;                                           % in um. For most 
+        nBins = 25;        
+        binAllocation = zeros(nCells,1);                        % What bin this cell belongs to
+        for(iBin=1:nBins)
+            binAllocation(dist(:)>(iBin-1)*binSize & dist(:)<=iBin*binSize) = iBin;
         end
+        
+        nTimeSlots = 25;
+        timeStep = nTime/nTimeSlots;
+        
+        if(iBrain==1)
+            avActivityTotal = zeros(nTimeSlots,nBins,3);
+        end
+        
+        figure('Color','White');
+        for(iType=1:3)
+            avActivity = zeros(nTimeSlots,nBins);
+            for(iTimeSlot = 1:nTimeSlots)
+                for(iDistanceBin = 1:nBins)
+                    avActivity(iTimeSlot,iDistanceBin) = mean(mean(averageShapePerCell(...
+                        (1:(nTime*3))-xShift+15 >  (iTimeSlot-1)*timeStep+(iType-1)*nTime & ...
+                        (1:(nTime*3))-xShift+15 <=  iTimeSlot   *timeStep+(iType-1)*nTime, ...
+                        binAllocation==iDistanceBin)));
+                end
+            end
+            avActivity(isnan(avActivity)) = 0;                  % NANs can happen either because there are no cells in this bin, or because of the xShift
+            subplot(1,3,iType);
+            myplot(avActivity');                                % Time becomes x axis
+            pbaspect([1 1 1]);                                  % Axes aspect ratio = square
+            xlabel('Time'); ylabel('Distance, um');        
+            drawnow();
+            avActivityTotal(:,:,iType) = avActivityTotal(:,:,iType) + avActivity/sum(avActivity(:))/nBrains;    % Total average
+        end        
     end
     
     
@@ -981,17 +1032,54 @@ if(showSelTypes)
     %fprintf('  s49 selectivity correlation: %10s\t%s\n',myst(r),myst(p));    
     
     fid = fopen([localPath 'sel_allcells_allbrains.csv'],'w');              % csvwrite doesn't support headers, but we need a header
-    fprintf(fid,'%s\n','fc,fs,sc,ibrain,stage')                             % so doing it manually
-    fclose(fid)
+    fprintf(fid,'%s\n','fc,fs,sc,ibrain,stage');                            % so doing it manually
+    fclose(fid);
     dlmwrite([localPath 'sel_allcells_allbrains.csv'],giantSelbag,'-append'); % write data to the end
 end
 
 if(showResponseAmplitudes)
     %csvwrite([localPath 'avamps_allcells_allbrains.csv'],giantBagOfAmplitudes);
     fid = fopen([localPath 'avamps_allcells_allbrains.csv'],'w');           % csvwrite doesn't support headers, but we need a header
-    fprintf(fid,'%s\n','f,s,c,ibrain,stage')                                % so doing it manually
-    fclose(fid)
+    fprintf(fid,'%s\n','f,s,c,ibrain,stage');                               % so doing it manually
+    fclose(fid);
     dlmwrite([localPath 'avamps_allcells_allbrains.csv'],giantBagOfAmplitudes,'-append'); % write data to the end
+end
+
+if(showSpatiotemporal)
+    figure('Color','White');
+    for(iType=1:3)
+        subplot(2,3,iType);
+        myplot(squeeze(avActivityTotal(:,:,iType))');       
+        pbaspect([1 1 1]);                                  % Axes aspect ratio = square
+        xlabel('Time'); ylabel('Distance, um');          
+    end
+    
+    redBlueMap = [1:50, 50, ones(1,50)*50 ; [25+(1:50)/2 50 50-(0:49)] ; ones(1,50)*50 , 50 , 50:-1:1]'/50;
+    
+    subplot(2,3,4);
+    newImage = squeeze(avActivityTotal(:,:,1))'-squeeze(avActivityTotal(:,:,2))';  % C-F
+    maxDeviation = max(max(newImage(:)),-min(newImage(:))); % How far a divergent colormap should go    
+    myplot(newImage);
+    pbaspect([1 1 1]); title('L-F');
+    colormap(gca,redBlueMap);
+    caxis([-maxDeviation maxDeviation]);
+    
+    subplot(2,3,5);
+    newImage = squeeze(avActivityTotal(:,:,1))'-squeeze(avActivityTotal(:,:,3))';  % C-S    
+    maxDeviation = max(max(newImage(:)),-min(newImage(:))); % How far a divergent colormap should go    
+    myplot(newImage);
+    pbaspect([1 1 1]); title('L-S');
+    colormap(gca,redBlueMap);
+    caxis([-maxDeviation maxDeviation]);
+    
+    drawnow();
+end
+
+if(saveRetinogopy)
+    fid = fopen([localPath 'all_cells_latencies.csv'],'w');           % csvwrite doesn't support headers, but we need a header...
+    fprintf(fid,'%s\n','ibrain,stage,cellid,x,y,dist,lat,ac,af,as,selfc,selsc'); % so doing it manually
+    fclose(fid);
+    dlmwrite([localPath 'all_cells_latencies.csv'],giantBagOfLatencies,'-append'); % write data to the end
 end
 
 end
@@ -1081,10 +1169,11 @@ function lat = calculate_latency(trace)
 % Calculates onset latency (in frames) for one trace
 [~,imax] = max(trace);
 imax=imax-5;                            % Move a bit to the left, to make sure we are on the linear segment
-f = @(a,x) max(0,a(1)*(x-a(2)));
+f = @(a,x) max(0,a(1)*(x-a(2)));        % sorta relu shape: first 0, then a line that starts at a(2) and goes up with a(1) slope
 opt = optimoptions('lsqcurvefit','Display','off');
 a = lsqcurvefit(f,[imax/2 2/imax],(1:imax)',trace(1:imax),[1 0],[imax 1000],opt);
-lat = round(a(2) + 1/2/a(1));
+%lat = round(a(2) + 1/2/a(1));          % Option 1: half-way to the max
+lat = round(a(2));                      % Option 2: where the dead zone ends
 lat = min(max(1,lat),imax);             % Safety
 end
 
