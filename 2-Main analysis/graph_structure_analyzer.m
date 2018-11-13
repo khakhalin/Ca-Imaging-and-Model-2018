@@ -13,7 +13,7 @@ function graph_structure_analyzer()
 % Sep 29 2017: Edge analysis, spatial analysis
 % Aug 09 2018: Revived.
 
-onlyOneBrain = 1;       % When generating sample images, set this to 1, to process only a small subset of experiments (currently: 2 brains, see below).
+onlyOneBrain = 0;       % When generating sample images, set this to 1, to process only a small subset of experiments (currently: 2 brains, see below).
 
 useFullSet = 0;         % Set to 1 for full set (including noisy data); set to 0 for a clean subset (low noise, good graphs)
 if(~onlyOneBrain)
