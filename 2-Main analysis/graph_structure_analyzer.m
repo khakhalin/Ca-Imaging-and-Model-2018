@@ -13,7 +13,7 @@ function graph_structure_analyzer()
 % Sep 29 2017: Edge analysis, spatial analysis
 % Aug 09 2018: Revived.
 
-onlyOneBrain = 0;       % When generating sample images, set this to 1, to process only a small subset of experiments (currently: 2 brains, see below).
+onlyOneBrain = 1;       % When generating sample images, set this to 1, to process only a small subset of experiments (currently: 2 brains, see below).
 
 useFullSet = 0;         % Set to 1 for full set (including noisy data); set to 0 for a clean subset (low noise, good graphs)
 if(~onlyOneBrain)
@@ -48,6 +48,7 @@ n46 = length(fileNames1);   % How many s46s are there
 n49 = length(fileNames2);   % How many s49s
 
 data = [];                  % Place to collect network measurements, returned by the ANALYZE_GRAPH function below.
+centralityBag = [];         % Place to collect info about all nodes
 for(iExp=1:(n46+n49))
     if(iExp<=n46)
         fullName = [folderName1 'results-' fileNames1{iExp} '.mat'];
@@ -59,17 +60,27 @@ for(iExp=1:(n46+n49))
     S = load(fullName);
     S = S.res;
     S.stage = stages(iExp);
+    S.centralityBag = [];                           % To collect centrality data for every cell
     
-    [newData,newLabels] = analyze_graph(S,iExp);  % Make sure that both of these are rows, not columns
+    [newData,newLabels,centralityData] = analyze_graph(S,iExp);    % Make sure that both of these are rows, not columns
     
-    % if(iExp==1)                                 % We only need to store the labels once, as they stay the same for all rows of data
-    %     labels = ['N cells',newLabels];
-    % end
-    % data = [data; S.nCells newData];
+    centralityBag = [centralityBag; centralityData];
     labels = newLabels;
     data = [data; newData];
     
     %fprintf('\n');
+end
+
+if(~isempty(centralityBag))
+    thisPathWithName = mfilename('fullpath');                               % Get the location of this file
+    thisName = mfilename();
+    localPath = thisPathWithName(1:(length(thisPathWithName)-length(thisName)));    % Path to the folder where this function lies
+    
+    fid = fopen([localPath 'sel_centrality_allcells.csv'],'w');              % csvwrite doesn't support headers, but we need a header
+    fprintf(fid,'%s\n','nexp, sel, indegree, katz, spiking, insel');
+    % [ones(nCells,1)*iExp, sel(:), inDegree(:), netrank, spiking(:), w'*sel(:)];
+    fclose(fid);
+    dlmwrite([localPath 'sel_centrality_allcells.csv'],centralityBag,'-append'); % write data to the end
 end
 
 fprintf('\n'); dispf(data);
@@ -80,7 +91,7 @@ end
 end
 
 
-function [netData,labels] = analyze_graph(S,iExp)
+function [netData,labels,centralityData] = analyze_graph(S,iExp)
 sigLevel = 0.01;                % Significance level for accepting that the TE exists (doesn't matter if you use any of the adaptive techniques)
 thresholdType = 'lax';          % Either 'strict' or 'lax' (recommended). With 'strict' many graphs end up empty or nearly empty.
 wComboMode = 'mean';            % Three options of how wc, wf, and ws should be combined into one matrix: min, mean (recommended), max, c, f, s
@@ -98,11 +109,10 @@ doRawEdgeAnalysis = 0;          % Looking at raw edges, before thresholding
 showEdgeAnalysis = 0;           % Analysis of weights, degrees, edge assymetry, and w<0 edges. The type of output has to be switched in the code block itself (sorry)
 doPredictions = 0;              % Whether we want to look at stimulus identity prediction from brain activity
 selToUse = 'FC';                % Which selectivity to use; options are: 'C' (combined), 'FC', and 'SC'
-doSelectivity = 0;              % Where the selective cells are
-doSelectivityInSpace = 1;       % Analyze network properties and cell location. Relies on selectivity analysis
-selSpcAllOrSummary = 'summary'; % Set to either 'all' (to report all points for further R analysis) or 'summary' (for a summary)
+doSelectivity = 1;              % Where the selective cells are. Also calculates correlations with centrality measures and similar things
+doSelectivityInGraph = 0;       % Analyze network properties and cell location. Relies on selectivity analysis
 
-doConnectivityInSpace = 0;      % Spatial analysis for connectivity
+doConnectivityInSpace = 0;      % Spatial analysis for connectivity (for example, in which direction are edges facing, etc.)
 nConnectivityShuffles = 100;    % To compare connectivity of original network to randomized network. Recommended: ~100
 doNetworkMetrics = 0;           % Whether network properties need to be measured
 doEnsembleConnectivity = 0;     % Load up ensembles identified by caimaging_pca.m , and compare connectivity within and between
@@ -112,7 +122,8 @@ D = load([auxFolder S.name '-auxData.mat']); D = D.D;
 
 %%% Future outputs:
 labels = {};                            % Labels for network measurements
-netData = [];                           % Measurements themselves   
+netData = [];                           % Measurements themselves
+centralityData = [];                    % Default, empty
 
 % % --- Minimal cell distance: if it's too low for any of the trials, that's because there was ROI duplication in the dataset
 % labels = [labels,'Min Cell Dist'];          
@@ -369,6 +380,9 @@ if(doSelectivity)
     rAmpClu = corr(spiking(:),clu);                                             % Response amp vs clustering coeff
     rAmpSel = corr(spiking(:),sel(:));                                          % Are selective cells more spiky?
     
+    centralityData = [ones(nCells,1)*iExp, sel(:), inDegree(:), netrank, spiking(:), w'*sel(:)];
+    % The last term here is the average selectivity of cells connected to this cell
+        
     %%% --- Correlations on edges
     % selAssort = sel(:)'*w*sel(:)/sum(w(:))-((sum(sel*w)+sum(w*sel'))/(2*sum(w(:))))^2;  % Are selective cells are more likely to be connected? OBSOLETE, see below
     % Note that model_stdp_tester has the same formula but a different understanding of w (it is flipped there).
@@ -429,15 +443,13 @@ end
 %%% --------- Analysis of spatial arrangement of selectivity  and connectivity
 x = S.xy(indCore,1);
 y = S.xy(indCore,2);
-if(doSelectivityInSpace)    
+if(doSelectivityInGraph)    
     distOriginToNode = sqrt((x(:)-originPoint(1)).^2 + (y(:)-originPoint(2)).^2);
     [rSelDist,pval] = corr(distOriginToNode(:),sel(:));                     % Is distance from the center correlated with selectivity?
 
-    switch selSpcAllOrSummary; case 'summary'                             % Only print a summary for each brain
-        if(iExp==1); fprintf('Name       rSelDist       p_SelDist\n'); end
-        fprintf('%8s\t%8.2f\t%8s\n',S.name,rSelDist,myst(pval));
-    end
-
+    if(iExp==1); fprintf('Name       rSelDist       p_SelDist\n'); end
+    fprintf('%8s\t%8.2f\t%8s\n',S.name,rSelDist,myst(pval));
+    
     hF = findobj('type','figure','name','Spatial');
     if(isempty(hF)); 
         hF = figure('Color','white','name','Spatial'); 
@@ -457,13 +469,6 @@ if(doSelectivityInSpace)
         plot(h.a4,distOriginToNode,sel,'b.');
     end
     drawnow();
-    
-    switch selSpcAllOrSummary; case 'all'                     % Print ALL cells to the console, for offline analysis           
-        if(iExp==1); fprintf('Name       Stage     Cell       x         y      distToOrigin       sel       sel2\n'); end
-        for(iCell=1:nCells)                                     
-            fprintf('%10s\t%5d\t%4d\t%5d\t%5d\t%8f\t%8f\t%8f\n',S.name,S.stage,iCell,x(iCell),y(iCell),distOriginToNode(iCell),sel(iCell),sel2(iCell));
-        end
-    end
 end
 
 if(doConnectivityInSpace)    

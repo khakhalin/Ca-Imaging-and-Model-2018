@@ -23,7 +23,7 @@ iBrain = iBrain+1; folderName{iBrain} = '140711'; age(iBrain) = 46;
 iBrain = iBrain+1; folderName{iBrain} = '140708b'; age(iBrain) = 46;
 iBrain = iBrain+1; folderName{iBrain} = '140708a'; age(iBrain) = 46;
 iBrain = iBrain+1; folderName{iBrain} = '140705a'; age(iBrain) = 46;
-iBrain = iBrain+1; folderName{iBrain} = '140704b'; age(iBrain) = 46; % strange responses, weird PCA. Two cells are very weird. Check.
+iBrain = iBrain+1; folderName{iBrain} = '140704b'; age(iBrain) = 46; % strange responses, weird PCA. Two cells are parcicularly weird
 iBrain = iBrain+1; folderName{iBrain} = '140704a'; age(iBrain) = 46; % Weak
 iBrain = iBrain+1; folderName{iBrain} = '140627'; age(iBrain) = 46;
 iBrain = iBrain+1; folderName{iBrain} = '140626';  age(iBrain) = 46;
@@ -63,8 +63,8 @@ iBrain = iBrain+1; folderName{iBrain} = '140328'; age(iBrain) = 49; % weak, bad 
 %%% iBrain = iBrain+1; folderName{iBrain} = '140318'; age(iBrain) = 49; % excluded
 %%% iBrain = iBrain+1; folderName{iBrain} = '140317'; age(iBrain) = 49; % excluded
 iBrain = iBrain+1; folderName{iBrain} = '140314'; age(iBrain) = 49; % weak, bad retinotopy
-%%% iBrain = iBrain+1; folderName{iBrain} = '140312'; age(iBrain) = 49; % ex cluded
-iBrain = iBrain+1; folderName{iBrain} = '140311'; age(iBrain) = 49; % Noisy, except for 2 cells, but produced a decent graph
+%%% iBrain = iBrain+1; folderName{iBrain} = '140312'; age(iBrain) = 49; % excluded
+iBrain = iBrain+1; folderName{iBrain} = '140311'; age(iBrain) = 49; % Noisy, but produced a decent graph
 iBrain = iBrain+1; folderName{iBrain} = '140310'; age(iBrain) = 49; % Short recording
 
 
@@ -84,7 +84,7 @@ reportRetinotopy = 0;               % Whether retinotopy should be reported to t
 showPCAfigure = 0;                  % Show PCA figure for each brain
 showPCAsummaryFigure = 0;           % PCA cumulative figure
 showLatDistFigure = 1;              % Show correlations between distance from the center and latency (total figure for all brains)
-saveRetinogopy = 1;                 % Saves "giantBagOfLatencies" as a csv
+saveRetinotopy = 1;                 % Saves "giantBagOfLatencies" as a csv
 
 doEnsembleAnalysis = 0;             % Calcualted adjusted correlations, and identify ensembles from them
 doCorrelationFig = 0;               % plot raw correlation matrices - NOT SURE IF UPDATED AT THIS POINT
@@ -1075,7 +1075,7 @@ if(showSpatiotemporal)
     drawnow();
 end
 
-if(saveRetinogopy)
+if(saveRetinotopy)
     fid = fopen([localPath 'all_cells_latencies.csv'],'w');           % csvwrite doesn't support headers, but we need a header...
     fprintf(fid,'%s\n','ibrain,stage,cellid,x,y,dist,lat,ac,af,as,selfc,selsc'); % so doing it manually
     fclose(fid);
