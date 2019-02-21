@@ -9,15 +9,19 @@ require(ggplot2)
 
 rm(list = ls())  # Clear workspace
 
-d <- read.table("7_Ca imaging/git - CaImaging Paper/2-Main analysis/caimg_network_measures stable.csv",sep=",",header=T)
+d <- read.table("7_Ca imaging/git - CaImaging Paper/2-Main analysis/caimg_network_measures.csv",sep=",",header=T)
 names(d)
 
-d2 <- gather(d,var,val,-Type,-Stage,-Name)
+d2 <- gather(d,var,val,-type,-stage,-name)
 names(d2)
 
-ggplot(subset(d2,var %in% c("Efficiency","Modul","Flow","cluster")),aes(Type,val,group=Name)) + theme_bw() +
-  geom_line(color="lightblue") + geom_point(aes(color=Type)) + 
-  facet_grid(var~Stage,scales="free_y")
+ggplot(subset(d2,var %in% c("eff","modul","flow","clust")),aes(type,val,group=name)) + 
+  theme_bw() + theme(panel.grid.major = element_blank(), 
+                     panel.grid.minor = element_blank()) + 
+  geom_line(color="lightblue") + geom_point(aes(color=type)) + 
+  facet_grid(var~stage,scales="free_y") +
+  stat_summary(aes(group=type),fun.y="mean",geom="point",shape=0,color="black") +
+  NULL
 
 # Assortativities look weird and a bit suspicious. Weird because after thorough rewiring they always
 # converge to one value. Suspicious, because this value is not always 0 (IO and OI seem to converge to 0, 
