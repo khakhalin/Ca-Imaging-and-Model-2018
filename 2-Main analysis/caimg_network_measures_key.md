@@ -1,4 +1,4 @@
-# caimg_network_measures
+# Key for caimg_network_measures.csv
 
 Data file description
 
