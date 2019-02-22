@@ -16,11 +16,18 @@ d2 <- gather(d,var,val,-type,-stage,-name)
 names(d2)
 
 ggplot(subset(d2,var %in% c("eff","modul","flow","clust")),aes(type,val,group=name)) + 
-  theme_bw() + theme(panel.grid.major = element_blank(), 
-                     panel.grid.minor = element_blank()) + 
-  geom_line(color="lightblue") + geom_point(aes(color=type)) + 
+theme_bw() + 
+ theme(panel.grid.major = element_blank(), 
+       panel.grid.minor = element_blank(),
+       panel.border = element_blank(),
+       panel.background = element_blank(),
+       axis.line = element_line()) + 
+  geom_line(color="gray90") + 
+  geom_point(aes(color=stage),shape=1) + 
   facet_grid(var~stage,scales="free_y") +
   stat_summary(aes(group=type),fun.y="mean",geom="point",shape=0,color="black") +
+  annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf) +
+  annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf) +
   NULL
 
 # Assortativities look weird and a bit suspicious. Weird because after thorough rewiring they always
@@ -32,3 +39,18 @@ ggplot(subset(d2,var %in% c("eff","modul","flow","clust")),aes(type,val,group=na
 ggplot(subset(d2,var %in% c("II_assrt","OO_assrt","IO_assrt","OI_assrt")),aes(Type,val,group=Name)) + theme_bw() +
   geom_line(color="lightblue") + geom_point(aes(color=Type)) + 
   facet_grid(var~Stage,scales="free_y")
+
+
+# -------------- Simple network measures (different data file)
+
+dbasic <- read.table("7_Ca imaging/git - CaImaging Paper/2-Main analysis/caimg_network_summary.csv",sep=",",header=T)
+names(dbasic)
+
+dbasic2 <- gather(dbasic,var,val,-stage,-name)
+names(dbasic2)
+
+ggplot(dbasic,aes(factor(stage),-gamma)) + 
+  theme_classic() + 
+  geom_point(aes(color=factor(stage)),shape=1,size=3) + 
+  stat_summary(fun.y="mean",geom="point",shape=0,color="black") +
+  NULL
