@@ -10,8 +10,8 @@ require(ggplot2)
 rm(list = ls())  # Clear workspace
 
 # --- Network-level (brain-level) plots
-d <- read.table("7_Ca imaging/git - CaImaging Paper/2-Main analysis/caimg_network_summary.txt",
-                sep='\t',header=T)
+d <- read.table("7_Ca imaging/git - CaImaging Paper/2-Main analysis/caimg_network_summary.csv",
+                sep=',',header=T)
 names(d)
 
 # Encoding, between stages:

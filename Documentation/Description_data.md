@@ -5,13 +5,30 @@ Comments on how data is stored
 
 ### all_cells_latencies.csv
 
-* Contains: info on cell position and response latency, for space-related plots.
+* Contains: info on position and response latency for every cell. Used for space-related plots. Contains all cells, before any network-based subsetting (as used for network analysis; see below).
+* Produced by:
+* Used by:
+
+Columns:
+
+1. ibrain - experiment number
+1. stage - developmental stage
+1. cellid - cell number (arbitrarily assigned at quantification stage), used as id
+1. x - cell position, x
+1. y - cell position, y
+1. dist - distance from the "most optimal" retinotopic center for the looming response (see methods in the main text for the algorithm)
+1. lat - latency
+1. ac - amplitude looming
+1. af - same for flash
+1. as - same for scramble
+1. selfc - selectivity for Looming stimulus, compared to Flash
+1. selsc - same for Looming compared to Scramble
 
 ### avamps_allcells_allbrains stable.csv
 
 * Contains: response amplitudes for every cell recorded in every experiment.
 
-TODO Q: Is it truly all cells (before we restrict analysis to the largest component), or is it post-restriction?
+TODO Q: Most probably  truly all cells (before we restrict analysis to the largest component), or is it post-restriction?
 
 ### caimg_network_measures.csv
 
@@ -72,7 +89,7 @@ Columns:
 ### sel_centrality_allcells.csv
 
 * Contains: Centrality measurements for each cell, as well as cell selectivity
-* Produced by: graph_structure_analyzer.m (but only if doSelectivity flag is set to TRUE). 
+* Produced by: graph_structure_analyzer.m ; only if doSelectivity flag is set to TRUE.
 * Used by: caimg_centrality_analysis.r
 
 Columns: 
@@ -84,7 +101,7 @@ Columns:
 1. spiking - average amplitude of spiking response in this cell
 1. insel - average selectivity of all cells connected to this cell (in-connections)
 
-Currently does not contain cell ids for two reasons. One, it is the only secondary data file that contains information on per-cell level. Second, only nodes from the largest weakly connected component are included in this analysis.
+Currently does not contain cell ids for two reasons. One, it is the only secondary data file that contains information on per-cell level. Second, only nodes from the largest weakly connected component are included in this analysis, making cell ids a bit tricker (if we want them to match those from earlier files).
 
 First 14 experiments are stage 46; the reast are stage 49.
 
