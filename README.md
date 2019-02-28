@@ -9,6 +9,7 @@ Looming is one of the most salient visual stimuli an animal may encounter, yet m
 
 A LaTeX version of the text [can be seen here](https://github.com/khakhalin/Ca-img-2018-tex/blob/master/main.tex)
 
-## Workflow
+## Documentation files
 
-* [All programs and scripts involved in this study](/Documentation/Description_programs.md) - a comprehensive, well commented list, with a full description of analytic workflow. Because the project took 5 years, the final workflow looks rather messy, and the naming of files got rather haphazard, making this document absolutely necessary.
+* [All programs and scripts used in this study](/Documentation/Description_programs.md) - a comprehensive, well commented list, with a full description of analytic workflow. Because the project took 5 years, the final workflow looks rather messy, and the naming of files got rather haphazard, making this document absolutely necessary.
+* [Data keys and comments](/Documentation/Description_data.md) - keys and comments for all data files in this repository.
