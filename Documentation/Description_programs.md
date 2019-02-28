@@ -51,7 +51,7 @@ Interactive browser of cells; can be called by passing the data structure S. Is 
 
 These programs can be rerun without harm.
 
-### caimaging_pca
+### caimaging_pca.m
 
 Despite the name, the logic here is that it contains all analysis that doesn't involve the connectivity reconstruction graph. Selectivity, PCA, nice mugshot, a hunt for cell types, activation trajectories. Hard-codes which brains are read, so this should be changed manually by commenting and uncommenting individual rows. Contains a bunch of flags and switches (around row 70) that turn different types of analysis and figures on and off.
 
@@ -65,11 +65,28 @@ Graph analysis. Relies on the data files created by caimaging_structure (file na
 
 ### caimg_network_analysis.r
 
-R script that reads network analysis data from "caimg_network_measures" (both for original networks, and for networks reshuffled in two different ways), and then compares them, as well as makes some nice plots. Gets info from a file "caimg_network_measures.csv", which, in practice, I populated from an Excel table with all measurements.
+R script that reads network analysis data (both for original networks, and for networks reshuffled in two different ways), and then compares them, while also making some nice plots. Gets info from "caimg_network_measures.csv", which, in practice, was created from an Excel table with all measurements, which in turn contains all results that were at some point printed in Matlab console.
 
+### caimg_centrality_analysis.r
+
+Reads from "sel_centrality_allcells.csv", builds correlations between centrality measures and selectivity.
+
+### caimg_experimens_assorted_figures.r
+
+Reads from "caimg_network_summary.csv"; makes plot of encoding
+
+Then reads from "all_cells_latencies.csv", makes a plot of distance-latency.
+
+### caimg_response_amplitudes.r
+
+Reads "avamps_allcells_allbrains.csv"; builds pics for Fig 2.
+
+### caimg_response_selectivity.r
+
+Reads from "sel_allcells_allbrains stable.csv", builds a selectivity figure.
 
 -------------------------------------------------------------------
-## Network analysis toolbox 
+## Network analysis toolbox (general utilities)
 
 ### transfer_entropy
 
@@ -134,7 +151,12 @@ Optimized output of p-values (guaranteed to fit them into 4 symbols, which is ha
 By Rubinov and Sporns (Rubinov M, Sporns O (2010) NeuroImage 52:1059-69.)
 https://sites.google.com/site/bctnet/
 
-List of programs from this toolbox that I use, or at least tried:
+List of programs from this toolbox that were used in the final version of the paper:
+
+* efficiency_wei (weighted network efficiency)
+* modularity_dir (modularity for directed graphs)
+
+List of programs from this toolbox that I tried at some point:
 
 assortativity_wei.m
 breadth.m
