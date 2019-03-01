@@ -12,6 +12,7 @@ function graph_structure_analyzer()
 % Sep 15 2017: Full week of improvement in fair edge thresholding between experiments
 % Sep 29 2017: Edge analysis, spatial analysis
 % Aug 09 2018: Revived.
+% Mar 01 2019: Revisited to troubleshoot centrality comparisons.
 
 onlyOneBrain = 0;       % When generating sample images, set this to 1, to process only a small subset of experiments (currently: 2 brains, see below).
 
@@ -77,8 +78,8 @@ if(~isempty(centralityBag))
     localPath = thisPathWithName(1:(length(thisPathWithName)-length(thisName)));    % Path to the folder where this function lies
     
     fid = fopen([localPath 'sel_centrality_allcells.csv'],'w');              % csvwrite doesn't support headers, but we need a header
-    fprintf(fid,'%s\n','nexp, sel, indegree, katz, spiking, insel');
-    % [ones(nCells,1)*iExp, sel(:), inDegree(:), netrank, spiking(:), w'*sel(:)];
+    fprintf(fid,'%s\n','nexp, ncell, selFC, selSC, indegree, oudegree, katz, revkatz, clust, spiking, insel');         % So we create it manually
+    % To match labels to numbers, go down to where centralityData is populated
     fclose(fid);
     dlmwrite([localPath 'sel_centrality_allcells.csv'],centralityBag,'-append'); % write data to the end
 end
@@ -104,6 +105,7 @@ shuffleNetMode = 'degree';      % Two options: 'Erdos' (keeps n points and n edg
 
 showEdgeNumbers = 0;            % Report cross-protocol replication stats, number of cells, edges, significance thresholds used etc.
 showBasicStats = 0;             % Basic stats about response strength, correlations, etc.
+doDegreesGraph = 0;             % Graph with degrees distributions
 showRawGraphs = 0;              % Set to 1 if graphs for each experiment need to be shown
 doRawEdgeAnalysis = 0;          % Looking at raw edges, before thresholding
 showEdgeAnalysis = 0;           % Analysis of weights, degrees, edge assymetry, and w<0 edges. The type of output has to be switched in the code block itself (sorry)
@@ -300,10 +302,14 @@ if(showEdgeAnalysis)
 end
 
 %%% --------- Get rid of unconnected nodes and tidy up the data
-[w,indCore] = network_core(w);                         	% Leave only the core of the graph
+cellIndices = 1:size(w,1);                              % Enumerate all cells before shrinking
+[w,indCore] = network_core(w);                         	% MAIN ROW HERE: Leave only the core of the graph
+cellIndices = cellIndices(indCore==1);                  % Note which cells survived
 w = w;                                                  % We are not flipping the matrix here, as all TEs are stored in direct, unflipped form. G(w) is a correct graph.
 g = w(:)>0;                                             % Good edges for the purposes below
-sel = sel(indCore==1);                                  % Selectivity
+sel = sel(indCore==1);                                  % Main selectivity (for most analyses)
+selFC = D.selFC(indCore==1);                            % Specifically FC and FC selectivity for csv output (and later analyses in R)
+selSC = D.selSC(indCore==1);
 sel2 = sel2(indCore==1);                                % Logistic-fit-based selectivity
 spiking = spiking(indCore==1);                                  % Oveerall amplitudes
 corRaw = corRaw(indCore,indCore);                       % Raw correlations between spike-trains
@@ -368,8 +374,9 @@ if(doSelectivity)
     end
     
     inDegree = sum(w,1);
-    ouDegree = sum(2,1);
+    ouDegree = sum(w,2);
     netrank = myCentrality(w,'netrank');                                    % Katz centrality
+    netrankrev = myCentrality(w,'revnetrank');                              % Katz centrality on reversed graph (for csv only)
     clu = myCentrality(w,'clustering');                                     % Clustering coeff for every node
     %%% --- Correlations on nodes
     rSelDeg = corr(sel(:),inDegree(:));                                     % Correlation selectivity to in degree
@@ -380,7 +387,7 @@ if(doSelectivity)
     rAmpClu = corr(spiking(:),clu);                                             % Response amp vs clustering coeff
     rAmpSel = corr(spiking(:),sel(:));                                          % Are selective cells more spiky?
     
-    centralityData = [ones(nCells,1)*iExp, sel(:), inDegree(:), netrank, spiking(:), w'*sel(:)];
+    centralityData = [ones(nCells,1)*iExp, cellIndices(:), selFC(:), selSC(:), inDegree(:), ouDegree(:), netrank(:), netrankrev(:), clu(:), spiking(:), w'*sel(:)];
     % The last term here is the average selectivity of cells connected to this cell
         
     %%% --- Correlations on edges
@@ -411,14 +418,15 @@ if(doSelectivity)
     
     %figure(hF); plot(sel(:),sel2(:),'.'); xlabel('Selectivity for C'); ylabel('abs(pseudo-R2) for log-regression of C'); drawnow();
     %figure(hF); plot(flowNode(:),sel2(nodeIds)','.'); xlabel('Flow to node'); ylabel('abs(pseudo-R2) for log-regression of C'); drawnow();
-    if(1) % Troubleshooting figure
-        hF = findobj('type','figure','name','Selectivity');
-        if(isempty(hF)); hF = figure('Color','white','name','Selectivity'); hold on; end;
+    
+    if(doDegreesGraph) % Degrees distribution
+        hF = findobj('type','figure','name','Degree histograms');
+        if(isempty(hF)); hF = figure('Color','white','name','Degree histograms'); hold on; end;
         set(gca,'XScale','log','Yscale','log');
         %plot(netrank,sel(nodeIds)','.'); 
         plot(0:9,histDegIn,'b.-');
         plot(0:9,histDegOu,'ro-');
-        %xlabel('Cute measure'); ylabel('Selectivity'); 
+        xlabel('Degree (b=in, r=out)'); ylabel('Frequency'); 
         drawnow();    
     end
 

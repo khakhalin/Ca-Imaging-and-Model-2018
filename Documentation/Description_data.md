@@ -95,13 +95,16 @@ Columns:
 Columns: 
 
 1. nexp - experiment number
-1. sel - Flash-Looming selectivity
+1. ncell - cell number in the original list (not all numbers are present, as we are only looking at the largest weakly connected component here)
+1. selFC - Flash-Looming selectivity (default for most analyses)
+1. selSC - Scrambled-Looming selectivity
 1. indegree - in-degree of this node (cell)
-1. katz - Katz centrality of this node (cell)
+1. outdegree - out-degree of this node
+1. katz - Katz centrality of this node: a measure of information sink
+1. revkaz - Katz centrality calculated on a reversed graph: a feature of information (activation) sources
+1. clust - local clustering coefficient for this node
 1. spiking - average amplitude of spiking response in this cell
 1. insel - average selectivity of all cells connected to this cell (in-connections)
-
-Currently does not contain cell ids for two reasons. One, it is the only secondary data file that contains information on per-cell level. Second, only nodes from the largest weakly connected component are included in this analysis, making cell ids a bit tricker (if we want them to match those from earlier files).
 
 First 14 experiments are stage 46; the reast are stage 49.
 
