@@ -55,8 +55,8 @@ Columns:
 ### caimg_network_summary.csv
 
 * Contains: Basic low-level information about each reconstructed network
-* Produced by:
-* Used by: caimg_experimens_assorted_figures.r
+* Produced by: manually, by combining different console outputs of graph_structure_analyzer.m into one meaningful table
+* Used by: caimg_experimens_assorted_figures.R, caimg_network_analysis.R
 
 Columns:
 
@@ -71,6 +71,7 @@ Columns:
 1. largest - size of the largest weakly connected component
 1. encoding - how well stimulus identity can be reconstructed from this recording (see the text)
 1. gamma - degree distribution power, for a scale-free fit (see the text)
+1. selassort - weighted assortativity for cell selectivity (whether similarly selective cells tended to be connected to each other)
 
 ### sel_allcells_allbrains stable.csv
 

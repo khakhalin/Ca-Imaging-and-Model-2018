@@ -43,6 +43,8 @@ ggplot(subset(d2,var %in% c("II_assrt","OO_assrt","IO_assrt","OI_assrt")),aes(Ty
 
 # -------------- Simple network measures (different data file)
 
+rm(list = ls())  # Clear workspace
+
 dbasic <- read.table("7_Ca imaging/git - CaImaging Paper/2-Main analysis/caimg_network_summary.csv",sep=",",header=T)
 names(dbasic)
 
@@ -53,4 +55,9 @@ ggplot(dbasic,aes(factor(stage),-gamma)) +
   theme_classic() + 
   geom_point(aes(color=factor(stage)),shape=1,size=3) + 
   stat_summary(fun.y="mean",geom="point",shape=0,color="black") +
+  NULL
+
+ggplot(data=dbasic,aes(factor(stage),selassort)) + 
+  theme_classic() +
+  geom_jitter(h=0,w=0.1,shape=1,size=2.5) + 
   NULL
