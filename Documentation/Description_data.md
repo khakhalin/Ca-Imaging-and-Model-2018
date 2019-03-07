@@ -144,7 +144,7 @@ Each file contains the following columns:
 1. sel90m50_SC - ditto
 1. rPosSel - correlation between node position (distance from the center) and node selecttivity
 1. rDirWei - correlation nbetween edge direction off-center, and its weight
-1. mDistWei - average distance change across an edge, weighted by edge weight (closely related to the measure above)
+1. mDistWei - a ratio of weighted average distance between cells (weighted by edge weight) and average distance between all cells. The smaller the value, the more local are the connections.
 1. rSelClu - correlation between node selectivity and its local clustering coefficient
 1. rCluSpk - correlation between node clustering and its activity (average spiking)
 1. rSelNet - correlation between node selectivity and its Katz rank
