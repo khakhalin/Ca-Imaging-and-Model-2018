@@ -109,10 +109,78 @@ Columns:
 
 First 14 experiments are stage 46; the reast are stage 49.
 
+# Model analysis
+
+### Model Analysis summaries
+
+Files:
+
+* modelAnalysis181020 1 slide looming.csv - main set of experiments
+* modelAnalysis181020 2 slide vis.csv - experiments in which looming stimuli were replaced with random visual transitions (that include looms as a subset)
+* modelAnalysis181020 3 slide rand.csv - experiments in which the model was exposed to random noise
+* modelAnalysis181023 4 slide looming nointrinsic.csv - looming stimuli, but weak intrinsic plasticity (see Methods)
+* modelAnalysis181023 5 slide looming Hebb.csv - looming stimuli, but Hebbian plasticity instead of STDP
+* modelAnalysis181023 6 decay looming.csv - looming stimuli, but synaptic decay instead of synaptic competition
+
+Each file contains analysis results for 50 modeling experiments. For each experiments, we have values from 5 developmental points, taken at equal spaces across simulation.
+
+Each file contains the following columns:
+
+1. file - name of the matching file that contains simulation results (technical column)
+1. type - experiment type (should be the same within each csv file)
+1. competition - competition type: either "slide" (default; synaptic competition) or "decay" (synaptic decay)
+1. stage - developmental stage, from 1 (naive network, one step after initialization), to 5 (final network)
+1. rewire - whether the network was randomly rewired before analysis (should be "original")
+1. fullBrainSel - full brain selectivity to Loom compared to Flash (first responses of all cells are added, then selectivity is calculated)
+1. meanSel - first selectivity of each cell is calculated, then selectivity values are averaged
+1. shareSelCells - share of cells that respond to looming more strangly than to flash
+1. sel90perc - Flash-Looming selectivity of top 90% most selective cells
+1. sel90m50 - a difference between top 90% selectivity (above) and median selectivity
+1. bestPredict - best possible prediction of stimulus identity achieved from cell response amplitudes (see methods)
+1. fullBrainSel_SC - same as fullBrainSel above, but for Scramble-Looming rather than Flash-looming selectivity
+1. meanSel_SC - ditto
+1. shareSelCells_SC - ditto
+1. sel90perc_SC - ditto
+1. sel90m50_SC - ditto
+1. rPosSel - correlation between node position (distance from the center) and node selecttivity
+1. rDirWei - correlation nbetween edge direction off-center, and its weight
+1. mDistWei - average distance change across an edge, weighted by edge weight (closely related to the measure above)
+1. rSelClu - correlation between node selectivity and its local clustering coefficient
+1. rCluSpk - correlation between node clustering and its activity (average spiking)
+1. rSelNet - correlation between node selectivity and its Katz rank
+1. rSelRnt - same, but for Katz rank on a reveersed graph
+1. rSelGth - correlation between node selectivity and an adjusted ratio of (1+ weighted in-degree) devided by (1+ weighted out-degree) (abandoned analysis)
+1. rSelIns - correlation between node selectivity and its in-degree
+1. selAssort - assortativity of node selectivities
+1. shESelGrow - share of edges that increase selectivity (sel grows along the edge)
+1. selEGrowth - weighted average selectivity growth across the edge (weighted by edge weight)
+1. gammaIn - power of in-degree distribution
+1. gammaOu - power of out-degree distribution
+1. deg0 - frequency of nodes with 0 degree
+1. deg12 - frequency of nodes with either degree 1 or 2
+1. deg5p - frequency of nodes with degree of 5 or higher
+1. nPCAto80 - number of PCA components to achieve 80% reconstructon of total response variability (total response of each cell, analyzed across all stimuli, of all 3 types)
+1. nRichTo80F - same, but only for a subset of responses to "Flashes". Quantifies intrinsic network variability, rather than its representation of different stimuli
+1. nRichTo80C - same, but for looming stimuli
+1. nClusters - number of response clusters (modularity-based, see Methods)
+1. clusterPreference - preference of connectedness within a cluster; see Methods
+1. clusterCompactness - geographical compactness of clusters (quantification, see methods)
+1. clustPrefPval - a p-value associated with cluster preference (whether weights within a cluster were statistically different from weights between clusters)
+1. eff - network efficiency
+1. modul - network modularity
+1. clust - global clustering coefficient
+1. flow - global hierarchical flow
+1. revFlow - same, on a reversed graph
+1. cycl - measure of graph cyclicity (abandoned analysis)
+1. recip - share of reciprocal connections
+1. rSelSpk - correlation of selectivity and sliking
+1. rSelfcSelfs - correlation between Flash-Loom and Flash-Scrambled selectivities
+1. rSelfcSelsc - correlation between Flash-Loom and Scrambled-Loom selectivities
+
 
 # Original dataset info
 
-For each experiment, we originally had the following set of data files:
+Described here for historical purposes (not presented in this repo). For each experiment, we originally had the following set of data files:
 
 1.	Excel file with fluorescence signals
 2.	TIFF containing ROIs – Not necessary, as ROI (x,y) coordinates are also stored in same Excel data file.

@@ -8,7 +8,8 @@ require(ggplot2)
 
 rm(list = ls())  # Clear workspace
 
-myFolder = 'C:/Users/Arseny/Documents/7_Ca imaging/Model analysis/'
+# Absolute address, replace as necessary
+localFolder = 'C:/Users/Arseny/Documents/7_Ca imaging/git - CaImaging Paper/3-Model/'
 
 ### Combine several model outputs into one large dataframe
 # 1st one creates the dataframe:
