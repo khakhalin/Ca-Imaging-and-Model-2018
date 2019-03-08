@@ -33,9 +33,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="585.33053"
-     inkscape:cy="831.85097"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="462.13751"
+     inkscape:cy="686.16956"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -8545,14 +8545,14 @@
     <text
        id="text4602"
        y="161.11945"
-       x="30.720985"
+       x="55.577053"
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:4.23333311px;line-height:125%;font-family:Arial;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.22597821"
        xml:space="preserve"><tspan
          id="tspan4600"
          y="161.11945"
-         x="30.720985"
+         x="55.577053"
          sodipodi:role="line"
-         style="font-size:4.23333311px;stroke-width:0.22597821">Network development snapshot # (2500 time steps each)</tspan></text>
+         style="font-size:4.23333311px;stroke-width:0.22597821">Network development snapshot #</tspan></text>
     <text
        id="text4616"
        y="19.650091"
@@ -8730,12 +8730,17 @@
          x="164.9435"
          sodipodi:role="line"
          style="stroke-width:0.22597821"
-         id="tspan12733">Translational</tspan><tspan
+         id="tspan14409">Non-looming</tspan><tspan
          y="92.663864"
          x="164.9435"
          sodipodi:role="line"
          style="stroke-width:0.22597821"
-         id="tspan14409">stimuli</tspan></text>
+         id="tspan16083">visual stimuli</tspan><tspan
+         y="97.554169"
+         x="164.9435"
+         sodipodi:role="line"
+         style="stroke-width:0.22597821"
+         id="tspan16085">(transitions)</tspan></text>
     <ellipse
        id="ellipse7629"
        cy="75.92263"
