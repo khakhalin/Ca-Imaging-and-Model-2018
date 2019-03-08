@@ -84,7 +84,7 @@ reportRetinotopy = 0;               % Whether retinotopy should be reported to t
 showPCAfigure = 0;                  % Show PCA figure for each brain
 showPCAsummaryFigure = 0;           % PCA cumulative figure
 showLatDistFigure = 1;              % Show correlations between distance from the center and latency (total figure for all brains)
-saveRetinotopy = 1;                 % Saves "giantBagOfLatencies" as a csv
+saveRetinotopy = 0;                 % Saves "giantBagOfLatencies" in all_cells_latencies.csv
 
 doEnsembleAnalysis = 0;             % Calcualted adjusted correlations, and identify ensembles from them
 doCorrelationFig = 0;               % plot raw correlation matrices - NOT SURE IF UPDATED AT THIS POINT
@@ -100,7 +100,7 @@ showSelectivityHist = 0;            % Show selectivity histograms (one figure fo
 doResponseDynamics = 0;             % Early sells, late cells. Requires doPCA to be on, as it draws from it.
 showSpatialEveryBrain = 0;          % A figure for every brain
 showSpatialSummary = 0;             % Summary info and summary figure. Note that it doesn't split by age, so run it twice if you need a split
-showSpatiotemporal = 0;             % Spatiotemporal heat-map
+showSpatiotemporal = 1;             % Spatiotemporal heat-map
 
 showMugshot = 0;                    % Profile image for every brain
 
@@ -1045,7 +1045,7 @@ if(showResponseAmplitudes)
     dlmwrite([localPath 'avamps_allcells_allbrains.csv'],giantBagOfAmplitudes,'-append'); % write data to the end
 end
 
-if(showSpatiotemporal)
+if(showSpatiotemporal) % Heatmaps of average activity across all brains
     figure('Color','White');
     for(iType=1:3)
         subplot(2,3,iType);
