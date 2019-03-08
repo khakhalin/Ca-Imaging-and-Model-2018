@@ -106,7 +106,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -8726,18 +8726,16 @@
        x="164.9435"
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:3.9122479px;line-height:125%;font-family:Arial;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.22597821"
        xml:space="preserve"><tspan
-         id="tspan4698"
          y="87.773552"
          x="164.9435"
          sodipodi:role="line"
-         style="stroke-width:0.22597821">Non-looming </tspan><tspan
+         style="stroke-width:0.22597821"
+         id="tspan12733">Translational</tspan><tspan
          y="92.663864"
          x="164.9435"
          sodipodi:role="line"
          style="stroke-width:0.22597821"
-         id="tspan12733">inputs<tspan
-   id="tspan4696"
-   style="font-style:normal;font-variant:normal;font-weight:400;font-size:3.9122479px;font-family:Arial;fill:#000000;stroke-width:0.22597821" /></tspan></text>
+         id="tspan14409">stimuli</tspan></text>
     <ellipse
        id="ellipse7629"
        cy="75.92263"
@@ -9173,7 +9171,7 @@
          id="tspan12610"
          x="100.76061"
          y="71.394943"
-         style="stroke-width:0.26458332"></tspan></text>
+         style="stroke-width:0.26458332" /></text>
     <path
        id="path2556"
        d="m 43.544439,108.92832 4.52061,-0.90411 4.52059,-1.80825 4.82198,-0.60275 4.52058,-0.30138"

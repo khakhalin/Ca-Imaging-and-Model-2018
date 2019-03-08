@@ -80,6 +80,8 @@ ggplot(dgs,aes(stage,m,color=type)) +
         panel.grid.minor = element_blank()) +
   NULL
 
+dgs %>% filter(stage==5,var=="recip")
+
 # ----------- end of meaningful analyses -------------
 
 # Everything below are old attempts when I tried to compare "real" values to values on a rewired
