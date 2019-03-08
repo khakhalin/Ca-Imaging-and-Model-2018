@@ -253,7 +253,7 @@ if(showFigures) % --- Main figure (mugshot)
     %subplot(2,3,3); gplot(round(w),[cos((1:ncells)'/ncells*2*pi) sin((1:ncells)'/ncells*2*pi)],'.-'); axis('off'); title('Graph');    
     subplot(2,3,3); gplot(round(w),[meshx(:) meshy(:)],'.-'); axis('off'); title('Graph');
     subplot(2,3,4); plot(1:size(wHist,2),wHist'); set(gca,'FontSize',8,'LineWidth', 1.2); title('w_{i1} history');
-    subplot(2,3,5); plot(1:size(thHist,2),thHist'); set(gca,'FontSize',8,'LineWidth', 1.2); title('Threshold history'); hold on; plot(1:length(slider),slider,'r.-'); hold off;
+    subplot(2,3,5); plot(1:size(thHist,2),thHist(1:9,:)'); set(gca,'FontSize',8,'LineWidth', 1.2); title('Threshold history'); hold on; plot(1:length(slider),slider,'r.-'); hold off;
     subplot(2,3,6); myplot(resample(sHist',1,ceil(size(wHist,2)/50))'); hold on; plot(resample(sum(sHist),1,ceil(size(wHist,2)/50)),'k-','LineWidth',2); hold off; title('Spike history');
     %myplot(sAvHist); title('Av Spike history'); % plot(sAvHist'); 
     drawnow();

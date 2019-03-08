@@ -2,7 +2,7 @@ function varargout = model_stdp_tester(type,oneFlag)
 % model_stdp_tester
 % model_stdp_tester(type,oneFigOnlyFlag)
 %
-% A tester to study connectivity files created by model_stdp_multisens_1().
+% A tester to study connectivity files created by model_stdp_multisens().
 
 % Depends on external: 
 %   network_rewire - Maslov rewiring
@@ -11,7 +11,7 @@ function varargout = model_stdp_tester(type,oneFlag)
 %   myCyclicity - my attempt to calculate cyclicity
 % Currently carries as a copy: myplot
 
-% Jun 27 2018: Forked off model_stdp_multisens_1, for dedicated testing. Lots of shared code, unfortunately.
+% Jun 27 2018: Forked off model_stdp_multisens, for dedicated testing. Lots of shared code, unfortunately.
 % Jul 03 2018: Now can calculate summaries.
 % Jul 18 2018: Daily improvements so far.
 % Aug 02 2018: More daily improvements.
