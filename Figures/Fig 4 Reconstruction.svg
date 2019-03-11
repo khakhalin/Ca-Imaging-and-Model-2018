@@ -42,11 +42,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.348184"
-     inkscape:cx="411.02173"
-     inkscape:cy="810.56715"
+     inkscape:zoom="0.83020842"
+     inkscape:cx="434.07461"
+     inkscape:cy="828.25021"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer4"
      showgrid="false"
      inkscape:window-width="1366"
      inkscape:window-height="706"
@@ -7103,6 +7103,10 @@
            x="-154.17815"
            y="411.85477" /></flowRegion><flowPara
          id="flowPara75562" /></flowRoot>  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="TE" />
   <g
      inkscape:groupmode="layer"
      id="layer5"
