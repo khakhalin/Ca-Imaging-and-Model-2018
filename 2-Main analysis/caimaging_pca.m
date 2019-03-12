@@ -44,7 +44,7 @@ iBrain = iBrain+1; folderName{iBrain} = '140516'; age(iBrain) = 46;
 iBrain = iBrain+1; folderName{iBrain} = '140726'; age(iBrain) = 49;
 iBrain = iBrain+1; folderName{iBrain} = '140724'; age(iBrain) = 49; % pretty retinotopy
 iBrain = iBrain+1; folderName{iBrain} = '140723'; age(iBrain) = 49;
-iBrain = iBrain+1; folderName{iBrain} = '140722'; age(iBrain) = 49; % Was used for raw data images
+iBrain = iBrain+1; folderName{iBrain} = '140722'; age(iBrain) = 49; % Was used for raw data images (Figure 1)
 iBrain = iBrain+1; folderName{iBrain} = '140718b'; age(iBrain) = 49; % pretty retinotopy
 iBrain = iBrain+1; folderName{iBrain} = '140714'; age(iBrain) = 49; % Late responses (rebounds) for crash
 iBrain = iBrain+1; folderName{iBrain} = '140710'; age(iBrain) = 49;
@@ -67,8 +67,17 @@ iBrain = iBrain+1; folderName{iBrain} = '140314'; age(iBrain) = 49; % weak, bad 
 iBrain = iBrain+1; folderName{iBrain} = '140311'; age(iBrain) = 49; % Noisy, but produced a decent graph
 iBrain = iBrain+1; folderName{iBrain} = '140310'; age(iBrain) = 49; % Short recording
 
+if(1) % Set to 1 if you want to look at one brain only
+    iBrain = 1;
+    goodBrain = 18; % That's the one used in Figure 1 in the paper (140722)
+    folderName = folderName(goodBrain);
+    age = age(goodBrain);
+end
+
 
 % ------------- Control settings and constants -------------
+flagSaveFiles = 0;                  % If set to 0, disables all saving of files (both m-files and CSVs). Good for debugging.
+
 showRawData = 0;                    % Whether raw (well, raw-ish) data debugging figures need to be shown
 showRawFigure = 0;                  % Not all raw data, but just enough for a figure (averages for this brain and a band of CI around each average)
 pcaStimType = 1;                    % Set to 1 if PCA and response dynamics are to be run on crashes only (recommended); 2=flash, 3=scramble; 0=full triad
@@ -83,11 +92,10 @@ retinotopyLogic = 'pca';            % Two options here: 'lat' to calculate retin
 reportRetinotopy = 0;               % Whether retinotopy should be reported to the console.
 showPCAfigure = 0;                  % Show PCA figure for each brain
 showPCAsummaryFigure = 0;           % PCA cumulative figure
-showLatDistFigure = 1;              % Show correlations between distance from the center and latency (total figure for all brains)
-saveRetinotopy = 0;                 % Saves "giantBagOfLatencies" in all_cells_latencies.csv
+showLatDistFigure = 0;              % Show correlations between distance from the center and latency (total figure for all brains)
 
-doEnsembleAnalysis = 0;             % Calcualted adjusted correlations, and identify ensembles from them
-doCorrelationFig = 0;               % plot raw correlation matrices - NOT SURE IF UPDATED AT THIS POINT
+doEnsembleAnalysis = 1;             % Calcualted adjusted correlations, and identify ensembles from them
+doCorrelationFig = 1;               % plot raw correlation matrices - NOT SURE IF UPDATED AT THIS POINT
 
 %%% --- Selectivity group of analyses. The selectivity is always calculated, but we can turn summaries and reporting on and off as we please
 showResponseAmplitudes = 0;         % Main simplistic figure for response amplitudes + output of all amplitudes to csv
@@ -100,9 +108,12 @@ showSelectivityHist = 0;            % Show selectivity histograms (one figure fo
 doResponseDynamics = 0;             % Early sells, late cells. Requires doPCA to be on, as it draws from it.
 showSpatialEveryBrain = 0;          % A figure for every brain
 showSpatialSummary = 0;             % Summary info and summary figure. Note that it doesn't split by age, so run it twice if you need a split
-showSpatiotemporal = 1;             % Spatiotemporal heat-map
+showSpatiotemporal = 0;             % Spatiotemporal heat-map
 
 showMugshot = 0;                    % Profile image for every brain
+
+
+%%% ------- Constants --------
 
 key = 'cfs';
 goodSpikeTimeRange = [0.25 2];      % Only this range of times will be kept in spike recordings (to cut out beginning and end artifacts)
@@ -412,7 +423,9 @@ for(iBrain = 1:nBrains)
             if(iBrain==1); fprintf('  Name      centX   centY    rDistErl  pDistErl\n'); end;
             fprintf('%8s\t%5.2f\t%5.2f\t%5.2f\t%8s\n',name,originPoint,rDistErl,myst(pDistErl));
         end
-        saveResults(auxFolder,folderName{iBrain},'originPoint',originPoint);                                    % Save the output
+        if(flagSaveFiles)
+            saveResults(auxFolder,folderName{iBrain},'originPoint',originPoint);                                    % Save the output
+        end
         %%% position_finder2(xy(:,1),-xy(:,2),earlyBalance); % Good way to visually verify that our "optimal position" actually makes sense        
         
         if(showPCAfigure)
@@ -515,11 +528,13 @@ for(iBrain = 1:nBrains)
     end
     
     spiking = mean([meanRespC(:) meanRespF(:) meanRespS(:)],2);             % Most generic average response amplitude (needed for graph_structure analyzer)    
-    saveResults(auxFolder,folderName{iBrain},'amp',spiking);                % Save spiking intensity for later analyses.
     selFC = (meanRespC-meanRespF)./sqrt((sdRespC.^2 + sdRespF.^2)/2);       % Cohen d for C-F
     selFS = (meanRespS-meanRespF)./sqrt((sdRespS.^2 + sdRespF.^2)/2);       % same for S-F
     selSC = (meanRespC-meanRespS)./sqrt((sdRespC.^2 + sdRespS.^2)/2);       % same for C-S    
     selC = (meanRespC - (meanRespF+meanRespS)/2)./sqrt((2*sdRespC.^2 + sdRespS.^2 + sdRespF.^2)/4); % Weighted d-like effect size
+    if(flagSaveFiles)
+        saveResults(auxFolder,folderName{iBrain},'amp',spiking);            % Save spiking intensity for later analyses.
+    end
     
     % ibrain,stage,cellid,x,y,dist,lat,ac,af,as,selfc,selsc
     if(iBrain==1)
@@ -546,10 +561,12 @@ for(iBrain = 1:nBrains)
     end
     warning('on','all');
 
-    saveResults(auxFolder,folderName{iBrain},'selC',selC);          % Save selectivities for future analysis
-    saveResults(auxFolder,folderName{iBrain},'selFC',selFC);
-    saveResults(auxFolder,folderName{iBrain},'selSC',selSC);
-    saveResults(auxFolder,folderName{iBrain},'selLogistic',sel2);
+    if(flagSaveFiles)
+        saveResults(auxFolder,folderName{iBrain},'selC',selC);          % Save selectivities for future analysis
+        saveResults(auxFolder,folderName{iBrain},'selFC',selFC);
+        saveResults(auxFolder,folderName{iBrain},'selSC',selSC);
+        saveResults(auxFolder,folderName{iBrain},'selLogistic',sel2);
+    end
     
     if(reportSelectivity)        
         switch selectivityName
@@ -673,7 +690,7 @@ for(iBrain = 1:nBrains)
             warning('W thresholding isolated some nodes from the main graph');
         end
         if(doCorrelationFig)
-            figure; subplot(2,3,1); myplot(corW); drawnow();
+            figure; subplot(2,3,1); myplot(corW.*(ones(size(corW))-eye(size(corW)))); title('CorW'); drawnow();
         end
 
         [clustInd,modHistory] = spectralClustering(corW,100,10000);            % Clustering analysis (args are maxClusters and sigma parameter)
@@ -681,14 +698,14 @@ for(iBrain = 1:nBrains)
         nClusters = max(clustInd);
         if(doCorrelationFig)             
             [~,ind] = sort(clustInd);
-            subplot(2,3,2); myplot(corW(ind,ind)); drawnow(); 
+            subplot(2,3,2); myplot(corW(ind,ind).*(ones(size(corW))-eye(size(corW)))); title('CorW sorted'); drawnow(); 
             subplot(2,3,3); hold on;                
             for(i=1:nClusters)
                 plot(xy(clustInd==i,1),xy(clustInd==i,2),'o'); 
                 %plot(meanRespF(clustInd==i),meanRespC(clustInd==i),'o');
                 title(nClusters);
             end
-            subplot(2,3,4); plot(modHistory,'.-'); title('Modularity(Nclust)'); drawnow();
+            subplot(2,3,4); plot(2:length(modHistory),modHistory(2:end),'.-'); title('Modularity(Nclust)'); drawnow();
         end
         
         %%% Are cells within a cluster closer to each other?
@@ -715,8 +732,10 @@ for(iBrain = 1:nBrains)
         if(iBrain==1); fprintf('Name       nClust       maxMod   clustComp\n'); end
         fprintf('%8s\t%5d\t%8.2f\t%8.2f\n',name,nClusters,max(modHistory),clusterCompactness);
         
-        saveResults(auxFolder,folderName{iBrain},'corW',corW);
-        saveResults(auxFolder,folderName{iBrain},'clustInd',clustInd);
+        if(flagSaveFiles)
+            saveResults(auxFolder,folderName{iBrain},'corW',corW);
+            saveResults(auxFolder,folderName{iBrain},'clustInd',clustInd);
+        end
     end
     
     
@@ -1031,18 +1050,22 @@ if(showSelTypes)
     %[r,p] = corr(giantSelbag(giantSelbag(:,3)==49,1),giantSelbag(giantSelbag(:,3)==49,2));
     %fprintf('  s49 selectivity correlation: %10s\t%s\n',myst(r),myst(p));    
     
-    fid = fopen([localPath 'sel_allcells_allbrains.csv'],'w');              % csvwrite doesn't support headers, but we need a header
-    fprintf(fid,'%s\n','fc,fs,sc,ibrain,stage');                            % so doing it manually
-    fclose(fid);
-    dlmwrite([localPath 'sel_allcells_allbrains.csv'],giantSelbag,'-append'); % write data to the end
+    if(flagSaveFiles)
+        fid = fopen([localPath 'sel_allcells_allbrains.csv'],'w');              % csvwrite doesn't support headers, but we need a header
+        fprintf(fid,'%s\n','fc,fs,sc,ibrain,stage');                            % so doing it manually
+        fclose(fid);
+        dlmwrite([localPath 'sel_allcells_allbrains.csv'],giantSelbag,'-append'); % write data to the end
+    end
 end
 
 if(showResponseAmplitudes)
     %csvwrite([localPath 'avamps_allcells_allbrains.csv'],giantBagOfAmplitudes);
-    fid = fopen([localPath 'avamps_allcells_allbrains.csv'],'w');           % csvwrite doesn't support headers, but we need a header
-    fprintf(fid,'%s\n','f,s,c,ibrain,stage');                               % so doing it manually
-    fclose(fid);
-    dlmwrite([localPath 'avamps_allcells_allbrains.csv'],giantBagOfAmplitudes,'-append'); % write data to the end
+    if(flagSaveFiles)
+        fid = fopen([localPath 'avamps_allcells_allbrains.csv'],'w');           % csvwrite doesn't support headers, but we need a header
+        fprintf(fid,'%s\n','f,s,c,ibrain,stage');                               % so doing it manually
+        fclose(fid);
+        dlmwrite([localPath 'avamps_allcells_allbrains.csv'],giantBagOfAmplitudes,'-append'); % write data to the end
+    end
 end
 
 if(showSpatiotemporal) % Heatmaps of average activity across all brains
@@ -1075,7 +1098,7 @@ if(showSpatiotemporal) % Heatmaps of average activity across all brains
     drawnow();
 end
 
-if(saveRetinotopy)
+if(flagSaveFiles)
     fid = fopen([localPath 'all_cells_latencies.csv'],'w');           % csvwrite doesn't support headers, but we need a header...
     fprintf(fid,'%s\n','ibrain,stage,cellid,x,y,dist,lat,ac,af,as,selfc,selsc'); % so doing it manually
     fclose(fid);

@@ -75,13 +75,30 @@ else
     iFolder = iFolder+1; folderName{iFolder} = '140502';
 end
 
+%%% ---------------- Control flags ----------------
+
+flagOneBrainOnly = 1;                   % Set to 1 for troubleshooting
 
 flagShowRawData = 0;                    % Whether raw (well, raw-ish) data debugging figures need to be shown
-flagShowMugshot = 0;                    % Characteristic image
-doTE = 0;                               % Transfer entropy calculation
+flagShowMugshot = 0;                    % Characteristic 
+flagShowCorFigure = 1;                  % Raw Correlation and trial-compensated correlation (for every brain)
+flagDoTE = 0;                           % Transfer entropy calculation. WARNING: VERY LONG CALCULATION
+flagSaveResults = 0;                    % Whether results need to be saved (with set to 0, no risk to overwrite something)
+
+%%% ---------------- Constants ----------------
 
 key = 'cfs';
 goodSpikeTimeRange = [0.20 3.5];        % Only this range of times will be kept in spike recordings (to cut out beginning and end artifacts)
+
+nShufflesTE = 1000;                     % How many times TE needs to be reshuffled (1000 was used for the main analysis)
+
+if(flagOneBrainOnly)
+    goodBrain = 3;
+    iFolder = 1;
+    folderName = folderName(3);
+end
+
+%%% ---------------- Main cycle ----------------
 
 for(iFolder = 1:length(folderName));
     S = [];     % Empty the data structure
@@ -124,7 +141,7 @@ for(iFolder = 1:length(folderName));
     %%% Now calculate cross-cell correlations adjusted for averages
     corRaw = corr(spikes(1:end-1,:),spikes(2:end,:))'/nSweeps;      % Flip from normal notation to neuro-notation
     corAdj = reshuffle_corr(spikes,nSweeps)';
-    if(0)   % Troubleshooting figure for correlations
+    if(flagShowCorFigure)   % Troubleshooting figure for correlations
         figure; 
         subplot(1,3,1); myplot(corRaw); title('raw');
         subplot(1,3,2); myplot(corr(averageShapePerCell(1:end-1,:),averageShapePerCell(2:end,:))); title('on ave');
@@ -287,7 +304,7 @@ for(iFolder = 1:length(folderName));
     res.corAdj = corAdj;
 
 
-    if(doTE)    % ----------------------- Transfer Entropy and other guesses about connectivity       
+    if(flagDoTE)    % ----------------------- Transfer Entropy and other guesses about connectivity       
         
         % -- Simple correlation
         %wc = corr(spikes(1:end-1,:),spikes(2:end,:))';                     % Adjacency needs to be flipped as w is flipped (w_12 is 2 to 1 projection)
@@ -302,9 +319,9 @@ for(iFolder = 1:length(folderName));
         % selectivity_graph(wct,sel,xy(:,1),xy(:,2));
         
         % -- Brute-force binned transfer enthropy            
-        teC = transfer_entropy(data(:,sweepMask==1),nCells,3,1000); 
-        teF = transfer_entropy(data(:,sweepMask==2),nCells,3,1000);
-        teS = transfer_entropy(data(:,sweepMask==3),nCells,3,1000);
+        teC = transfer_entropy(data(:,sweepMask==1),nCells,3,nShufflesTE); % Loom
+        teF = transfer_entropy(data(:,sweepMask==2),nCells,3,nShufflesTE); % Flash
+        teS = transfer_entropy(data(:,sweepMask==3),nCells,3,nShufflesTE); % Scrambled
         % figure; plot(wC(:),wF(:),'.'); xlabel('TE on C'); ylabel('TE on F');
         % figure; plot(wC(:),wS(:),'.'); xlabel('TE on C'); ylabel('TE on S');
         
@@ -323,7 +340,7 @@ for(iFolder = 1:length(folderName));
         fprintf('Uh-oh, this file exists already.\n');
         oldRes = load(fullFileNameOut);
         oldRes = oldRes.res;
-        if(doTE)
+        if(flagDoTE)
             fprintf('TE was recalculated, so rewriting the file\n');            
         else
             if(~isfield(oldRes,'teC'))
@@ -357,7 +374,11 @@ for(iFolder = 1:length(folderName));
     else        
         fprintf('Writing the file.\n');
     end
-    save(fullFileNameOut,'res');%,'teF','teS');
+    if(flagSaveResults)
+        save(fullFileNameOut,'res');%,'teF','teS');
+    else
+        fprintf('Saving flag is set to 0, so not saving the results\n');
+    end
     
     if(nargin>0); close all; end;   % If called externally, probably figures aren't needed
 end % Each file

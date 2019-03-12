@@ -14,7 +14,8 @@ function graph_structure_analyzer()
 % Aug 09 2018: Revived.
 % Mar 01 2019: Revisited to troubleshoot centrality comparisons.
 
-onlyOneBrain = 0;       % When generating sample images, set this to 1, to process only a small subset of experiments (currently: 2 brains, see below).
+onlyOneBrain = 1;       % When generating sample images, set this to 1, to process only a small subset of experiments (currently: 2 brains, see below).
+flagOutFiles = 0;       % Set to 0 for safety (in order not to overwrite any out files)
 
 useFullSet = 0;         % Set to 1 for full set (including noisy data); set to 0 for a clean subset (low noise, good graphs)
 if(~onlyOneBrain)
@@ -42,7 +43,7 @@ else %%% --- A minimal set for raw figures only
     fileNames1 = {'140516'};
     %%% --- stage 49 set
     folderName2 = 'C:\_Data\___Ca imaging\_caimg s49 results\';
-    fileNames2 = {'140310'};
+    fileNames2 = {'140722'}; % Nice clear experiment
 end
     
 n46 = length(fileNames1);   % How many s46s are there
@@ -77,11 +78,13 @@ if(~isempty(centralityBag))
     thisName = mfilename();
     localPath = thisPathWithName(1:(length(thisPathWithName)-length(thisName)));    % Path to the folder where this function lies
     
-    fid = fopen([localPath 'sel_centrality_allcells.csv'],'w');              % csvwrite doesn't support headers, but we need a header
-    fprintf(fid,'%s\n','nexp, ncell, selFC, selSC, indegree, oudegree, katz, revkatz, clust, spiking, insel');         % So we create it manually
-    % To match labels to numbers, go down to where centralityData is populated
-    fclose(fid);
-    dlmwrite([localPath 'sel_centrality_allcells.csv'],centralityBag,'-append'); % write data to the end
+    if(flagOutFiles)
+        fid = fopen([localPath 'sel_centrality_allcells.csv'],'w');              % csvwrite doesn't support headers, but we need a header
+        fprintf(fid,'%s\n','nexp, ncell, selFC, selSC, indegree, oudegree, katz, revkatz, clust, spiking, insel');         % So we create it manually
+        % To match labels to numbers, go down to where centralityData is populated
+        fclose(fid);
+        dlmwrite([localPath 'sel_centrality_allcells.csv'],centralityBag,'-append'); % write data to the end
+    end
 end
 
 fprintf('\n'); dispf(data);
@@ -93,6 +96,7 @@ end
 
 
 function [netData,labels,centralityData] = analyze_graph(S,iExp)
+
 sigLevel = 0.01;                % Significance level for accepting that the TE exists (doesn't matter if you use any of the adaptive techniques)
 thresholdType = 'lax';          % Either 'strict' or 'lax' (recommended). With 'strict' many graphs end up empty or nearly empty.
 wComboMode = 'mean';            % Three options of how wc, wf, and ws should be combined into one matrix: min, mean (recommended), max, c, f, s
@@ -102,6 +106,7 @@ minComponentSize = 0;           % Number of nodes in the largest weakly connecte
 forceAverageDegree = 1.0;       % if >0, instead of all other adaptive thresholding above, selects sigLevel that achieves this average degree. Recommended: 1.0
 nShuffleNetworkMeasures = 0;    % How many times to reshuffle the matrix for all measurements. Set to 0 for no shuffling. Recommended: 50 or 100 (20 is too variable)
 shuffleNetMode = 'degree';      % Two options: 'Erdos' (keeps n points and n edges, but reshuffle them), and 'degree' for degree-preserving (calls external function)
+showTEfigure = 1;               % Plot all TE and corr matrices for this experiment
 
 showEdgeNumbers = 0;            % Report cross-protocol replication stats, number of cells, edges, significance thresholds used etc.
 showBasicStats = 0;             % Basic stats about response strength, correlations, etc.
@@ -164,7 +169,7 @@ while(flagNeedMoreEdges)
         case 'c';   g = S.teC.p(:)<sigLevel;    % g stands for "good", as a variable to replace (:) with (g) in edge-wise calculations below
         case 'f';   g = S.teF.p(:)<sigLevel;
         case 's';   g = S.teS.p(:)<sigLevel;
-        otherwise
+        otherwise % Mean, min, or max
             switch thresholdType
                 case 'strict'
                     g = (S.teC.p(:)<sigLevel)&(S.teF.p(:)<sigLevel)&(S.teS.p(:)<sigLevel);  % Simple clear formula: all 3 should be significant, that's it
@@ -225,6 +230,30 @@ switch wComboMode
     case 'f';       w = wf;
     case 's';       w = ws;
 end
+
+%%% ---------------- Figure showing raw matrices
+if(showTEfigure)    
+    tempW = max(w,w');    
+    [clustInd,modHistory] = spectralClustering(tempW,100,1000); % Clustering based on TE: just to matrices in blocks. Params: max clusters and sigma
+    fprintf('Found %d clusters.\n',max(clustInd));
+    
+    %figure; plot(modHistory);
+    [~,ind] = sort(clustInd);
+    
+    figure('Color','white');
+    % subplot(2,3,1); myplot(S.corRaw(ind,ind)); title('Corr raw');
+    % subplot(2,3,2); myplot(S.corAdj(ind,ind)); title('Corr adj');
+    % subplot(2,3,3); myplot(tempW(ind,ind),'ahot'); title('Utility (sorter)');
+    % subplot(2,3,4); myplot(max(0,S.teF.te(ind,ind)),'ahot'); title('TE Flash');
+    % subplot(2,3,5); myplot(max(0,S.teS.te(ind,ind)),'ahot'); title('TE Scrambled');
+    % subplot(2,3,6); myplot(max(0,S.teC.te(ind,ind)),'ahot'); title('TE Loom');
+    
+    subplot(2,3,1); myplot(tempW(ind,ind),'ahot'); title('Utility (sorter)');
+    subplot(2,3,2); myplot(S.corAdj(ind,ind),'ahot'); title('Corr adj');    
+    subplot(2,3,3); myplot(max(0,(S.teF.te(ind,ind)+S.teS.te(ind,ind)+S.teC.te(ind,ind))/3),'ahot'); title('Unfiltered average TE');
+    subplot(2,3,4); myplot(max(0,w(ind,ind)),'ahot'); title('Filtered TE');    
+end
+
 
 %%% --------- Shrinking the set based on W if requested
 if(maxEdgeNumber>minEdgeNumber || forceAverageDegree>0)
