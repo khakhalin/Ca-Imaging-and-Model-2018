@@ -1,19 +1,22 @@
-function [clustInd,modHistory] = spectralClustering(w,maxClustNumber,sigma)
-% [ind,modHistory] = spectralClustering(signals,maxNclusters)
+function [clustInd,modHistory] = spectralClustering(w,maxClustNumber,sigma,minClustNumber)
+% [ind,modHistory] = spectralClustering(weightMatrix,maxClustNumber,sigma,minClustNumber)
+% [ind,modHistory] = spectralClustering(weightMatrix,maxClustNumber,sigma)
+% [ind,modHistory] = spectralClustering(weightMatrix,maxClustNumber)
+% [ind,modHistory] = spectralClustering(weightMatrix)
 % ind = spectralClustering(signals)
 %
 % Based on Ng-Jordan-Weiss spectral clustering algorithm. Tries different numbers of clusters 
 % between 1 and MAXCLUSTNUMBER, calculates Newman's spectral modularity for each split, and picks the one with
-% the highest modularity. If MAXCLUSTNUMBER is omitted, defaults to 7. SIGMA (default 100) is a parameter for
-% NG-Jordan-Weiss approach, for exponentially transforming Euqledian distancces (higher numbers = more attention
-% to weak edges). The main input W is a positive-only correlation matrix.
+% the highest modularity. If MAXCLUSTNUMBER is omitted, defaults to 7. If MINCLUSTNUMBER isn't given, defaults to 1.
+% SIGMA (default 100) is a parameter for NG-Jordan-Weiss approach, for exponentially transforming 
+% Eucledian distances (higher numbers = more attention to weak edges). The main input W is a positive-only correlation matrix.
 % 
 % Returns a column of cluster indices CLUSTIND, and a history
 % of modularity measurements for different cluster numbers (MODHISTORY).
 %
 % If run without any inputs, tests itself.
 
-% Aug 21 2018: Created
+% Aug 21 2018: Adopted and adapted
 
 % Reference: Ulrike von Luxburg, "A Tutorial on Spectral Clustering", Statistics and Computing 17 (4), 2007
 %
@@ -58,6 +61,9 @@ end
 
 %%% ------------------ Now the actual function ----------------
 
+if(nargin<4)
+    minClustNumber = 1;
+end
 if(nargin<3)
     sigma = 100;                     % 1 in the original sample; 100 or 1000 seems to work better here
 end
@@ -65,7 +71,10 @@ if(nargin<2)
     maxClustNumber = 7;
 end
 
-w = abs(w);                         % Make the input matrix all-positive (it should be, but just in case let's make sure it is)
+if(min(w(:))<0)
+    fprintf('Warning: some edges are negative. Switching to absolute values.\n');
+    w = abs(w);                         % Make the input matrix all-positive (it should be, but just in case let's make sure it is)
+end
 nNodes = size(w,1);
 maxClustNumber = min(maxClustNumber,nNodes);    % Cannot have more clusters than nodes
 
@@ -87,14 +96,19 @@ end
 
 % perform the eigen value decomposition
 [eigVectors,~] = eig(NL1);
+if(~isreal(sum(eigVectors)))
+    fprintf('WARNING: complex eigenvalues! Everything may be incorrect! (Looking at real parts only)\n');
+    eigVectors = real(eigVectors); 
+end
 
 m = sum(w(:))/2;                                                % Total number of edges = sum all degrees / 2
 degProd = diag(sum(w,1))*ones(nNodes)*diag(sum(w,2))/(2*m);     % a matrix where each element = k^out_i * k^in_j / sum(k), where k_i is out-degree of node i. 
                                                                 % and k_j is in-degree of node j. For Newman's modularity
-for(k=1:maxClustNumber)                                            
+modHistory = zeros(maxClustNumber,1);
+for(k=minClustNumber:maxClustNumber)                                            
    [~,modHistory(k),~] = doClustering(eigVectors,w,m,degProd,k);
 end
-bestK = find(modHistory==max(modHistory));
+bestK = find(modHistory==max(modHistory));                      % k with highest modularity
 
 [clustInd,~,dist] = doClustering(eigVectors,w,m,degProd,bestK);   % Last (optimal) run
 

@@ -101,19 +101,7 @@ out.corr = correlationReference;
 if(showFigures)
     corSfl = reshuffle_corr(d,nSweeps);         % Shuffled correlation (yet another custom function)
     
-    figure('Color','white');
-    subplot(2,3,1); myplot(realw); title('Actual connections'); xlabel('Receptient'); ylabel('Sender'); 
-    subplot(2,3,2); myplot(correlationReference); title('Correlation'); xlabel('Recepient'); ylabel('Sender');
-    subplot(2,3,3); myplot(corSfl); title('Shuffled cor');
-    subplot(2,3,4); myplot(te(:,:,1)); title('Raw TE');
-    subplot(2,3,5); myplot(out.te); title('Adjusted TE'); xlabel('Recepient'); ylabel('Sender');
-    %subplot(2,2,4); myplot(te(:,:,2)); title('Sample wrong TE');
-    %subplot(2,3,4); myplot(mean(te(:,:,2:end),3)); title('Average wrong TE');
-    %subplot(2,3,5); myplot(-log(out.p)); title('-log(p-value)');
-    subplot(2,3,6); myplot(out.te.*(out.p<0.05)); title('TE masked by p<0.05');
-    %subplot(2,2,4); myplot(realw);
-    
-    if(0 & exist('realw','var'))   % If we are in a troubleshooting mode working with generated data
+    if(exist('realw','var'))   % If we are in a troubleshooting mode working with generated data
         %figure;
         %subplot(1,2,1); hist(squeeze(te(3,2,:))); hold on; stem(te(3,2,1),1); hold off; title('Existing connection');
         %subplot(1,2,2); hist(squeeze(te(6,7,:))); hold on; stem(te(6,7,1),1); hold off; title('False connection');
@@ -125,7 +113,21 @@ if(showFigures)
         subplot(2,2,3); plot(realw(:),out.te(:),'.'); ylabel('Adjusted TE');        
         %subplot(2,2,4); plot(realw(:),-log(out.p(:)),'.'); ylabel('-log(p-value)');        
         subplot(2,2,4); plot(realw(:),corSfl(:),'.'); ylabel('shuffled cor');        
-    end    
+    else % Not a test
+        realw = zeros(size(corSfl)); % Just replace with something, for the figure below to happen
+    end
+    
+    figure('Color','white');
+    subplot(2,3,1); myplot(realw); title('Actual connections'); xlabel('Receptient'); ylabel('Sender'); 
+    subplot(2,3,2); myplot(correlationReference); title('Correlation'); xlabel('Recepient'); ylabel('Sender');
+    subplot(2,3,3); myplot(corSfl); title('Shuffled cor');
+    subplot(2,3,4); myplot(te(:,:,1)); title('Raw TE');
+    subplot(2,3,5); myplot(out.te); title('Adjusted TE'); xlabel('Recepient'); ylabel('Sender');
+    %subplot(2,2,4); myplot(te(:,:,2)); title('Sample wrong TE');
+    %subplot(2,3,4); myplot(mean(te(:,:,2:end),3)); title('Average wrong TE');
+    %subplot(2,3,5); myplot(-log(out.p)); title('-log(p-value)');
+    subplot(2,3,6); myplot(out.te.*(out.p<0.01)); title('TE masked by p<0.01');
+    %subplot(2,2,4); myplot(realw);
 end
 
 out.p = out.p;                 % I used to flip all matrices here (with a '), but I do it no more. This is left as a reminder.
