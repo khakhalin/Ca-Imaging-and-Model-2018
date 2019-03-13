@@ -69,7 +69,7 @@ iBrain = iBrain+1; folderName{iBrain} = '140310'; age(iBrain) = 49; % Short reco
 
 if(1) % Set to 1 if you want to look at one brain only
     iBrain = 1;
-    goodBrain = 22; % 18 is the one from Figure 1 in the paper (140722). 22 (140709) is best retinotopy.
+    goodBrain = 19; % 18 is the one from Figure 1 in the paper (140722). 22 (140709) is best retinotopy. 19  (140718b) is used in Fig 2.
     folderName = folderName(goodBrain);
     age = age(goodBrain);
 end
@@ -94,8 +94,8 @@ showPCAfigure = 1;                  % Show PCA figure for each brain
 showPCAsummaryFigure = 0;           % PCA cumulative figure
 showLatDistFigure = 0;              % Show correlations between distance from the center and latency (total figure for all brains)
 
-doEnsembleAnalysis = 1;             % Calcualted adjusted correlations, and identify ensembles from them
-doCorrelationFig = 1;               % plot raw correlation matrices - NOT SURE IF UPDATED AT THIS POINT
+doEnsembleAnalysis = 0;             % Calcualted adjusted correlations, and identify ensembles from them
+doCorrelationFig = 0;               % plot raw correlation matrices - NOT SURE IF UPDATED AT THIS POINT
 
 %%% --- Selectivity group of analyses. The selectivity is always calculated, but we can turn summaries and reporting on and off as we please
 showResponseAmplitudes = 0;         % Main simplistic figure for response amplitudes + output of all amplitudes to csv
@@ -106,7 +106,7 @@ selToCompare = 'FCtoFS';            % What to compare: FCtoSC (is it a geometry 
 showSelectivityHist = 0;            % Show selectivity histograms (one figure for all brains).
 
 doResponseDynamics = 0;             % Early sells, late cells. Requires doPCA to be on, as it draws from it.
-showSpatialEveryBrain = 0;          % A figure for every brain
+showSpatialEveryBrain = 0;          % A figure for every brain (only works if doResponseDynamics is set to 1)
 showSpatialSummary = 0;             % Summary info and summary figure. Note that it doesn't split by age, so run it twice if you need a split
 showSpatiotemporal = 0;             % Spatiotemporal heat-map
 
