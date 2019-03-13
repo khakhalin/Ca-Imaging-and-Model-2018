@@ -69,7 +69,7 @@ iBrain = iBrain+1; folderName{iBrain} = '140310'; age(iBrain) = 49; % Short reco
 
 if(1) % Set to 1 if you want to look at one brain only
     iBrain = 1;
-    goodBrain = 18; % That's the one used in Figure 1 in the paper (140722)
+    goodBrain = 22; % 18 is the one from Figure 1 in the paper (140722). 22 (140709) is best retinotopy.
     folderName = folderName(goodBrain);
     age = age(goodBrain);
 end
@@ -90,7 +90,7 @@ doPCA = 1;                          % Factor analysis. The "origin point" for re
 reportPCA = 0;                      % Whether PCA stats need to be reported
 retinotopyLogic = 'pca';            % Two options here: 'lat' to calculate retinotopy center on response latencies; 'pca' to use early PCA component
 reportRetinotopy = 0;               % Whether retinotopy should be reported to the console.
-showPCAfigure = 0;                  % Show PCA figure for each brain
+showPCAfigure = 1;                  % Show PCA figure for each brain
 showPCAsummaryFigure = 0;           % PCA cumulative figure
 showLatDistFigure = 0;              % Show correlations between distance from the center and latency (total figure for all brains)
 
@@ -702,6 +702,7 @@ for(iBrain = 1:nBrains)
             subplot(2,3,3); hold on;                
             for(i=1:nClusters)
                 plot(xy(clustInd==i,1),xy(clustInd==i,2),'o'); 
+                set(gca,'Ydir','reverse'); % Reverse Y scale for consistency with other figures (to have it as it was seen in the scope)
                 %plot(meanRespF(clustInd==i),meanRespC(clustInd==i),'o');
                 title(nClusters);
             end
