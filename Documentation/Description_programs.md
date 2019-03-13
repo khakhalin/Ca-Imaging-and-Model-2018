@@ -138,6 +138,10 @@ My vectorized shortcut for sprintf(); it is not strictly speaking necessary, but
 
 Optimized output of p-values (guaranteed to fit them into 4 symbols, which is handy for output and plots).
 
+### myplot
+
+A simple wrapper for surfl() to quickly visualize heatmaps. Supports two additional colormaps, one of which (inversed heatmap) is used in figures for the paper.
+
 
 -------------------------------------------------------------------
 ## Third-party programs
