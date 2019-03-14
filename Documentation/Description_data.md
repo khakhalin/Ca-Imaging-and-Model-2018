@@ -6,7 +6,7 @@ Comments on how data is stored
 ### all_cells_latencies.csv
 
 * Contains: info on position and response latency for every cell. Used for space-related plots. Contains all cells, before any network-based subsetting (as used for network analysis; see below).
-* Produced by:
+* Produced by: caimaging_pca.m
 * Used by:
 
 Columns:
@@ -26,31 +26,22 @@ Columns:
 
 ### avamps_allcells_allbrains stable.csv
 
-* Contains: response amplitudes for every cell recorded in every experiment.
+* Contains: response amplitudes for every cell recorded in every experiment. (Small amplitude cells aren't removed)
+* Produced by: caimaging_pca.m
 
-TODO Q: Most probably  truly all cells (before we restrict analysis to the largest component), or is it post-restriction?
+### sel_allcells_allbrains stable.csv
 
-### caimg_network_measures.csv
+* Contains: selectivity measurements for every cell. (Small amplitude cells aren't removed)
+* Produced by: caimaging_pca.m
+* Used by:
 
-* Contains: global network measures (Figure 4)
-* Produced by:
-* Used by: caimg_network_analysis.r
+Columns:
 
-Columns: 
-
-1. type - one of two groups of values:
-  * 1actual - actual measurements on a reconstructed graph. Numbers before the name are so that R would sort them properly by default.
-  * 2rewire - an average of the same value, across 100 degree-preserving rewires of the reconstructed graph
-1. stage - tadpole stage (46 or 49)
-1. name - experiment code (YYMMDD + a letter if more than one experiment in a given day)
-1. eff - network efficiency
-1. a_oi - Out-In assortativity
-1. a_io - In-Out assortativity
-1. a_oo - Out-Out assortativity
-1. a_ii - In-In assortativity
-1. modul - Spectral modularity
-1. clust - Global clustering coefficient
-1. flow - Hierarchical flow (see the text)
+1. fc - Flash-Looming selectivity
+1. fs - Flash-Scrambled selectivity
+1. sc - Scrambled-Looming selectivity
+1. ibrain - experiment number
+1. stage - developmental stage for this experiment
 
 ### caimg_network_summary.csv
 
@@ -72,20 +63,36 @@ Columns:
 1. encoding - how well stimulus identity can be reconstructed from this recording (see the text)
 1. gamma - degree distribution power, for a scale-free fit (see the text)
 1. selassort - weighted assortativity for cell selectivity (whether similarly selective cells tended to be connected to each other)
+1. rLatSel - Pearson correlation coefficient between cell latency and its selectivity, for this experiment
+1. rLatDist - Pearson correlation coeff between cell latency and distance from the estimated "retinotopy center" for looming stimuli
+1. rSelDist - Pearson correlation coeff between cell FL selectivity and distance from the "retintopy center"
+1. nEns - number of detected ensembles
+1. maxModul - maximal modularity achieved (an estimation of how well the ensembles were resolved)
+1. clustCompact - a measure of ensemble spatial locality (see text)
+1. clustPref - a measure of preferential connections between cells within the same ensemble (see text)
 
-### sel_allcells_allbrains stable.csv
 
-* Contains: selectivity measurements for every cell
-* Produced by:
-* Used by:
+### caimg_network_measures.csv
 
-Columns:
+* Contains: global network measures (Figure 4)
+* Produced by: manually, by adding columns of interest
+* Used by: caimg_network_analysis.r
 
-1. fc - Flash-Looming selectivity
-1. fs - Flash-Scrambled selectivity
-1. sc - Scrambled-Looming selectivity
-1. ibrain - experiment number
-1. stage - developmental stage for this experiment
+Columns: 
+
+1. type - one of two groups of values:
+  * 1actual - actual measurements on a reconstructed graph. Numbers before the name are so that R would sort them properly by default.
+  * 2rewire - an average of the same value, across 100 degree-preserving rewires of the reconstructed graph
+1. stage - tadpole stage (46 or 49)
+1. name - experiment code (YYMMDD + a letter if more than one experiment in a given day)
+1. eff - network efficiency
+1. a_oi - Out-In assortativity
+1. a_io - In-Out assortativity
+1. a_oo - Out-Out assortativity
+1. a_ii - In-In assortativity
+1. modul - Spectral modularity
+1. clust - Global clustering coefficient
+1. flow - Hierarchical flow (see the text)
 
 ### sel_centrality_allcells.csv
 
