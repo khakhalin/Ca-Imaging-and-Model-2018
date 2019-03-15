@@ -103,6 +103,7 @@
 
 
 
+
 <text
    y="-380.46606"
    x="53.246639"
@@ -112,7 +113,8 @@
      style="font-size:15.92424202px;stroke-width:0.79621208"
      id="tspan15089"
      y="-380.46606"
-     x="53.246639">F</tspan></text>
+     x="53.246639">D</tspan></text>
+
 
 
 
@@ -127,7 +129,8 @@
      x="221.11372"
      y="-380.46606"
      id="tspan15101"
-     style="font-size:15.92424202px;stroke-width:0.79621208">G</tspan></text>
+     style="font-size:15.92424202px;stroke-width:0.79621208">E</tspan></text>
+
 
 
 
@@ -142,7 +145,8 @@
      x="379.06241"
      y="-380.75098"
      id="tspan47974"
-     style="font-size:15.92424202px;stroke-width:0.79621208">H</tspan></text>
+     style="font-size:15.92424202px;stroke-width:0.79621208">F</tspan></text>
+
 
 
 <text
@@ -154,7 +158,8 @@
      style="font-size:15.92424202px;stroke-width:0.79621208"
      id="tspan15093"
      y="-380.75098"
-     x="504.70251">I</tspan></text>
+     x="504.70251">G</tspan></text>
+
 
 
 
@@ -182,6 +187,7 @@
 
 
 
+
 <text
    y="-567.53113"
    x="363.32135"
@@ -192,6 +198,7 @@
      id="tspan53254"
      y="-567.53113"
      x="363.32135">C</tspan></text>
+
 
 
 
@@ -1150,6 +1157,7 @@
 
 
 
+
 <g
    id="g20160"
    transform="matrix(0.79621209,0,0,0.79621209,0.58272606,137.31859)"><g
@@ -1183,6 +1191,7 @@
      sodipodi:role="line"
      id="tspan20190"
      style="stroke-width:0.79621208">250 ms</tspan></text>
+
 
 
 
@@ -3397,6 +3406,7 @@
 
 
 
+
 <text
    xml:space="preserve"
    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.0000003px;line-height:1.25;font-family:Arial;-inkscape-font-specification:Arial;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ba00ff;fill-opacity:1;stroke:none;stroke-width:0.59715909;"
@@ -3409,6 +3419,7 @@
      x="113.34286"
      y="-506.18274"
      style="fill:#ba00ff;stroke-width:0.59715909;font-size:12.0000003px;">Component 2</tspan></text>
+
 
 
 
@@ -3435,6 +3446,7 @@
 
 
 
+
 <text
    xml:space="preserve"
    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.5545454px;line-height:1.25;font-family:Arial;-inkscape-font-specification:Arial;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.59715909"
@@ -3454,6 +3466,7 @@
 
 
 
+
 <text
    transform="matrix(0,1,1,0,0,0)"
    id="text53212"
@@ -3466,6 +3479,7 @@
      x="460.96277"
      id="tspan53210"
      sodipodi:role="line">FL selectivity, d</tspan></text>
+
 
 
 
@@ -3495,6 +3509,7 @@
 
 
 
+
 <text
    xml:space="preserve"
    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.14696884px;line-height:1.25;font-family:Arial;-inkscape-font-specification:Arial;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.59715909"
@@ -3507,6 +3522,7 @@
      x="517.18262"
      y="-409.30496"
      style="font-size:11.14696884px;stroke-width:0.59715909">Distance, μm</tspan></text>
+
 
 
 
@@ -3533,6 +3549,7 @@
 
 
 
+
 <text
    transform="scale(1,-1)"
    id="text53220"
@@ -3545,6 +3562,7 @@
      x="498.31964"
      id="tspan53218"
      sodipodi:role="line">0</tspan></text>
+
 
 
 
@@ -3571,6 +3589,7 @@
 
 
 
+
 <text
    transform="scale(1,-1)"
    id="text53224"
@@ -3583,6 +3602,7 @@
      x="530.51611"
      id="tspan53222"
      sodipodi:role="line">250</tspan></text>
+
 
 
 
@@ -3609,6 +3629,7 @@
 
 
 
+
 <text
    xml:space="preserve"
    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.43235207px;line-height:1.25;font-family:Arial;-inkscape-font-specification:Arial;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.652022"
@@ -3621,6 +3642,7 @@
      x="569.97693"
      y="-425.44397"
      style="stroke-width:0.652022">500</tspan></text>
+
 
 
 
@@ -3727,6 +3749,7 @@
 
 
 
+
 <text
    id="text34654"
    y="-267.85742"
@@ -3747,6 +3770,7 @@
 
 
 
+
 <text
    id="text34660"
    y="-267.85742"
@@ -3763,6 +3787,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:10px;font-family:Arial;fill:#262626;stroke-width:0.37853938"
        dy="0"
        dx="0">150</tspan></tspan></text>
+
 
 
 
@@ -3817,6 +3842,7 @@
 
 
 
+
 <text
    id="text34682"
    y="-268.00375"
@@ -3835,6 +3861,7 @@
 
 
 
+
 <text
    id="text34694"
    y="-307.65384"
@@ -3849,6 +3876,7 @@
      style="font-size:10px;stroke-width:0.37853938"><tspan
        id="tspan34690"
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:10px;font-family:Arial;fill:#262626;stroke-width:0.37853938">50</tspan></tspan></text>
+
 
 
 
@@ -3873,6 +3901,7 @@
 
 
 
+
 <text
    id="text34718"
    y="-376.47772"
@@ -3889,6 +3918,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:10px;font-family:Arial;fill:#262626;stroke-width:0.37853938"
        dy="0"
        dx="0">150</tspan></tspan></text>
+
 
 
 
@@ -4908,6 +4938,7 @@
      sodipodi:role="line"
      style="font-size:12px;stroke-width:0.47044992"
      id="tspan55405">compacness</tspan></text>
+
 <text
    id="text55130"
    y="388.18588"
@@ -4925,6 +4956,7 @@
      sodipodi:role="line"
      style="font-size:12px;stroke-width:0.47044992"
      id="tspan55407">ensembles</tspan></text>
+
 <text
    id="text55138"
    y="-278.82556"
@@ -4941,6 +4973,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:10px;font-family:Arial;fill:#000000;stroke-width:0.47044992"
        dy="0"
        dx="0">0.5</tspan></tspan></text>
+
 <text
    id="text55150"
    y="-324.62653"
@@ -4957,6 +4990,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:10px;font-family:Arial;fill:#000000;stroke-width:0.47044992"
        dy="0"
        dx="0">0.7</tspan></tspan></text>
+
 <text
    id="text55162"
    y="-370.42743"
@@ -4973,6 +5007,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:10px;font-family:Arial;fill:#000000;stroke-width:0.47044992"
        dy="0"
        dx="0">0.9</tspan></tspan></text>
+
 <path
    id="path55164"
    d="m 547.37199,278.82559 m 0,23.21417 m 0,22.58677 m 0,23.21416 m 0,22.58676 m 1.88223,-87.20998 h 2.50965"
@@ -5005,6 +5040,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:10px;font-family:Arial;fill:#000000;stroke-width:0.47044992"
        dy="0"
        dx="0">10</tspan></tspan></text>
+
 <text
    id="text55186"
    y="-317.0976"
@@ -5021,6 +5057,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:10px;font-family:Arial;fill:#000000;stroke-width:0.47044992"
        dy="0"
        dx="0">20</tspan></tspan></text>
+
 <text
    id="text55192"
    y="-342.194"
@@ -5037,6 +5074,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:10px;font-family:Arial;fill:#000000;stroke-width:0.47044992"
        dy="0"
        dx="0">30</tspan></tspan></text>
+
 <text
    id="text55198"
    y="-367.29044"
@@ -5053,6 +5091,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:10px;font-family:Arial;fill:#000000;stroke-width:0.47044992"
        dy="0"
        dx="0">40</tspan></tspan></text>
+
 <path
    id="path55200"
    d="m 425.89706,292.0012 m 0,25.0964 m 0,25.09641 m 0,25.0964 m 1.88223,-71.52475 h 2.50964"
@@ -5097,6 +5136,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:10px;font-family:Arial;fill:#000000;stroke-width:0.47044992"
        dy="0"
        dx="0">46</tspan></tspan></text>
+
 <text
    id="text55224"
    y="-261.25809"
@@ -5113,6 +5153,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:10px;font-family:Arial;fill:#000000;stroke-width:0.47044992"
        dy="0"
        dx="0">49</tspan></tspan></text>
+
 <path
    id="path55228"
    d="m 442.83713,270.66926 v 2.50964"
@@ -5137,6 +5178,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:10px;font-family:Arial;fill:#000000;stroke-width:0.47044992"
        dy="0"
        dx="0">46</tspan></tspan></text>
+
 <text
    id="text55242"
    y="-261.25809"
@@ -5153,6 +5195,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:10px;font-family:Arial;fill:#000000;stroke-width:0.47044992"
        dy="0"
        dx="0">49</tspan></tspan></text>
+
 <path
    style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:9.83783817;stroke-dasharray:none;stroke-opacity:1"
    d="M 551.76387,273.1789 V 386.7344"
