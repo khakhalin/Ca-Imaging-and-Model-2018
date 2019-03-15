@@ -14,8 +14,12 @@ function graph_structure_analyzer()
 % Aug 09 2018: Revived.
 % Mar 01 2019: Revisited to troubleshoot centrality comparisons.
 
-onlyOneBrain = 1;       % When generating sample images, set this to 1, to process only a small subset of experiments (currently: 2 brains, see below).
+% ------------------------- Important switches
+
+onlyOneBrain = 0;       % When generating sample images, set this to 1, to process only a small subset of experiments (currently: 2 brains, see below).
 flagOutFiles = 0;       % Set to 0 for safety (in order not to overwrite any out files)
+
+% ------------------------- Data description and main loop
 
 useFullSet = 0;         % Set to 1 for full set (including noisy data); set to 0 for a clean subset (low noise, good graphs)
 if(~onlyOneBrain)
@@ -97,8 +101,8 @@ end
 
 function [netData,labels,centralityData] = analyze_graph(S,iExp)
 
-sigLevel = 0.01;                % Significance level for accepting that the TE exists (doesn't matter if you use any of the adaptive techniques)
-thresholdType = 'lax';          % Either 'strict' or 'lax' (recommended). With 'strict' many graphs end up empty or nearly empty.
+sigLevel = 0.01;                % Significance level for accepting that the TE exists (doesn't matter if you use any of the adaptive techniques). Good: 0.01
+thresholdType = 'lax';          % Either 'strict' (bad) or 'lax' (recommended). With 'strict' many graphs end up empty or nearly empty.
 wComboMode = 'mean';            % Three options of how wc, wf, and ws should be combined into one matrix: min, mean (recommended), max, c, f, s
 minEdgeNumber = 0;              % How many edges in each graph to achieve. Set to 0 if it should not be adaptive. Recommended non-adaptive value: 20
 maxEdgeNumber = 0;              % If set to above minEdgeNumber, shrinks large graphs down to this value by thresholding low ws out. Recommended: 50 (or better yet: 0)
@@ -106,9 +110,9 @@ minComponentSize = 0;           % Number of nodes in the largest weakly connecte
 forceAverageDegree = 1.0;       % if >0, instead of all other adaptive thresholding above, selects sigLevel that achieves this average degree. Recommended: 1.0
 nShuffleNetworkMeasures = 0;    % How many times to reshuffle the matrix for all measurements. Set to 0 for no shuffling. Recommended: 50 or 100 (20 is too variable)
 shuffleNetMode = 'degree';      % Two options: 'Erdos' (keeps n points and n edges, but reshuffle them), and 'degree' for degree-preserving (calls external function)
-showTEfigure = 1;               % Plot all TE and corr matrices for this experiment
+showTEfigure = 0;               % Plot all TE and corr matrices for this experiment
 
-showEdgeNumbers = 0;            % Report cross-protocol replication stats, number of cells, edges, significance thresholds used etc.
+showEdgeNumbers = 1;            % Report cross-protocol replication stats, number of cells, edges, significance thresholds used etc.
 showBasicStats = 0;             % Basic stats about response strength, correlations, etc.
 doDegreesGraph = 0;             % Graph with degrees distributions
 showRawGraphs = 0;              % Set to 1 if graphs for each experiment need to be shown
@@ -116,7 +120,7 @@ doRawEdgeAnalysis = 0;          % Looking at raw edges, before thresholding
 showEdgeAnalysis = 0;           % Analysis of weights, degrees, edge assymetry, and w<0 edges. The type of output has to be switched in the code block itself (sorry)
 doPredictions = 0;              % Whether we want to look at stimulus identity prediction from brain activity
 selToUse = 'FC';                % Which selectivity to use; options are: 'C' (combined), 'FC', and 'SC'
-doSelectivity = 1;              % Where the selective cells are. Also calculates correlations with centrality measures and similar things
+doSelectivity = 0;              % Where the selective cells are. Also calculates correlations with centrality measures and similar things
 doSelectivityInGraph = 0;       % Analyze network properties and cell location. Relies on selectivity analysis
 
 doConnectivityInSpace = 0;      % Spatial analysis for connectivity (for example, in which direction are edges facing, etc.)
