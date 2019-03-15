@@ -57,13 +57,23 @@ names(dbasic)
 dbasic2 <- gather(dbasic,var,val,-stage,-name)
 names(dbasic2)
 
+# Degree distribution power:
 ggplot(dbasic,aes(factor(stage),-gamma)) + 
   theme_classic() + 
   geom_point(aes(color=factor(stage)),shape=1,size=3) + 
   stat_summary(fun.y="mean",geom="point",shape=0,color="black") +
   NULL
 
+# Assortativity of selectivity:
 ggplot(data=dbasic,aes(factor(stage),selassort)) + 
   theme_classic() +
   geom_jitter(h=0,w=0.1,shape=1,size=2.5) + 
+  NULL
+
+# Several measurements related to clusters
+ggplot(data=subset(dbasic2,var %in% c("nEns","clustCompact")),
+       aes(factor(stage),val)) + 
+  theme_classic() +
+  geom_jitter(h=0,w=0.1,shape=1,size=2.5) + 
+  facet_wrap(~var,scales="free")
   NULL
