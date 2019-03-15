@@ -71,9 +71,12 @@ ggplot(data=dbasic,aes(factor(stage),selassort)) +
   NULL
 
 # Several measurements related to clusters
-ggplot(data=subset(dbasic2,var %in% c("nEns","clustCompact")),
+ggplot(data=subset(dbasic2,var %in% c("nEns","maxModul","clustCompact")),
        aes(factor(stage),val)) + 
   theme_classic() +
   geom_jitter(h=0,w=0.1,shape=1,size=2.5) + 
-  facet_wrap(~var,scales="free")
+  facet_wrap(~var,scales="free") +
   NULL
+t.test(data=dbasic,nEns~stage) # 0.9
+t.test(data=dbasic,maxModul~stage) # 0.03
+t.test(data=dbasic,clustCompact~stage) # 0.3
