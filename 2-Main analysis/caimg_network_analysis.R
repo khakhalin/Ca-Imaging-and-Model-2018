@@ -9,6 +9,11 @@ require(ggplot2)
 
 rm(list = ls())  # Clear workspace
 
+# --------------------------------------------------------------------------
+# -------------- Network measures (with and without rewiring) --------------
+# --------------------------------------------------------------------------
+# For other experiment-level summaries that do not need rewiring, see below.
+
 d <- read.table("7_Ca imaging/git - CaImaging Paper/2-Main analysis/caimg_network_measures.csv",sep=",",header=T)
 names(d)
 
@@ -41,11 +46,12 @@ ggplot(subset(d2,var %in% c("II_assrt","OO_assrt","IO_assrt","OI_assrt")),aes(Ty
   facet_grid(var~Stage,scales="free_y")
 
 
-# -------------- Simple network measures (different data file)
+# -----------------------------------------------------------
+# -------------- Simple experiment statistics (different data file)
 
 rm(list = ls())  # Clear workspace
 
-dbasic <- read.table("7_Ca imaging/git - CaImaging Paper/2-Main analysis/caimg_network_summary.csv",sep=",",header=T)
+dbasic <- read.table("7_Ca imaging/git - CaImaging Paper/2-Main analysis/caimg_experiment_summary.csv",sep=",",header=T)
 names(dbasic)
 
 dbasic2 <- gather(dbasic,var,val,-stage,-name)

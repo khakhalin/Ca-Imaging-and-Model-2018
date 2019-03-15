@@ -43,9 +43,9 @@ Columns:
 1. ibrain - experiment number
 1. stage - developmental stage for this experiment
 
-### caimg_network_summary.csv
+### caimg_experiment_summary.csv
 
-* Contains: Basic low-level information about each reconstructed network
+* Contains: Basic low-level information about each experiment and each reconstructed network. This file contains 30 rows; one row for each experiment.
 * Produced by: manually, by combining different console outputs of graph_structure_analyzer.m into one meaningful table
 * Used by: caimg_experimens_assorted_figures.R, caimg_network_analysis.R
 
@@ -74,7 +74,7 @@ Columns:
 
 ### caimg_network_measures.csv
 
-* Contains: global network measures (Figure 4)
+* Contains: global network measures (Figure 4). The biggest difference between this file and the previous one `caimg_experiment_summary` is that here each experimenet is represented by 2 different rows (so 60 rows in total): one row for normal analysis, and another row with all same measurements, but from a randomly rewired graph. That's why this file and `caimg_experiment_summary` cannot be combined in one.
 * Produced by: manually, by adding columns of interest
 * Used by: caimg_network_analysis.r
 
