@@ -187,11 +187,11 @@ strengths_dir.m
 
 ## Model
 
-### model_stdp_multisens.m
+### model_stdp.m
 
 Main program to generate data. Set the constants and flags in the header, then run it from the console in a cycle. It would generate a bunch of files, name them according to the YYMMDDhhmmss convention, and save them in a certain folder. 
 
-The model is called *multisens* because it supports multisensory activation, at least to some extent, and to test the effects of multisensory experience in development was one of the ideas for the project. Later, I had to constrain the scope of the project, as it was getting too unwieldy, so at least as of Sep 2018 multisensory activation is not in the paper. But theoretically it is implemented in the model, and can be turned on.
+The model technically supports multisensory activation, at least to some extent, as to test the effects of multisensory experience in development was one of the ideas for the project. This analysis was however left out of scope for the project, as it was getting too unwieldy.
 
 ### model_stdp_tester.m
 
@@ -201,7 +201,7 @@ May be fairly slow, if there are lots of datasets to process.
 
 ### model_stdp_curve_plotter.m
 
-Reads the curves of how different network measures changed in time, as the model_stdp_multisens_1 program ran; from the model result files created by this program. Then plots them all on the same plot, creating a draft figure that can then be ported to Illustrator. The way it reads the data is very similar to model_stdp_tester, as the program was forked from it when the functionalities diverged.
+Reads the curves of how different network measures changed in time (data that was produced by the model). Then plots them all on the same plot, creating a draft figure that can then be ported to Illustrator. The way it reads the data is very similar to model_stdp_tester, as the program was forked from it when the functionalities diverged.
 
 ### model_analyzer.r
 

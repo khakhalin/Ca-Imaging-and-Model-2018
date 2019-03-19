@@ -1,6 +1,6 @@
-function varargout = model_stdp_multisens(stimType)
-% model_stdp_multisens('full')
-% [w,sel,th] = model_stdp_multisens_1()
+function varargout = model_stdp(stimType)
+% model_stdp('full')
+% [w,sel,th] = model_stdp()
 %
 % A simple model to play with plastic networks.
 %
