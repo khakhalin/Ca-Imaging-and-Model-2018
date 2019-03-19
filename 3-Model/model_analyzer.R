@@ -35,11 +35,22 @@ d <- rbind(d,t)
 names(d)
 summary(d)
 
-### Remove columns that were originally calculated, but that we don't like anymore:
+# Remove columns that were originally calculated, but that we don't like anymore:
 d <- d %>% select (-c(nPCAto80,competition,sel90perc,sel90perc_SC,rCluSpk,rSelRnt,rSelGth,
                       shESelGrow,selEGrowth,nRichTo80F,clustPrefPval,revFlow,cycl,gammaIn,
                       rDirWei,rSelRnt,clusterCompactness)) 
 
+# -- Correct weird values
+# For some reason for "no competition" the starting point (the very first one) is weird.
+# something is wrong with renormalization of synapses for this very first snapshot.
+# So tucking these values in.
+d$clust = pmin(d$clust,0.02) 
+ggplot(d,aes(stage,clust,color=type,group=file)) + theme_minimal() + geom_line()
+
+d$eff[d$stage==1] = pmin(d$eff[d$stage==1],0.04)
+ggplot(d,aes(stage,eff,color=type,group=file)) + theme_minimal() + geom_line()
+
+# Gather, to prepare for summary statistics bellow
 dg <- gather(d,var,value,-file,-type,-stage,-rewire)
 dg$var <- factor(dg$var)
 levels(dg$var) # List of levels (different measures we have)
@@ -68,11 +79,33 @@ dgs = dg %>% group_by(type,stage,var,rewire) %>% summarize(
   ci = -s/sqrt(n)*qt(0.025,df=n-1)) # Averages and cis
 head(dgs)
 
-# Plot Averages only, many TYPES in each plot
+# Plot Averages only, several MODEL TYPES in each plot
 ggplot(dgs,aes(stage,m,color=type)) + 
   geom_point(size=1,shape=1) + 
   geom_line(aes(group=type)) +
   facet_wrap(~var,scales = "free_y") +
+  theme_bw() +
+  theme(axis.text.y=element_text(size=6),
+        strip.background=element_rect(linetype='blank',fill='white'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  NULL
+
+# Same, but only global clustering
+ggplot(subset(dgs,var=="clust"),aes(stage,m,color=type)) + 
+  geom_point(size=1,shape=1) + 
+  geom_line(aes(group=type)) +
+  theme_bw() +
+  theme(axis.text.y=element_text(size=6),
+        strip.background=element_rect(linetype='blank',fill='white'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  NULL
+
+# Same, but only global efficiency
+ggplot(subset(dgs,var=="eff"),aes(stage,m,color=type)) + 
+  geom_point(size=1,shape=1) + 
+  geom_line(aes(group=type)) +
   theme_bw() +
   theme(axis.text.y=element_text(size=6),
         strip.background=element_rect(linetype='blank',fill='white'),
