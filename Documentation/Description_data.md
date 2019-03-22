@@ -132,12 +132,12 @@ First 14 experiments are stage 46; the reast are stage 49.
 
 Files:
 
-* modelAnalysis181020 1 slide looming.csv - main set of experiments
-* modelAnalysis181020 2 slide vis.csv - experiments in which looming stimuli were replaced with random visual transitions (that include looms as a subset)
-* modelAnalysis181020 3 slide rand.csv - experiments in which the model was exposed to random noise
-* modelAnalysis181023 4 slide looming nointrinsic.csv - looming stimuli, but weak intrinsic plasticity (see Methods)
-* modelAnalysis181023 5 slide looming Hebb.csv - looming stimuli, but Hebbian plasticity instead of STDP
-* modelAnalysis181023 6 decay looming.csv - looming stimuli, but synaptic decay instead of synaptic competition
+* modelAnalysis 190322 1 slide looming.csv - main set of experiments
+* modelAnalysis 181020 2 slide vis.csv - experiments in which looming stimuli were replaced with random visual transitions (that include looms as a subset)
+* modelAnalysis 181020 3 slide rand.csv - experiments in which the model was exposed to random noise
+* modelAnalysis 181023 4 slide looming nointrinsic.csv - looming stimuli, but weak intrinsic plasticity (see Methods)
+* modelAnalysis 181023 5 slide looming Hebb.csv - looming stimuli, but Hebbian plasticity instead of STDP
+* modelAnalysis 181023 6 decay looming.csv - looming stimuli, but synaptic decay instead of synaptic competition
 
 Each file contains analysis results for 50 modeling experiments. For each experiments, we have values from 5 developmental points, taken at equal spaces across simulation.
 
@@ -171,6 +171,8 @@ Each file contains the following columns:
 1. selAssort - assortativity of node selectivities
 1. shESelGrow - share of edges that increase selectivity (sel grows along the edge)
 1. selEGrowth - weighted average selectivity growth across the edge (weighted by edge weight)
+1. synfire - a correlation between how often this edge is acrivated during a test-looming (linear R) stimulus and edge weight in the model
+1. synhelp - a correlation between weights that increase selectivity (values from this subset) and frequency of synfire activation during looming. Essentially: are selectivity-increasing edges typically activated during a looming stimulus?
 1. gammaIn - power of in-degree distribution
 1. gammaOu - power of out-degree distribution
 1. deg0 - frequency of nodes with 0 degree

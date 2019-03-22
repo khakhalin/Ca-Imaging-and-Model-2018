@@ -219,15 +219,16 @@ end
 
 %%% ------------------------------------ Testing selectivity ------------------------------------
 typeCycle = {'flash','scramble','crash'};       % Not that this sequence of stimuli is different from the sequence used in experiments!
-s = sTarget;                                    % spikes vector set to ideal (needs to be reset after training)
+s = sTarget;                                    % initial spikes vector set to ideal (needs to be reset after training)
 sAv = sTarget;                                  % recent average spiking. Assume all spiked ideally at first
+crashGraph = zeros(size(w));                    % Weighted graph to represent testing "crash" stimuli, for synfire chains identification
 nStimTypes = 3;
 %amps = zeros(nCells, nTestReps, nStimTypes);    % Total response amplitudes will be stored here
 spikeHistory = zeros(nTick,nCells,nStimTypes*nStim);    % Full history of spiking
 stimType = zeros(nStimTypes*nStim,1);                   % History of stimuli types
 stimCount = 0;
 for(si=1:nStimTypes)                                    % For each testing stimulus. 1=F, 2=S, 3=C. Note that ca img experiments go CFS instead, while we go FSC
-    inputTrace{si} = zeros(1,nTick);                    % Average input dynamics for this stimulus type (good for troubleshooting)    
+    inputTrace{si} = zeros(1,nTick);                    % Average input dynamics for this stimulus type (for troubleshooting)    
     spikeOutput{si} = [];                               % Total spiking (sum over time) of each neuron in each trial
     for(iStim=1:nStim)                                      % Repeat several times
         stimCount = stimCount+1;
@@ -249,10 +250,20 @@ for(si=1:nStimTypes)                                    % For each testing stimu
             s = s + blur*E.input{stimCount,ti}(:);
             s = logisticf(s,th);                                        % Spiking (soft non-linear logistic function, defined below)    
             spikeHistory(ti,:,stimCount) = s';                          % Save spiking by each neuron at every moment of time                
+            if(si==3) % If crash
+                if(ti>1) % not the first frame, then update crash structure:
+                    crashGraph = crashGraph + ((1*E.input{stimCount,ti}(:))*(1*E.input{stimCount,ti-1}(:))')/(nTick-1);
+                end
+            end
         end
     end    
     inputTrace{si}   = inputTrace{si}/nStim;
 end
+
+% figure; subplot(1,2,1); myplot(w); title('Connectivity'); subplot(1,2,2); myplot(crashGraph); title('Loom graph');
+% selectivity_graph(crashGraph>percentile(crashGraph(:),0.95),ones(nCells,1)); % To check whether crash structure graph is actually radialish. YES, it looks right.
+
+
 
 %%% --------- Summaries ------------
 %%% spikeHistory : 25 time steps, by nCells (81) cells, by nStimTypes*nStim (75) stimuli
@@ -339,11 +350,23 @@ shi = repmat(selC(:)',nCells,1);                % Matrix of properties for sendi
 sho = shi';                                     % Matrix of properties for receiving neurons
 selAssort = weightedcorr(shi(:),sho(:),w(:));   % Proper weighted correlation
 M = remember(M,'selAssort',selAssort);
-selComparisonMatrix = bsxfun(@plus,selC(:),-selC(:)');                      % Matrix of sel growth: sel_i - sel_j (to interact with w, where w_ij is an edge from j to i)
+selComparisonMatrix = bsxfun(@plus,selFC(:),-selFC(:)');                    % Matrix of sel growth: sel_i - sel_j (to interact with w, where w_ij is an edge from j to i)
 shESelGrow = sum((selComparisonMatrix(:)>0).*(w(:)>0.5))/sum(w(:)>0.5);     % What share of strong-ish edges increases Sel?
 M = remember(M,'shESelGrow',shESelGrow);
 selEGrowth = sum(selComparisonMatrix(:).*w(:))/sum(w(:));                   % Average weighted change in selectivity over an edge
 M = remember(M,'selEGrowth',selEGrowth);
+
+synfire = corr(w(:),crashGraph(:));                     % An amount of overlap between the connectivity matrix and the looming 
+% Let's try to check whether being on a receiving end of a synfirish (matchinig) edge improves sel, compared to average:
+%synHelp = corr(sum(w.*crashGraph,2),selFC');           % No
+%synHelp = corr(crashGraph(:),selComparisonMatrix(:).*w(:)); % Yes
+synHelp = corr(crashGraph(:),(selComparisonMatrix(:)>0).*w(:)); % Yes. Those connections that improve selectivity lead in loom direction
+%synHelp = corr((crashGraph(:)>percentile(crashGraph(:),0.95)).*w(:),selComparisonMatrix(:)); % Meh. Top looming connections don't necessarily improve sel a lot.
+
+%temp = w.*(crashGraph>percentile(crashGraph(:),0.95)); selectivity_graph(temp>percentile(temp(:),0.98),selFC); % Troubleshooting graph visualizer
+
+M = remember(M,'synfire',synfire);
+M = remember(M,'synHelp',synHelp);
 
 
 %%% --------- Degree distribution analysis -----
@@ -504,8 +527,10 @@ if(flagFigMain)
     plot(E.hp(6),iStage,(gammaIn+gammaOu)/2,markerStyle);
     plot(E.hp(7),iStage,shESelGrow,markerStyle);
     plot(E.hp(8),iStage,selEGrowth,markerStyle);            title(E.hp(8),'selGrowth');
-    plot(E.hp(9),iStage,nRichTo80F,markerStyle);            title(E.hp(9),'Dyn Rich F');
-    plot(E.hp(10),iStage,nRichTo80C,markerStyle);           title(E.hp(10),'Dyn Rich C');
+    %plot(E.hp(9),iStage,nRichTo80F,markerStyle);            title(E.hp(9),'Dyn Rich F');
+    % plot(E.hp(10),iStage,nRichTo80C,markerStyle);           title(E.hp(10),'Dyn Rich C');
+    plot(E.hp(9),iStage,synfire,markerStyle);               title(E.hp(9),'Synfire overlap');
+    plot(E.hp(10),iStage,synHelp,markerStyle);              title(E.hp(10),'Synfire help');
     plot(E.hp(11),iStage-0.2,deg0,'b.');    plot(E.hp(11),iStage,deg12,'k.');   plot(E.hp(11),iStage+0.2,deg5p,'r.');	title(E.hp(11),'Degrees');
     plot(E.hp(12),iStage,nClusters,markerStyle);    
     plot(E.hp(13),iStage,rPosSel,markerStyle);    
@@ -584,28 +609,6 @@ return;
 %     drawnow();
 % end
 % 
-% if(0)   % Long console output
-%     fprintf('Share of neurons selective to crash: %f\n',sum(resC>resF)/nCells);    
-%     fprintf('Median crash/flash: %f\n',median(resC./resF));
-%     fprintf('Average crash minus flash: %f\n',mean(resC-resF));    
-% end
-% if(1)   % Short console output
-%     if(showFigures) % The reason this is linked to show figures is that it is ==0 during serial runs of the model
-%         fprintf('nStim, nCollisions, share Collisions, Full spiking F, full spiking C, share of C>F, share of C>120F, average selFC, var selFC, dist|sel\n');
-%     end    
-%     distanceToCenter = sqrt((meshx(:)-dim/2).^2 + (meshy(:)-dim/2).^2);
-%     [rho_dsel,pval_dsel] = corr(distanceToCenter,selFC);
-%     fprintf('%5d\t%5d\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%5.2f', nStim , nCollisions , sum(resF) , sum(resC),...
-%         sum(resC>resF)/nCells , mean(selFC) , var(selFC), median(selFC), quantile(selFC,0.9), rho_dsel);
-%     %for(q=1:length(newDataLine))
-%     %    fprintf('\t%7f',newDataLine(q));
-%     %end
-%     fprintf('\n');
-% end
-% 
-% if(nargout>0); varargout{1} = w; end;
-% if(nargout>1); varargout{2} = selFC; end;
-% if(nargout>2); varargout{3} = th; end;
 % 
 % if(showFigures) % --- Show final graph in both original and optimized coordinates, 
 %                 % as well as whether selectivity correlates with any centrality measure
@@ -679,7 +682,10 @@ if(length(arguments)>1) % --- Initialize: create a motion object
             mo.moveAngle = 0;                                   % Moving direction (opposite to the starting angle + noise)
             mo.start = [0,dim/2]+0.5;                           % Starting position   
             mo.v = dim/mo.period;                               % Speed. It will cross the field in this time
-        case {'vis','shuffle','full'} % Training transitions
+        case {'vis','shuffle','full'} % Training transitions (just in case)
+            % NOTE: these are not fully correct, as it's a tester program, so they are not critical here.
+            % Correct training transitions are defined in the model_stdp.m program. 
+            % Here 'full' and 'vis' don't actually seem different, but in model_stdp.m they surely are!
             mo.dstart = 1;                                      % Starting distance to the object
             mo.dfinal = rand(1)*1+0.01;                         % Finishing distance to the object (never 0)    
             mo.startAngle = rand(1)*2*pi;                       % Starting angle

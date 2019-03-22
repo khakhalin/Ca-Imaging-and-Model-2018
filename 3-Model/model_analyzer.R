@@ -13,29 +13,32 @@ localFolder = 'C:/Users/Arseny/Documents/7_Ca imaging/git - CaImaging Paper/3-Mo
 
 ### Combine several model outputs into one large dataframe
 # 1st one creates the dataframe:
-d <- read.table(paste(localFolder,"modelAnalysis181020 1 slide looming.csv",sep=''),sep=",",header=T)
+d <- read.table(paste(localFolder,"modelAnalysis 190322 1 slide looming.csv",sep=''),sep=",",header=T)
 d$type = 'Base'
 # All others concatenate to it:
-t <- read.table(paste(localFolder,"modelAnalysis181020 2 slide vis.csv",sep=''),sep=",",header=T)
+t <- read.table(paste(localFolder,"modelAnalysis 190322 2 slide vis.csv",sep=''),sep=",",header=T)
 t$type = 'Visual'
 d <- rbind(d,t)
-t <- read.table(paste(localFolder,"modelAnalysis181020 3 slide rand.csv",sep=''),sep=",",header=T)
+t <- read.table(paste(localFolder,"modelAnalysis 190322 3 slide rand.csv",sep=''),sep=",",header=T)
 t$type = 'Random'
 d <- rbind(d,t)
-t <- read.table(paste(localFolder,"modelAnalysis181023 4 slide looming nointrinsic.csv",sep=''),sep=",",header=T)
+t <- read.table(paste(localFolder,"modelAnalysis 190322 4 slide looming nointrinsic.csv",sep=''),sep=",",header=T)
 t$type = 'no Intrinsic'
 d <- rbind(d,t)
-t <- read.table(paste(localFolder,"modelAnalysis181023 5 slide looming Hebb.csv",sep=''),sep=",",header=T)
+t <- read.table(paste(localFolder,"modelAnalysis 190322 5 slide looming Hebb.csv",sep=''),sep=",",header=T)
 t$type = 'no STDP'
 d <- rbind(d,t)
-t <- read.table(paste(localFolder,"modelAnalysis181023 6 decay looming.csv",sep=''),sep=",",header=T)
+t <- read.table(paste(localFolder,"modelAnalysis 190322 6 decay looming.csv",sep=''),sep=",",header=T)
 t$type = 'no Competition'
 d <- rbind(d,t)
 
 names(d)
 summary(d)
 
-# Remove columns that were originally calculated, but that we don't like anymore:
+nExp <- nrow(d)/5
+d$exp <- rep(seq(1,nExp),each=5) # Label experiments
+
+# REMOVE columns that were originally calculated, but that we don't like anymore:
 d <- d %>% select (-c(nPCAto80,competition,sel90perc,sel90perc_SC,rCluSpk,rSelRnt,rSelGth,
                       shESelGrow,selEGrowth,nRichTo80F,clustPrefPval,revFlow,cycl,gammaIn,
                       rDirWei,rSelRnt,clusterCompactness)) 
@@ -50,8 +53,8 @@ ggplot(d,aes(stage,clust,color=type,group=file)) + theme_minimal() + geom_line()
 d$eff[d$stage==1] = pmin(d$eff[d$stage==1],0.04)
 ggplot(d,aes(stage,eff,color=type,group=file)) + theme_minimal() + geom_line()
 
-# Gather, to prepare for summary statistics bellow
-dg <- gather(d,var,value,-file,-type,-stage,-rewire)
+# --- Gather, to prepare for summary statistics bellow
+dg <- gather(d,var,value,-file,-type,-stage,-rewire,-exp)
 dg$var <- factor(dg$var)
 levels(dg$var) # List of levels (different measures we have)
 
@@ -61,7 +64,7 @@ levelSequence <- c(
   "fullBrainSel","meanSel","shareSelCells","sel90m50","bestPredict",
   "fullBrainSel_SC","meanSel_SC","shareSelCells_SC","sel90m50_SC",
   "rSelfcSelfs","rSelfcSelsc",
-  "rPosSel","mDistWei",
+  "rPosSel","mDistWei","synfire","synHelp",
   "rSelClu","rSelNet","rSelIns","selAssort","rSelSpk",
   "gammaIn","gammaOu","deg0","deg12","deg5p","recip",
   "nRichTo80C",
@@ -113,7 +116,30 @@ ggplot(subset(dgs,var=="eff"),aes(stage,m,color=type)) +
         panel.grid.minor = element_blank()) +
   NULL
 
-dgs %>% filter(stage==5,var=="recip")
+
+# --- Synfire analysis
+# All curves for one type of experiments, and one var
+ggplot(subset(dg,type=="Base" & var %in% c("synfire")),aes(stage,value,group=exp)) + 
+  geom_point(size=1,shape=1) + 
+  geom_line() +
+  theme_bw() +
+  theme(axis.text.y=element_text(size=6),
+        strip.background=element_rect(linetype='blank',fill='white'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  NULL
+
+# Across types
+ggplot(subset(dgs,var %in% c("synfire","synHelp")),aes(stage,m,color=type)) + 
+  geom_point(size=1,shape=1) + 
+  geom_line(aes(group=type)) +
+  theme_bw() +
+  theme(axis.text.y=element_text(size=6),
+        strip.background=element_rect(linetype='blank',fill='white'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  facet_wrap(~var,scales = "free_y") +
+  NULL
 
 # ----------- end of meaningful analyses -------------
 
