@@ -260,7 +260,7 @@ for(si=1:nStimTypes)                                    % For each testing stimu
     inputTrace{si}   = inputTrace{si}/nStim;
 end
 
-% figure; subplot(1,2,1); myplot(w); title('Connectivity'); subplot(1,2,2); myplot(crashGraph); title('Loom graph');
+% figure; subplot(1,2,1); myplot(w); title('Connectivity'); subplot(1,2,2); myplot(crashGraph); title('Loom graph'); % To check whether loom-encoding graph looks good
 % selectivity_graph(crashGraph>percentile(crashGraph(:),0.95),ones(nCells,1)); % To check whether crash structure graph is actually radialish. YES, it looks right.
 
 
@@ -283,6 +283,9 @@ selFC = (resC-resF)./sqrt((sdC.^2+sdF.^2)/2);
 selFS = (resS-resF)./sqrt((sdS.^2+sdF.^2)/2);
 selSC = (resC-resS)./sqrt((sdC.^2+sdS.^2)/2);
 
+%%% Raw-ish figure of response amplitudes of all cells, for Fig7 in the paper
+% figure; plot([1 2 3],[resF(:) resS(:) resC(:)],'go-'); hold on; plot([1 2 3],mean([resF(:) resS(:) resC(:)],1),'ks-'); xlim([0 4]); hold off; title('Amplitudes'); 
+
 
 %%% --------- Classification of stimuli by the network ------
 responses = squeeze(sum(spikeHistory(:,:,:,1)))';                   % Sum spiking over time, drop dim, flip. Now cells run to the right (cols), stimuli run down (rows)
@@ -304,6 +307,7 @@ predictionOfCrashNI = predictionNI(:,2)>predictionNI(:,1);
 predictionQualityNI = (sum(predictionOfCrashNI & actuallyCrash(firstHalf~=1))/sum(actuallyCrash(firstHalf~=1)) + ...
     sum(~predictionOfCrashNI & ~actuallyCrash(firstHalf~=1))/sum(~actuallyCrash(firstHalf~=1)))/2;
 warning('on');
+
 
 M = remember(M,'fullBrainSel',mean(resC(:))/mean(resF(:))-1);               % Selectivity of the full brain response
 M = remember(M,'meanSel',mean(selFC));
