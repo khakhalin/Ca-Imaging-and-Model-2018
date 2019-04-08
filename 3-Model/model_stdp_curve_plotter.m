@@ -1,12 +1,9 @@
 function varargout = model_stdp_curve_plotter(type,oneFlag)
 % model_stdp_curve_plotter
-% model_stdp_tester(type,oneFigOnlyFlag)
 %
-% Similar to model_stdp_tester(), in the sense that it reads files created by model_stdp_multisens_1().
+% Similar to model_stdp_tester(), in the sense that it reads files created by model_stdp().
 % But this one does not run any simulations, and only builds the curves that are already saved
-% in those model-output files.
-
-% Aug 02 2018: mutated from model_stdp_tester().
+% in those model-output files. As of Apr 2019, these curves are not used in any figures in the paper.
 
 
 %%% ------------------------------------ Constants ------------------------------------

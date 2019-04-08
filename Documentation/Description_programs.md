@@ -85,6 +85,31 @@ Reads "avamps_allcells_allbrains.csv"; builds pics for Fig 2.
 
 Reads from "sel_allcells_allbrains stable.csv", builds a selectivity figure.
 
+
+-------------------------------------------------------------------
+## Model
+
+### model_stdp.m
+
+Main program to generate data. Set the constants and flags in the header, then run it from the console in a cycle. It would generate a bunch of files, name them according to the YYMMDDhhmmss convention, and save them in a certain folder. 
+
+The model technically supports multisensory activation, at least to some extent, as to test the effects of multisensory experience in development was one of the ideas for the project. This analysis was however left out of scope for the project, as it was getting too unwieldy.
+
+### model_stdp_tester.m
+
+Main analysis program. Reads files from the model results folder, and analyzes them one by one. Calculates lots of different values, and tried to plot them all, as well as save them all in a separate file. The file name changes every day, so from day to day it won't overwrite the previous results, but WITHIN a day it WOULD overwrite the results, so be careful and rename the output files if you are analyzing stuff in batches. The file name is "modelAnalysisYYMMDD", in the "Modeling" folder.
+
+May be fairly slow, if there are lots of datasets to process.
+
+### model_stdp_curve_plotter.m
+
+Reads the curves of how different network measures changed in time (data that was produced by the model). Then plots them all on the same plot, creating a draft figure that can then be ported to Illustrator. The way it reads the data is very similar to model_stdp_tester, as the program was forked from it when the functionalities diverged.
+
+### model_analyzer.r
+
+Main analysis for all that random stuff that "model_stdp_tester" calculates and spits out.
+
+
 -------------------------------------------------------------------
 ## Network analysis toolbox (general utilities)
 
@@ -122,9 +147,17 @@ My attempts to build a useful cyclicity measure that for now failed. So it may n
 
 Calculates flow hierarchy and reverse flow hierarchy, based on Katz centrality.
 
+### shotgun_testing
+
+Creates a bunch of modular networks, then gradually destroys them, every time randomly subsampling, and comparing network measurements on a full network to that on a subsampling network. Sadly, some most interesting measures break down on networks of about 5000 nodes, so I cannot check realistic numbers for the tectum. Also it seems to be quite dependent on the structure of the underlying network (for example, a dense torus of random modules seems to have too much flow, so my "hierarchy" measure doesn't change as it is randomized. (or maybe the measure is wrong?). Depends on `create_modular_network`
+
+### create_modular_network
+
+Creates a bunch of non-random networks.
+
 
 -------------------------------------------------------------------
-## Misc programs
+## Misc utilities
 
 ### caimaging_extra_figures1 (also 2 and 3)
 
@@ -183,36 +216,3 @@ pagerank_centrality.m
 reachdist.m
 rich_club_wd.m
 strengths_dir.m
-
-
-## Model
-
-### model_stdp.m
-
-Main program to generate data. Set the constants and flags in the header, then run it from the console in a cycle. It would generate a bunch of files, name them according to the YYMMDDhhmmss convention, and save them in a certain folder. 
-
-The model technically supports multisensory activation, at least to some extent, as to test the effects of multisensory experience in development was one of the ideas for the project. This analysis was however left out of scope for the project, as it was getting too unwieldy.
-
-### model_stdp_tester.m
-
-Main analysis program. Reads files from the model results folder, and analyzes them one by one. Calculates lots of different values, and tried to plot them all, as well as save them all in a separate file. The file name changes every day, so from day to day it won't overwrite the previous results, but WITHIN a day it WOULD overwrite the results, so be careful and rename the output files if you are analyzing stuff in batches. The file name is "modelAnalysisYYMMDD", in the "Modeling" folder.
-
-May be fairly slow, if there are lots of datasets to process.
-
-### model_stdp_curve_plotter.m
-
-Reads the curves of how different network measures changed in time (data that was produced by the model). Then plots them all on the same plot, creating a draft figure that can then be ported to Illustrator. The way it reads the data is very similar to model_stdp_tester, as the program was forked from it when the functionalities diverged.
-
-### model_analyzer.r
-
-Main analysis for all that random stuff that "model_stdp_tester" calculates and spits out.
-
-### shotgun_testing
-
-Creates a bunch of modular networks, then gradually destroys them, every time randomly subsampling, and comparing network measurements on a full network to that on a subsampling network. Sadly, some most interesting measures break down on networks of about 5000 nodes, so I cannot check realistic numbers for the tectum. Also it seems to be quite dependent on the structure of the underlying network (for example, a dense torus of random modules seems to have too much flow, so my "hierarchy" measure doesn't change as it is randomized. (or maybe the measure is wrong?)
-
-Depends on create_modular_network
-
-### create_modular_network
-
-Creates a bunch of non-random networks.

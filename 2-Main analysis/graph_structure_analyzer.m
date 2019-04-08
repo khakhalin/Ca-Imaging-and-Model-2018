@@ -6,13 +6,6 @@ function graph_structure_analyzer()
 % different parts of analysis on and off are located below, as constants for the 1st function that the main function calls.
 % All outputs go to figure and console; nothing is written in the external files.
 
-% Aug 29 2017: Created
-% Sep 01 2017: New network functions
-% Sep 04 2017: Analysis of selectivity
-% Sep 15 2017: Full week of improvement in fair edge thresholding between experiments
-% Sep 29 2017: Edge analysis, spatial analysis
-% Aug 09 2018: Revived.
-% Mar 01 2019: Revisited to troubleshoot centrality comparisons.
 
 % ------------------------- Important switches
 

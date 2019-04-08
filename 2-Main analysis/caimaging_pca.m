@@ -3,10 +3,6 @@ function caimaging_pca()
 %
 % Analysis of network responses.
 
-% Oct 05 2017: Caimaging_pca forked from caimaging_structure. All TE calculations and other heavy lifting is left there,
-%   while this program now does everything else. Basically, all analysis that doesn't use connectivity reconstruction.
-% Aug 14 2018: Lots of minor improvements.
-% Oct 01 2018: General clean-up
 
 S = [];
 iBrain = 0;
