@@ -248,125 +248,12 @@ if(showFigures) % --- Main figure (mugshot)
     drawnow();
 end
 
-return; % --- Uncomment if no network testing is needed
+return; 
+
+end % ---------------------------------- End of main function
 
 
 
-
-
-%%% --------- Recalibration of thresholds before actual testing ---------
-% Helps to get rid of short-term effects of most recent learning. Like sleeping overnight. 
-% Makes it fair, levels the field for every model, especially after training on different stimuli.
-% (Sometimes the most recent stimulus was intense and all neurons are a bit instinsically suppressed, which would bias the test).
-% But no hebbian plasticity here; only the thresholds, recalibrated on noise.
-for(q=1:nTickRecalibrate)                                       % Recalibrate thresholds only, leaving w intact
-    switch inactivationMode
-        case 'none'; s = w*s;                                	% Excitatory transmission, no refractory period
-        case 'fast'; s = w*s./(1+s);                            % Excitatory transmission + short inactivation period (10 ms)
-        case 'slow'; s = w*s./(1+sAv);                          % Excitatory transmission + long inactivation period (~200 ms)
-    end
-    input = floor(rand(size(s))+1/brainDim);                         % Keep the noise here rather weak (dim/ncells) to enable chain-ringing
-    s = s + blur*input(:);
-    s = logisticf(s,th);                    % Spiking (soft non-linear logistic function, defined below)    
-    sAv = sAv*sAvDecay + s*(1-sAvDecay);    % Calculate running average spiking
-    th = th - (sTarget-sAv)*thSens;         % Homeostatic plasticity that stays the same
-end
-
-
-%%% ------------------------------------ Testing selectivity ------------------------------------
-typeCycle = {'flash','scramble','crash'};
-s = sTarget;                                    % spikes vector set to ideal (needs to be reset after training)
-sAv = sTarget;                                  % recent average spiking. Assume all spiked ideally at first
-nTestReps = 10;
-nStimTypes = 3;
-for(si=1:nStimTypes)                                     % For each testing stimulus. 1=F, 2=C, 3=transition
-    spikeHistory{si} = zeros(nCells,nTick);              % To collect spiking
-    inputTrace{si} = zeros(1,nTick);
-    spikeOutput{si} = [];
-    for(q=1:nTestReps)                          % Repeat several times
-        [mo,~] = generateInput(brainDim,typeCycle{si});        
-        for(ti=1:nTick)            
-            switch inactivationMode
-                case 'none'; s = w*s;                               % Excitatory transmission, no refractory period
-                case 'fast'; s = w*s./(1+s);                        % Escitatory transmission + short inactivation period (10 ms)
-                case 'slow'; s = w*s./(1+sAv);                      % Escitatory transmission + long inactivation period (~200 ms)
-            end
-            [mo,input] = generateInput(mo);                         % Sensory input
-            inputTrace{si}(ti) = inputTrace{si}(ti)+sum(input(:));
-            s = s + blur*input(:);
-            s = logisticf(s,th);                                        % Spiking (soft non-linear logistic function, defined below)    
-            spikeHistory{si}(:,ti) = spikeHistory{si}(:,ti)+s;          % Remember spiking by each neuron at every moment of time
-        end        
-        spikeOutput{si} = [spikeOutput{si} sum(spikeHistory{si},2)];    % Total spiking for this neuron
-    end
-    spikeHistory{si} = spikeHistory{si}/nTestReps;    
-    inputTrace{si}   = inputTrace{si}/nTestReps;
-end
-
-resF = mean(spikeOutput{1},2);                          % Average total output for flashes. A column of numbers
-resS = mean(spikeOutput{2},2);                          % Scramble
-resC = mean(spikeOutput{3},2);                          % Crash
-% sel = (resC-resF)./resF;                              % A simple selectivity measure (0 for no selectivity)
-selFC = (resC-resF)./std([bsxfun(@plus,spikeOutput{1},-resF) bsxfun(@plus,spikeOutput{2},-resC)],[],2); % Cohen's d
-
-if(showFigures) % --- How selectivity interacts with cell place within the network
-    figure('Color','white');
-    lineStyle = {'k-','r-','b-'};
-    %h6 = subplot(3,3,6); hold on;
-    for(si=1:length(spikeHistory))
-        subplot(3,3,si);   myplot(reshape(mean(spikeOutput{si},2),brainDim,brainDim)); title(typeCycle{si}); colorbar(); %caxis([0 2]);
-        subplot(3,3,3+si); myplot(spikeHistory{si}); title(typeCycle{si}); %caxis([0 2]);    
-        %plot(h6,inputTrace{si},lineStyle{si});    
-    end
-    subplot(3,3,6); plot(resC-resF,selFC,'.'); xlabel('C minus F'); ylabel('Selectivity');
-    subplot(3,3,3); hold on; plot([0 2],[0 2],'g-'); plot(resF,resC,'.'); hold off; xlabel('to flash'); ylabel('to crash'); title('Cell responses');
-    subplot(3,3,7); plot(sum(w), selFC,'.'); xlabel('total syn drive'); ylabel('Selectivity');
-    subplot(3,3,8); plot(sTarget,selFC,'.'); xlabel('spike target');    ylabel('Selectivity');
-    subplot(3,3,9); plot(th,     selFC,'.'); xlabel('spike threshold'); ylabel('Selectivity');
-    drawnow();
-end
-
-if(0)   % Long console output
-    fprintf('Share of neurons selective to crash: %f\n',sum(resC>resF)/nCells);    
-    fprintf('Median crash/flash: %f\n',median(resC./resF));
-    fprintf('Average crash minus flash: %f\n',mean(resC-resF));    
-end
-if(1)   % Short console output
-    if(showFigures) % The reason this is linked to show figures is that it is ==0 during serial runs of the model
-        fprintf('nStim, nCollisions, share Collisions, Full spiking F, full spiking C, share of C>F, share of C>120F, average selFC, var selFC, dist|sel\n');
-    end    
-    distanceToCenter = sqrt((meshx(:)-brainDim/2).^2 + (meshy(:)-brainDim/2).^2);
-    [rho_dsel,pval_dsel] = corr(distanceToCenter,selFC);
-    fprintf('%5d\t%5d\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%7.2f\t%5.2f', nStim , nCollisions , sum(resF) , sum(resC),...
-        sum(resC>resF)/nCells , mean(selFC) , var(selFC), median(selFC), quantile(selFC,0.9), rho_dsel);
-    %for(q=1:length(newDataLine))
-    %    fprintf('\t%7f',newDataLine(q));
-    %end
-    fprintf('\n');
-end
-
-if(nargout>0); varargout{1} = w; end;
-if(nargout>1); varargout{2} = selFC; end;
-if(nargout>2); varargout{3} = th; end;
-
-if(showFigures) % --- Show final graph in both original and optimized coordinates, 
-                % as well as whether selectivity correlates with any centrality measure
-    selectivity_graph(w,selFC,meshx,meshy);   % Analyze the graph and show some more figures (see the procedure itself)
-    
-    figure; % Selectivity as a function of distance    
-    [rho,pval] = corr(distanceToCenter,selFC);
-    plot(distanceToCenter,selFC,'.'); xlabel('Distance from the center'); ylabel('FC Selectivity');
-    title(sprintf('r=%s; p=%s',myst(rho),myst(pval)));
-    
-    figure; hold on; % Alternative figure for full responses
-    plot([1 2 3],[resF(:) resS(:) resC(:)],'-','Color',[1 1 1]*0.9);
-    plot(1,resF,'r.');  plot(1,mean(resF),'ks');
-    plot(2,resS,'g.');  plot(2,mean(resS),'ks');
-    plot(3,resC,'b.');  plot(3,mean(resC),'ks');  
-    hold off; xlabel('Stimulus type'); ylabel('Cell response'); xlim([0 4]);
-end
-
-end
 
 
 
