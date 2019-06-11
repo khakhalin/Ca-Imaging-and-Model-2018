@@ -42,7 +42,7 @@ sTarget = sTarget/mean(sTarget)*5/nCells;       % Normalization. If sTarget==k/n
 
 sAvDecay = 0.95;                                % Decay coeff for running averaging of spiking = 1-tstep/tau; for tau=200ms k=0.95 (seems to be good)
 thSens = 0.1;                                   % Threshold change rate in the beginning. 0.1 is good
-plasticityType = 'STDP';                        % Two options: STDP and Hebb
+plasticityType = 'Hebb';                        % Two options: STDP and Hebb
 kHebb = 0.25;                                   % STDP change rate. 1 is too fast (for nstim=1000), 0.1 takes too much time. Optimal: 0.25
 blurDistance = 0.0;                             % Blurring distance for RGC inputs. Set to 0 for no blur, 0.5 for weak, 1 for pretty strong
 incompleteProjections = 0.0;                    % Amount of noise to add to retinal inputs (0 for none, 1 for full rand)
@@ -147,7 +147,7 @@ while(t<=tmax)                                  % We control for the total numbe
                 %w = w+diag(s-s1)*w*diag(s1)*kHebb;         % STDP: reward if s1 interacted (w) with s, but a punishment if with s1. This formula is very slow though        
                 w = w+kHebb*bsxfun(@times,bsxfun(@times,s(:)-s1(:),w),s1(:)'); % STDP; Exactly the same formula as above, but ~100 times faster (literally)
             case 'Hebb'
-                w = w+kHebb*bsxfun(@times,bsxfun(@times,s(:),w),s1(:)'); % Simple Hebb (as an alternative)
+                w = w+kHebb*bsxfun(@times,bsxfun(@times,s(:),w),s(:)'); % Simple Hebb (as an alternative)
             otherwise
                 error('Wrong plasticity type');
         end
@@ -166,7 +166,7 @@ while(t<=tmax)                                  % We control for the total numbe
             case 'satout'
                 w = bsxfun(@times,w,1./max(1,max(w,[],1)));             % Normalizing only if weights are creeping above 1
                 %w = bsxfun(@times,w,sum(w>1,2)
-            case 'slide';                                               % Gradual synaptic scaling. Danger of oscillations, needs sliding parameters
+            case 'slide';                                               % Gradual synaptic scaling (default). Danger of oscillations, needs sliding parameters
                 temp1 = bsxfun(@times,w,totalWeight./sum(w,1));         % trimmed outs
                 temp2 = bsxfun(@times,w,totalWeight./sum(w,2));         % trimmed ins
                 w = 0.4*w + 0.3*temp1 + 0.3*temp2;                    % The sliding equation - if too slow, hebb may get out of control still.

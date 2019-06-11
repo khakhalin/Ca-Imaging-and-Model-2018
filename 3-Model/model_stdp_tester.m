@@ -9,7 +9,7 @@ function varargout = model_stdp_tester(type,oneFlag)
 %   myst - formatting of p-value-like values for console output
 %   myCentrality - my collection of centrality measures
 %   myCyclicity - my attempt to calculate cyclicity
-% Currently carries as a copy myplot() - it is also available as a stand-alone utility, but just in case I added it here as well.
+% Currently carries myplot() as a copy. It is also available as a stand-alone utility, but just in case, I added it here as well.
 
 
 
