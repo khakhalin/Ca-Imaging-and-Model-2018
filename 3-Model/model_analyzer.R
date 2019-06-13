@@ -41,19 +41,23 @@ d$exp <- rep(seq(1,nExp),each=5) # Label experiments
 # Remove columns that are still calculated by the scripts, but that we don't like anymore:
 d <- d %>% dplyr::select (-c(nPCAto80,competition,sel90perc,sel90perc_SC,rCluSpk,rSelRnt,rSelGth,
                       shESelGrow,selEGrowth,nRichTo80F,clustPrefPval,revFlow,cycl,gammaIn,
-                      rDirWei,rSelRnt,clusterCompactness)) 
+                      rDirWei,rSelfcSelfs,rSelfcSelsc,deg0,deg12,deg5p,
+                      clusterPreference,clusterCompactness)) 
 
 # -- Correct weird values
 # For some reason for "no competition" the starting point (the very first one) is weird.
 # something is wrong with renormalization of synapses for this very first snapshot.
 # So tucking these values in.
-d$clust = pmin(d$clust,0.02) 
+d$clust <- pmin(d$clust,0.02) 
 ggplot(d,aes(stage,clust,color=type,group=file)) + theme_minimal() + geom_line()
 
-d$eff[d$stage==1] = pmin(d$eff[d$stage==1],0.04)
+d$eff[d$stage==1] <- pmin(d$eff[d$stage==1],0.04)
 ggplot(d,aes(stage,eff,color=type,group=file)) + theme_minimal() + geom_line()
 
-# --- Gather, to prepare for summary statistics bellow
+d$gammaOu <- abs(d$gammaOu) # from negative to positive values
+
+
+# ---------- Gather, to prepare for summary statistics bellow
 dg <- gather(d,var,value,-file,-type,-stage,-rewire,-exp)
 dg$var <- factor(dg$var)
 levels(dg$var) # List of levels (different measures we have)
@@ -64,15 +68,15 @@ levelSequence <- c(
   "fullBrainSel","meanSel","shareSelCells","sel90m50","bestPredict",
   "fullBrainSel_SC","meanSel_SC","shareSelCells_SC","sel90m50_SC",
   "rSelfcSelfs","rSelfcSelsc",
-  "rPosSel","mDistWei","synfire","synHelp",
-  "rSelClu","rSelNet","rSelIns","selAssort","rSelSpk",
-  "gammaIn","gammaOu","deg0","deg12","deg5p","recip",
-  "nRichTo80C",
-  "nClusters","clusterPreference",
+  "rPosSel","mDistWei",
+  "rSelSpk","rSelClu","rSelNet","rSelIns","selAssort",
+  "nRichTo80C","nClusters","gammaOu","recip",
+  "synfire","synHelp",
+  "clusterPreference","clusterCompactness",
   "eff","modul","clust","flow")
 existingLevels <- levels(dg$var)
 dg$var <- factor(dg$var,levels=intersect(levelSequence,existingLevels))
-head(dg)
+levels(dg$var)
 
 # Summary data frame
 dgs = dg %>% group_by(type,stage,var,rewire) %>% summarize(
@@ -82,17 +86,29 @@ dgs = dg %>% group_by(type,stage,var,rewire) %>% summarize(
   ci = -s/sqrt(n)*qt(0.025,df=n-1)) # Averages and cis
 head(dgs)
 
-# Plot Averages only, several MODEL TYPES in each plot
-ggplot(dgs,aes(stage,m,color=type)) + 
+# Plot Averages only, several MODEL TYPES in each plot <---- Main plot
+ggplot(dgs,aes(stage,m,color=type,linetype=type,size=type)) + 
   geom_point(size=1,shape=1) + 
   geom_line(aes(group=type)) +
-  facet_wrap(~var,scales = "free_y") +
+  facet_wrap(~var,scales = "free_y", ncol=5) +
   theme_bw() +
   theme(axis.text.y=element_text(size=6),
         strip.background=element_rect(linetype='blank',fill='white'),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
+  scale_linetype_manual(values=c("solid","solid","solid","solid","dashed","dashed"))+
+  scale_color_manual(values=c('black','red','palegreen3','dodgerblue','violetred','gray'))+
+  scale_size_manual(values=c(1, 0.5, 0.5, 0.5, 0.5, 0.5))+
   NULL
+
+# Values by the end of simulation
+names(dgs)
+levels(dgs$var)
+dgs %>% dplyr::filter(stage==5,var=="meanSel")
+dgs %>% dplyr::filter(stage==5,var=="shareSelCells")
+dgs %>% dplyr::filter(stage==5,var=="meanSel_SC")
+dgs %>% dplyr::filter(stage==5,var=="shareSelCells_SC")
+dgs %>% dplyr::filter(stage==5,var=="rSelfcSelsc")
 
 # Same, but only global clustering
 ggplot(subset(dgs,var=="clust"),aes(stage,m,color=type)) + 

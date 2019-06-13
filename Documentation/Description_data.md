@@ -159,14 +159,14 @@ Each file contains the following columns:
 1. shareSelCells_SC - ditto
 1. sel90perc_SC - ditto
 1. sel90m50_SC - ditto
-1. rPosSel - correlation between node position (distance from the center) and node selecttivity
-1. rDirWei - correlation nbetween edge direction off-center, and its weight
+1. rPosSel - correlation between node position (distance from the center) and node selectivity
+1. rDirWei - correlation nbetween edge direction off-center, and its weight (mostly superceded by rPosSel)
 1. mDistWei - a ratio of weighted average distance between cells (weighted by edge weight) and average distance between all cells. The smaller the value, the more local are the connections.
 1. rSelClu - correlation between node selectivity and its local clustering coefficient
 1. rCluSpk - correlation between node clustering and its activity (average spiking)
 1. rSelNet - correlation between node selectivity and its Katz rank
 1. rSelRnt - same, but for Katz rank on a reveersed graph
-1. rSelGth - correlation between node selectivity and an adjusted ratio of (1+ weighted in-degree) devided by (1+ weighted out-degree) (abandoned analysis)
+1. rSelGth - correlation between node selectivity and an adjusted ratio of (1+ weighted in-degree) devided by (1+ weighted out-degree) (dead-end that didn't work)
 1. rSelIns - correlation between node selectivity and its in-degree
 1. selAssort - assortativity of node selectivities
 1. shESelGrow - share of edges that increase selectivity (sel grows along the edge)
@@ -192,7 +192,7 @@ Each file contains the following columns:
 1. revFlow - same, on a reversed graph
 1. cycl - measure of graph cyclicity (abandoned analysis)
 1. recip - share of reciprocal connections
-1. rSelSpk - correlation of selectivity and sliking
+1. rSelSpk - correlation of selectivity and average spiking
 1. rSelfcSelfs - correlation between Flash-Loom and Flash-Scrambled selectivities
 1. rSelfcSelsc - correlation between Flash-Loom and Scrambled-Loom selectivities
 
