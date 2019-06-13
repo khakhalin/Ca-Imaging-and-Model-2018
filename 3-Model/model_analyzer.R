@@ -13,22 +13,22 @@ localFolder = 'C:/Users/Arseny/Documents/7_Ca imaging/git - CaImaging Paper/3-Mo
 
 ### Combine several model outputs into one large dataframe
 # 1st one creates the dataframe:
-d <- read.table(paste(localFolder,"modelAnalysis 190322 1 slide looming.csv",sep=''),sep=",",header=T)
+d <- read.table(paste(localFolder,"modelAnalysis 1 190322 slide looming.csv",sep=''),sep=",",header=T)
 d$type = 'Base'
 # All others concatenate to it:
-t <- read.table(paste(localFolder,"modelAnalysis 190322 2 slide vis.csv",sep=''),sep=",",header=T)
+t <- read.table(paste(localFolder,"modelAnalysis 2 190322 slide vis.csv",sep=''),sep=",",header=T)
 t$type = 'Visual'
 d <- rbind(d,t)
-t <- read.table(paste(localFolder,"modelAnalysis 190322 3 slide rand.csv",sep=''),sep=",",header=T)
+t <- read.table(paste(localFolder,"modelAnalysis 3 190322 slide rand.csv",sep=''),sep=",",header=T)
 t$type = 'Random'
 d <- rbind(d,t)
-t <- read.table(paste(localFolder,"modelAnalysis 190322 4 slide looming nointrinsic.csv",sep=''),sep=",",header=T)
+t <- read.table(paste(localFolder,"modelAnalysis 4 190322 slide looming nointrinsic.csv",sep=''),sep=",",header=T)
 t$type = 'no Intrinsic'
 d <- rbind(d,t)
-t <- read.table(paste(localFolder,"modelAnalysis 190322 5 slide looming Hebb.csv",sep=''),sep=",",header=T)
+t <- read.table(paste(localFolder,"modelAnalysis 5 190611 slide looming Hebb.csv",sep=''),sep=",",header=T)
 t$type = 'no STDP'
 d <- rbind(d,t)
-t <- read.table(paste(localFolder,"modelAnalysis 190322 6 decay looming.csv",sep=''),sep=",",header=T)
+t <- read.table(paste(localFolder,"modelAnalysis 6 190322 decay looming.csv",sep=''),sep=",",header=T)
 t$type = 'no Competition'
 d <- rbind(d,t)
 
@@ -38,8 +38,8 @@ summary(d)
 nExp <- nrow(d)/5
 d$exp <- rep(seq(1,nExp),each=5) # Label experiments
 
-# REMOVE columns that were originally calculated, but that we don't like anymore:
-d <- d %>% select (-c(nPCAto80,competition,sel90perc,sel90perc_SC,rCluSpk,rSelRnt,rSelGth,
+# Remove columns that are still calculated by the scripts, but that we don't like anymore:
+d <- d %>% dplyr::select (-c(nPCAto80,competition,sel90perc,sel90perc_SC,rCluSpk,rSelRnt,rSelGth,
                       shESelGrow,selEGrowth,nRichTo80F,clustPrefPval,revFlow,cycl,gammaIn,
                       rDirWei,rSelRnt,clusterCompactness)) 
 
