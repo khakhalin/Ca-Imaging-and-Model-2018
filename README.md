@@ -7,7 +7,7 @@ Looming stimuli evoke behavioral responses in most sighted animals, yet the mech
 
 ## Pre-print
 
-* [Pre-print, current version](https://www.biorxiv.org/content/10.1101/589887v1)
+* [BioRxiv Pre-print](https://www.biorxiv.org/content/10.1101/589887v1)
 * [Twitter thread write-up](https://twitter.com/ampanmdagaba/status/1110894636359471110) of this project: a quick friendly richly illustrated summary with some background
 
 ## Documentation files
