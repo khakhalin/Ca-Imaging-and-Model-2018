@@ -85,9 +85,12 @@ dgs = dg %>% group_by(type,stage,var,rewire) %>% summarize(
   s = sd(value),
   ci = -s/sqrt(n)*qt(0.025,df=n-1)) # Averages and cis
 head(dgs)
+dgs$type = factor(dgs$type)
+dgs$type <- factor(dgs$type,levels=rev(levels(dgs$type))) # Reverse, to make Base top, for better plotting
+levels(dgs$type) # Check
 
 # Plot Averages only, several MODEL TYPES in each plot <---- Main plot
-ggplot(dgs,aes(stage,m,color=type,linetype=type,size=type)) + 
+ggplot(dgs,aes(stage,m,color=type,size=type)) + 
   geom_point(size=1,shape=1) + 
   geom_line(aes(group=type)) +
   facet_wrap(~var,scales = "free_y", ncol=5) +
@@ -96,10 +99,13 @@ ggplot(dgs,aes(stage,m,color=type,linetype=type,size=type)) +
         strip.background=element_rect(linetype='blank',fill='white'),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
-  scale_linetype_manual(values=c("solid","solid","solid","solid","dashed","dashed"))+
-  scale_color_manual(values=c('black','red','palegreen3','dodgerblue','violetred','gray'))+
-  scale_size_manual(values=c(1, 0.5, 0.5, 0.5, 0.5, 0.5))+
+  #scale_linetype_manual(values=rev(c("solid","solid","solid","solid","dashed","dashed")))+ 
+  # Line style shouldn't be used before incscape, as it just creates a bunch of segments
+  scale_color_manual(values=rev(c('black','red','palegreen3','dodgerblue','violetred','gray')))+
+  scale_size_manual(values=rev(c(1, 0.5, 0.5, 0.5, 0.5, 0.5)))+
   NULL
+
+# To get a decent figure (close to Fig8), export as vector with 700x600 dimensions.
 
 # Values by the end of simulation
 names(dgs)
