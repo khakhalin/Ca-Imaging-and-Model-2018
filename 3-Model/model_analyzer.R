@@ -42,7 +42,7 @@ d$exp <- rep(seq(1,nExp),each=5) # Label experiments
 d <- d %>% dplyr::select (-c(nPCAto80,competition,sel90perc,sel90perc_SC,rCluSpk,rSelRnt,rSelGth,
                       shESelGrow,selEGrowth,nRichTo80F,clustPrefPval,revFlow,cycl,gammaIn,
                       rDirWei,rSelfcSelfs,rSelfcSelsc,deg0,deg12,deg5p,
-                      clusterPreference,clusterCompactness)) 
+                      clusterCompactness)) 
 
 # -- Correct weird values
 # For some reason for "no competition" the starting point (the very first one) is weird.
@@ -73,7 +73,8 @@ levelSequence <- c(
   "nRichTo80C","nClusters","gammaOu","recip",
   "synfire","synHelp",
   "clusterPreference","clusterCompactness",
-  "eff","modul","clust","flow")
+  "eff","modul","clust","flow",
+  "clusterPreference") # This row for those that weren't actually included in the figure
 existingLevels <- levels(dg$var)
 dg$var <- factor(dg$var,levels=intersect(levelSequence,existingLevels))
 levels(dg$var)
@@ -115,6 +116,7 @@ dgs %>% dplyr::filter(stage==5,var=="shareSelCells")
 dgs %>% dplyr::filter(stage==5,var=="meanSel_SC")
 dgs %>% dplyr::filter(stage==5,var=="shareSelCells_SC")
 dgs %>% dplyr::filter(stage==5,var=="rSelfcSelsc")
+dgs %>% dplyr::filter(stage==5,var=="clusterPreference")
 
 # Same, but only global clustering
 ggplot(subset(dgs,var=="clust"),aes(stage,m,color=type)) + 
