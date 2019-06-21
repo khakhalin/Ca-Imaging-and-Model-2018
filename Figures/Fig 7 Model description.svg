@@ -17,7 +17,7 @@
    height="816"
    viewBox="0 0 1056 816"
    sodipodi:docname="Fig 7 Model description.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    enable-background="new"><metadata
      id="metadata49593"><rdf:RDF><cc:Work
          rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
@@ -2599,13 +2599,13 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1600"
-     inkscape:window-height="838"
+     inkscape:window-width="1366"
+     inkscape:window-height="706"
      id="namedview49589"
      showgrid="false"
      inkscape:zoom="0.99999995"
-     inkscape:cx="492.37467"
-     inkscape:cy="483.31297"
+     inkscape:cx="320.34097"
+     inkscape:cy="622.62297"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -2732,19 +2732,21 @@
 
 
 
+
 <text
    transform="scale(1,-1)"
    id="text50828"
-   y="-428.68872"
+   y="-427.18872"
    x="84.499596"
    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.75"
    xml:space="preserve"
    clip-path="none"><tspan
      id="tspan50826"
      style="font-size:12px;stroke-width:0.75"
-     y="-428.68872"
+     y="-427.18872"
      x="84.499596"
      sodipodi:role="line">Retina</tspan></text>
+
 
 
 
@@ -2755,16 +2757,17 @@
 <text
    transform="scale(1,-1)"
    id="text50832"
-   y="-428.68872"
-   x="150.60889"
+   y="-427.18872"
+   x="141.60889"
    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.75"
    xml:space="preserve"
    clip-path="none"><tspan
      id="tspan50830"
      style="font-size:12px;stroke-width:0.75"
-     y="-428.68872"
-     x="150.60889"
-     sodipodi:role="line">Inputs</tspan></text>
+     y="-427.18872"
+     x="141.60889"
+     sodipodi:role="line">Activation</tspan></text>
+
 
 
 
@@ -2776,15 +2779,16 @@
    xml:space="preserve"
    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.75"
    x="207.62717"
-   y="-428.68872"
+   y="-427.18872"
    id="text20744"
    transform="scale(1,-1)"
    clip-path="none"><tspan
      sodipodi:role="line"
      x="207.62717"
-     y="-428.68872"
+     y="-427.18872"
      style="font-size:12px;stroke-width:0.75"
      id="tspan20746">Network</tspan></text>
+
 
 
 
@@ -2815,6 +2819,7 @@
      y="-419.02231"
      style="stroke-width:0.75;font-size:12.0000003px;"
      id="tspan20752">Adjacency matrix</tspan></text>
+
 
 
 
@@ -11784,6 +11789,7 @@
 
 
 
+
 <text
    xml:space="preserve"
    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
@@ -11801,6 +11807,7 @@
      y="334.30249"
      style="font-size:16px;stroke-width:1"
      id="tspan20762">layout</tspan></text>
+
 
 
 
@@ -11931,6 +11938,7 @@
 
 
 
+
 <text
    id="text6591"
    y="494.11215"
@@ -11956,6 +11964,7 @@
 
 
 
+
 <text
    id="text6597"
    y="494.11215"
@@ -11972,6 +11981,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:13.10649681px;font-family:Arial;fill:#262626;stroke-width:0.71770948"
        dy="0"
        dx="0">10000</tspan></tspan></text>
+
 
 
 
@@ -12047,6 +12057,7 @@
 
 
 
+
 <text
    id="text6643"
    y="443.21103"
@@ -12063,6 +12074,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:13.33333302px;font-family:Arial;fill:#262626;stroke-width:0.71770948"
        dy="0"
        dx="0">0.2</tspan></tspan></text>
+
 
 
 
@@ -12097,6 +12109,7 @@
 
 
 
+
 <text
    id="text6655"
    y="373.33804"
@@ -12113,6 +12126,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:13.33333302px;font-family:Arial;fill:#262626;stroke-width:0.71770948"
        dy="0"
        dx="0">0.6</tspan></tspan></text>
+
 
 
 
@@ -12147,6 +12161,7 @@
 
 
 
+
 <text
    id="text6667"
    y="303.465"
@@ -12163,6 +12178,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:13.33333302px;font-family:Arial;fill:#262626;stroke-width:0.71770948"
        dy="0"
        dx="0">1</tspan></tspan></text>
+
 
 
 
@@ -12557,6 +12573,7 @@
 
 
 
+
 <text
    id="text6873"
    y="492.11215"
@@ -12573,6 +12590,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:13.10649681px;font-family:Arial;fill:#262626;stroke-width:0.71770948"
        dy="0"
        dx="0">5000</tspan></tspan></text>
+
 
 
 
@@ -12599,6 +12617,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:13.10649681px;font-family:Arial;fill:#262626;stroke-width:0.71770948"
        id="tspan12918">10000</tspan></tspan></text>
 
+
 <text
    clip-path="none"
    xml:space="preserve"
@@ -12613,6 +12632,7 @@
      id="tspan12926"><tspan
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:16px;font-family:Arial;fill:#262626;stroke-width:0.71770948"
        id="tspan12924">F</tspan></tspan></text>
+
 
 <text
    clip-path="none"
@@ -12629,6 +12649,7 @@
    style="font-style:normal;font-variant:normal;font-weight:400;font-size:16px;font-family:Arial;fill:#262626;stroke-width:0.71770948"
    id="tspan12930" /></tspan></text>
 
+
 <text
    id="text6879"
    y="491.86215"
@@ -12643,6 +12664,7 @@
      style="font-size:16px;stroke-width:0.71770948">L<tspan
    id="tspan6875"
    style="font-style:normal;font-variant:normal;font-weight:400;font-size:16px;font-family:Arial;fill:#262626;stroke-width:0.71770948" /></tspan></text>
+
 
 
 
@@ -12707,6 +12729,7 @@
 
 
 
+
 <text
    id="text6917"
    y="417.28195"
@@ -12723,6 +12746,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:13.33333302px;font-family:Arial;fill:#262626;stroke-width:0.71770948"
        dy="0"
        dx="0">0.5</tspan></tspan></text>
+
 
 
 
@@ -12757,6 +12781,7 @@
 
 
 
+
 <text
    id="text6929"
    y="301.465"
@@ -12773,6 +12798,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:13.33333302px;font-family:Arial;fill:#262626;stroke-width:0.71770948"
        dy="0"
        dx="0">1.5</tspan></tspan></text>
+
 
 
 
@@ -12847,6 +12873,7 @@
 
 
 
+
 <text
    clip-path="none"
    id="text12916"
@@ -12859,6 +12886,7 @@
      id="tspan12914"
      sodipodi:role="line">Time frame</tspan></text>
 
+
 <text
    xml:space="preserve"
    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:Arial;-inkscape-font-specification:Arial;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
@@ -12870,6 +12898,7 @@
      id="tspan7268"
      x="764.53198"
      y="515.80804">Stimulus type</tspan></text>
+
 
 
 
@@ -12903,6 +12932,7 @@
 
 
 
+
 <text
    xml:space="preserve"
    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:13.33333302px;line-height:1.25;font-family:Arial;-inkscape-font-specification:Arial;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
@@ -12916,6 +12946,7 @@
      id="tspan45177"
      x="-456.02914"
      y="300.97961">Input weights to one cell</tspan></text>
+
 
 
 
@@ -13006,6 +13037,7 @@
        dy="0"
        dx="0">0</tspan></tspan></text>
 
+
 <text
    id="text11817"
    y="443.84998"
@@ -13021,6 +13053,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:13.33333302px;font-family:Arial;fill:#262626;stroke-width:0.30557147"
        dy="0"
        dx="0">0.2</tspan></tspan></text>
+
 
 <text
    id="text11823"
@@ -13038,6 +13071,7 @@
        dy="0"
        dx="0">0.4</tspan></tspan></text>
 
+
 <text
    id="text11829"
    y="385.98187"
@@ -13053,6 +13087,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:13.33333302px;font-family:Arial;fill:#262626;stroke-width:0.30557147"
        dy="0"
        dx="0">0.6</tspan></tspan></text>
+
 
 <text
    id="text11835"
@@ -13070,6 +13105,7 @@
        dy="0"
        dx="0">0.8</tspan></tspan></text>
 
+
 <text
    id="text11841"
    y="328.11377"
@@ -13086,6 +13122,7 @@
        dy="0"
        dx="0">1</tspan></tspan></text>
 
+
 <text
    id="text11847"
    y="299.17972"
@@ -13101,6 +13138,7 @@
        style="font-style:normal;font-variant:normal;font-weight:400;font-size:13.33333302px;font-family:Arial;fill:#262626;stroke-width:0.30557147"
        dy="0"
        dx="0">1.2</tspan></tspan></text>
+
 
 <path
    id="path11855"
@@ -15087,6 +15125,7 @@
 
 
 
+
 <text
    y="77.051628"
    style="font-variant:normal;font-weight:bold;font-stretch:normal;font-size:21.33333397px;font-family:Arial;-inkscape-font-specification:Arial-BoldMT;writing-mode:lr-tb;fill:#231f20;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.33333325"
@@ -15097,6 +15136,7 @@
      x="70.007065"
      y="77.051628"
      id="tspan63264">A</tspan></text>
+
 
 
 
@@ -15130,6 +15170,7 @@
 
 
 
+
 <text
    y="291.29428"
    style="font-variant:normal;font-weight:bold;font-stretch:normal;font-size:21.33333397px;font-family:Arial;-inkscape-font-specification:Arial-BoldMT;writing-mode:lr-tb;fill:#231f20;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.33333325"
@@ -15149,6 +15190,7 @@
 
 
 
+
 <text
    x="696.46301"
    id="text20792"
@@ -15159,6 +15201,7 @@
      y="290.29425"
      x="696.46301"
      style="font-size:21.33333397px;stroke-width:1.33333325">H</tspan></text>
+
 
 
 
@@ -15195,6 +15238,7 @@
 
 
 
+
 <text
    x="715.62109"
    id="text20800"
@@ -15218,6 +15262,7 @@
 
 
 
+
 <text
    y="290.96185"
    style="font-variant:normal;font-weight:bold;font-stretch:normal;font-size:21.33333397px;font-family:Arial;-inkscape-font-specification:Arial-BoldMT;writing-mode:lr-tb;fill:#231f20;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.33333325"
@@ -15228,6 +15273,7 @@
      x="70.264801"
      y="290.96185"
      id="tspan49601">E</tspan></text>
+
 
 
 
