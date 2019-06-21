@@ -65,7 +65,7 @@ iBrain = iBrain+1; folderName{iBrain} = '140310'; age(iBrain) = 49; % Short reco
 
 if(1) % Set to 1 if you want to look at one brain only
     iBrain = 1;
-    goodBrain = 19; % 18 is the one from Figure 1 in the paper (140722). 22 (140709) is best retinotopy. 19  (140718b) is used in Fig 2.
+    goodBrain = 22; % 18 is the one from Figure 1 in the paper (140722). 19  (140718b) is used in Fig 2. 22 (140709) is used for Fig 3 (best retinotopy).
     folderName = folderName(goodBrain);
     age = age(goodBrain);
 end
@@ -86,12 +86,12 @@ doPCA = 1;                          % Factor analysis. The "origin point" for re
 reportPCA = 0;                      % Whether PCA stats need to be reported
 retinotopyLogic = 'pca';            % Two options here: 'lat' to calculate retinotopy center on response latencies; 'pca' to use early PCA component
 reportRetinotopy = 0;               % Whether retinotopy should be reported to the console.
-showPCAfigure = 1;                  % Show PCA figure for each brain
+showPCAfigure = 0;                  % Show PCA figure for each brain
 showPCAsummaryFigure = 0;           % PCA cumulative figure
 showLatDistFigure = 0;              % Show correlations between distance from the center and latency (total figure for all brains)
 
-doEnsembleAnalysis = 0;             % Calcualted adjusted correlations, and identify ensembles from them
-doCorrelationFig = 0;               % plot raw correlation matrices - NOT SURE IF UPDATED AT THIS POINT
+doEnsembleAnalysis = 1;             % Calcualted adjusted correlations, and identify ensembles from them
+showCorrelationFig = 1;             % Plot raw correlation matrices (is only reacheable if doEnsembleAnalysis==1)
 
 %%% --- Selectivity group of analyses. The selectivity is always calculated, but we can turn summaries and reporting on and off as we please
 showResponseAmplitudes = 0;         % Main simplistic figure for response amplitudes + output of all amplitudes to csv
@@ -685,14 +685,17 @@ for(iBrain = 1:nBrains)
         if(sum((sum(corW,1)+sum(corW,2)')==0)>0)      % Are there unconnected nodes in corW after thresholding? Answer: no, even with threshold of 0.1.
             warning('W thresholding isolated some nodes from the main graph');
         end
-        if(doCorrelationFig)
-            figure; subplot(2,3,1); myplot(corW.*(ones(size(corW))-eye(size(corW)))); title('CorW'); drawnow();
+        if(showCorrelationFig)
+            figure; subplot(2,3,1); 
+            myplot(corW.*(ones(size(corW))-eye(size(corW))));
+            colorbar('northoutside');
+            title('CorW'); drawnow();
         end
 
         [clustInd,modHistory] = spectralClustering(corW,100,10000);            % Clustering analysis (args are maxClusters and sigma parameter)
         
         nClusters = max(clustInd);
-        if(doCorrelationFig)             
+        if(showCorrelationFig)             
             [~,ind] = sort(clustInd);
             subplot(2,3,2); myplot(corW(ind,ind).*(ones(size(corW))-eye(size(corW)))); title('CorW sorted'); drawnow(); 
             subplot(2,3,3); hold on;                
