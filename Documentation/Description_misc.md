@@ -1,4 +1,4 @@
-Misc comments on the project
+Misc internal comments for the project
 ======================== 
 
 # Technical details and early processing

@@ -3,11 +3,13 @@ Comments on how data is stored
 
 # Main analysis
 
+## Data files
+
 ### all_cells_latencies.csv
 
 * Contains: info on position and response latency for every cell. Used for space-related plots. Contains all cells, before any network-based subsetting (as used for network analysis; see below).
 * Produced by: caimaging_pca.m
-* Used by:
+* Used by: manually, for sensitivity analyses
 
 Columns:
 
@@ -28,12 +30,13 @@ Columns:
 
 * Contains: response amplitudes for every cell recorded in every experiment. (Small amplitude cells aren't removed)
 * Produced by: caimaging_pca.m
+* Used by: manually, to create caimg_experiment_summary.csv
 
 ### sel_allcells_allbrains stable.csv
 
 * Contains: selectivity measurements for every cell. (Small amplitude cells aren't removed)
 * Produced by: caimaging_pca.m
-* Used by:
+* Used by: manually, to create caimg_experiment_summary.csv
 
 Columns:
 
@@ -116,13 +119,13 @@ Columns:
 
 First 14 experiments are stage 46; the reast are stage 49.
 
-### Experiments used in figures
+## Which experiments are used in which figures:
 
 * Figure 1: visual field: from an early multisensory experiment 140128 (stage 49) that wasn't included in analysis
 * Figure 1 signals: 140722 - stage 49
 * Figure 2 selectivity map, selectivity correlations: 140718b
+* Figure 3: PCA field, correlation matrix, modularity plot, ensemble field: 140709 - stage 49
 * Figure 3 components: not sure, but not 140709
-* Figure 3: PCA field, correlation matrix, modularity plot, ensemble field: 140709 - stage 49.
 * FIgure 4 Corr, TE, and W matrices: 140722 - stage 49
 * Figure 4 connectivity graph: not sure
 

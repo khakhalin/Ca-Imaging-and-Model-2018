@@ -5,7 +5,7 @@ Ca imaging project – Scripts involved
 
 ## Main pipeline part 1: Data acquisition and transformation
 
-Typically, these programs should be run only once, and never be run again.
+Typically, these programs should only be run once, never to be run again.
 
 ### optic_stimulation_tool3
 
@@ -33,7 +33,7 @@ Batch connectivity reconstruction routine. Goes through mat files one by one (fi
 
 Formally it calculates selectivity for every cell, but in fact this selectivity was calculated in a very simplistic way that is now considered obsolete. So it needs to be recalculated (by caimaging_pca described below), and included into any analyses of graph from there; NOT from the file that contains the graph.
 
-Also builds a "mugshot" picture of each dataset, based on the timing of spiking, and PCA analysis. This functionality is deprecated however, and moved to caimaging_pca.
+Also builds a "mugshot" picture of each dataset, based on the timing of spiking, and PCA analysis. This functionality was later deprecated, moved to caimaging_pca, and much improved.
 
 The routine returns all matrices (te, corr, p) in the "direct", unflipped format, so w_ij is a connection from i to j. It means that G(w) makes sense, but to run a process on this matrix you'd have to flip it: s = w'*s.
 
